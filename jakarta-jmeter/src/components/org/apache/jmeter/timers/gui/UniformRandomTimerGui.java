@@ -52,37 +52,26 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
- 
 package org.apache.jmeter.timers.gui;
-
-import java.awt.Font;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import org.apache.jmeter.gui.*;
 import org.apache.jmeter.gui.util.FocusRequester;
+import org.apache.jmeter.gui.util.VerticalLayout;
+import org.apache.jmeter.timers.*;
+import org.apache.jmeter.util.*;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.timers.RandomTimer;
-import org.apache.jmeter.timers.UniformRandomTimer;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
 
-/**
- * Implementation of a uniform random timer.
+/****************************************
+ * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
- * @author    Michael Stover
- * @author <a href="mailto:seade@backstagetech.com.au">Scott Eade</a>
- * @version $Id: UniformRandomTimerGui.java,v 1.4 2003/01/10 13:59:50 seade Exp $
- */
+ *@author    Michael Stover
+ *@created   $Date: 2002/08/11 19:24:41 $
+ *@version   1.0
+ ***************************************/
+
 public class UniformRandomTimerGui extends AbstractTimerGui implements KeyListener
 {
 
@@ -95,54 +84,39 @@ public class UniformRandomTimerGui extends AbstractTimerGui implements KeyListen
 	private JTextField delayField;
 	private JTextField rangeField;
 
-	/**
-	 * No-arg constructor.
-	 */
+	/****************************************
+	 * !ToDo (Constructor description)
+	 ***************************************/
 	public UniformRandomTimerGui()
 	{
 		init();
 	}
 
-	/**
-	 * Handle an error.
+	/****************************************
+	 * !ToDo (Method description)
 	 *
-	 * @param e the Exception that was thrown.
-	 * @param thrower the JComponent that threw the Exception.
-	 */
+	 *@param e        !ToDo (Parameter description)
+	 *@param thrower  !ToDo (Parameter description)
+	 ***************************************/
 	public static void error(Exception e, JComponent thrower)
 	{
 		JOptionPane.showMessageDialog(thrower, e, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	/**
-	 * Get the title to display for this component.
-	 * 
-	 * @see org.apache.jmeter.gui.JMeterGUIComponent#getStaticLabel()
-	 */
 	public String getStaticLabel()
 	{
 		return JMeterUtils.getResString("uniform_timer_title");
 	}
 
-	/**
-	 * Create the test element underlying this GUI component.
-	 * 
-	 * @see org.apache.jmeter.gui.JMeterGUIComponent#createTestElement()
-	 */
 	public TestElement createTestElement()
 	{
 		RandomTimer timer = new UniformRandomTimer();
 		this.configureTestElement(timer);
-		timer.setDelay(delayField.getText());
+		timer.setDelay(Long.parseLong(delayField.getText()));
 		timer.setRange(Double.parseDouble(rangeField.getText()));
 		return timer;
 	}
 
-	/**
-	 * Configure this GUI component from the underlying TestElement.
-	 * 
-	 * @see org.apache.jmeter.gui.JMeterGUIComponent#configure(TestElement)
-	 */
 	public void configure(TestElement el)
 	{
 		super.configure(el);
@@ -150,16 +124,32 @@ public class UniformRandomTimerGui extends AbstractTimerGui implements KeyListen
 		rangeField.setText(el.getProperty(RandomTimer.RANGE).toString());
 	}
 
-	/**
-	 * Process a KeyEvent.
+
+	/****************************************
+	 * !ToDo (Method description)
 	 *
-	 * @param e the event to handle.
-	 */
+	 *@param e  !ToDo (Parameter description)
+	 ***************************************/
 	public void keyReleased(KeyEvent e)
 	{
 		String temp = e.getComponent().getName();
 
-		if (temp.equals(RANGE_FIELD))
+		if(temp.equals(DELAY_FIELD))
+		{
+			try
+			{
+				Long.parseLong(delayField.getText());
+			}
+			catch(NumberFormatException nfe)
+			{
+				if(delayField.getText().length() > 0)
+				{
+					JOptionPane.showMessageDialog(this, "You must enter a valid number",
+							"Invalid data", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		}
+		else if(temp.equals(RANGE_FIELD))
 		{
 			try
 			{
@@ -176,27 +166,20 @@ public class UniformRandomTimerGui extends AbstractTimerGui implements KeyListen
 		}
 	}
 
-	/**
-	 * Process a KeyEvent.
+	/****************************************
+	 * !ToDo (Method description)
 	 *
-	 * @param e the event to handle.
-	 */
-	public void keyPressed(KeyEvent e) 
-	{ 
-	}
+	 *@param e  !ToDo (Parameter description)
+	 ***************************************/
+	public void keyPressed(KeyEvent e) { }
 
-	/**
-	 * Process a KeyEvent.
+	/****************************************
+	 * !ToDo (Method description)
 	 *
-	 * @param e the event to handle.
-	 */
-	public void keyTyped(KeyEvent e) 
-	{ 
-	}
+	 *@param e  !ToDo (Parameter description)
+	 ***************************************/
+	public void keyTyped(KeyEvent e) { }
 
-	/**
-	 * Initialize this component.
-	 */
 	private void init()
 	{
 		this.setLayout(new VerticalLayout(5, VerticalLayout.LEFT, VerticalLayout.TOP));
@@ -240,7 +223,7 @@ public class UniformRandomTimerGui extends AbstractTimerGui implements KeyListen
 		JPanel avgDelayPanel = new JPanel();
 		JLabel delayLabel = new JLabel(JMeterUtils.getResString("uniform_timer_delay"));
 		avgDelayPanel.add(delayLabel);
-		delayField = new JTextField(20);
+		delayField = new JTextField(6);
 		delayField.setText(DEFAULT_DELAY);
 		delayField.setName(DELAY_FIELD);
 		delayField.addKeyListener(this);
@@ -252,5 +235,4 @@ public class UniformRandomTimerGui extends AbstractTimerGui implements KeyListen
 		// Set the initial focus to the range field
 		new FocusRequester(rangeField);
 	}
-	
 }

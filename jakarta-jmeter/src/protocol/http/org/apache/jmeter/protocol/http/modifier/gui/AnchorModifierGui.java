@@ -53,24 +53,24 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.http.modifier.gui;
-import java.awt.Font;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
-import org.apache.jmeter.config.gui.AbstractResponseBasedModifierGui;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
+import javax.swing.text.*;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.protocol.http.modifier.AnchorModifier;
-import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.jmeter.config.gui.AbstractResponseBasedModifierGui;
+import org.apache.jmeter.testelement.TestElement;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Kevin Hammond
- *@created   $Date: 2002/10/17 19:47:19 $
+ *@created   $Date: 2002/08/11 19:24:51 $
  *@version   1.0
  ***************************************/
 

@@ -52,43 +52,29 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */package org.apache.jmeter.gui.util;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.MenuElement;
-
-import org.apache.jmeter.gui.GuiPackage;
+import java.util.*;
+import javax.swing.*;
 import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.gui.action.ActionRouter;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.reflect.ClassFinder;
-import org.apache.jorphan.util.JOrphanUtils;
+import org.apache.jmeter.util.*;
+import org.apache.log4j.*;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/12/27 15:51:17 $
+ *@created   $Date: 2002/08/11 19:24:44 $
  *@version   1.0
  ***************************************/
 
 public class MenuFactory
 {
+	/****************************************
+	 * !ToDo (Field description)
+	 ***************************************/
+	public static Category catClass =
+			Category.getInstance(MenuFactory.class.getName());
 
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	/****************************************
 	 * !ToDo (Field description)
 	 ***************************************/
@@ -143,9 +129,7 @@ public class MenuFactory
 	private static JMenu insertControllerMenu;
 	static
 	{
-		try
-		{
-		String[] classesToSkip = JOrphanUtils.split(
+		String[] classesToSkip = JMeterUtils.split(
 				JMeterUtils.getPropDefault("not_in_menu", ""), ",");
 		for(int i = 0; i < classesToSkip.length; i++)
 		{
@@ -153,11 +137,6 @@ public class MenuFactory
 		}
 
 		initializeMenus();
-		}
-		catch(Throwable e)
-		{
-			log.error("",e);
-		}
 	}
 
 
@@ -193,7 +172,7 @@ public class MenuFactory
 		addSeparator(menu);
 		if(removable)
 		{
-			menu.add(makeMenuItem(JMeterUtils.getResString("remove"), "Remove","remove"));
+			menu.add(makeMenuItem(JMeterUtils.getResString("remove"), "Remove", JMeterUtils.getResString("remove")));
 		}
 		menu.add(makeMenuItem(JMeterUtils.getResString("cut"), "Cut", "Cut"));
 		menu.add(makeMenuItem(JMeterUtils.getResString("copy"), "Copy", "Copy"));
@@ -209,25 +188,8 @@ public class MenuFactory
 	public static void addFileMenu(JPopupMenu menu)
 	{
 		addSeparator(menu);
-		menu.add(makeMenuItem(JMeterUtils.getResString("open"), "Open", "open"));
-		menu.add(makeMenuItem(JMeterUtils.getResString("save"), "Save", "save_as"));
-		JMenuItem disabled = makeMenuItem(JMeterUtils.getResString("disable"),"Disable","disable");
-		JMenuItem enabled = makeMenuItem(JMeterUtils.getResString("enable"),"Enable","enable");
-		boolean isEnabled = GuiPackage.getInstance().getTreeListener().getCurrentNode().isEnabled();
-		if(isEnabled)
-		{
-			disabled.setEnabled(true);
-			enabled.setEnabled(false);
-		}
-		else
-		{
-			disabled.setEnabled(false);
-			enabled.setEnabled(true);
-		}
-		menu.add(enabled);
-		menu.add(disabled);
-		addSeparator(menu);
-		menu.add(makeMenuItem(JMeterUtils.getResString("help"),"Help","help"));
+		menu.add(makeMenuItem(JMeterUtils.getResString("open"), "Open", JMeterUtils.getResString("open")));
+		menu.add(makeMenuItem(JMeterUtils.getResString("save"), "Save", "save"));
 	}
 
 	/****************************************
@@ -425,9 +387,7 @@ public class MenuFactory
 	{
 		try
 		{
-			List guiClasses = ClassFinder.findClassesThatExtend(
-					JMeterUtils.getSearchPaths(),
-					new Class[]
+			List guiClasses = ClassFinder.findClassesThatExtend(new Class[]
 					{JMeterGUIComponent.class});
 			timers = new LinkedList();
 			controllers = new LinkedList();
@@ -451,16 +411,8 @@ public class MenuFactory
 			Iterator iter = guiClasses.iterator();
 			while(iter.hasNext())
 			{
-				JMeterGUIComponent item;
-				try
-				{
-					item = (JMeterGUIComponent)Class.forName(
+				JMeterGUIComponent item = (JMeterGUIComponent)Class.forName(
 						(String)iter.next()).newInstance();
-				}
-				catch(Throwable e)
-				{
-					continue;
-				}
 				if(elementsToSkip.contains(item.getClass().getName()) ||
 						elementsToSkip.contains(item.getStaticLabel()))
 				{
@@ -528,7 +480,7 @@ public class MenuFactory
 		}
 		catch(Exception e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 	}
 

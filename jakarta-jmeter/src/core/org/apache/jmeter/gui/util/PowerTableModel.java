@@ -1,11 +1,9 @@
 package org.apache.jmeter.gui.util;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
-
-import org.apache.jorphan.collections.Data;
+import org.apache.jmeter.util.Data;
 /**
  * @author mstover
  *
@@ -20,10 +18,6 @@ public class PowerTableModel extends DefaultTableModel {
 		model.setHeaders(headers);
 		columnClasses = cc;
 	}
-	
-	public PowerTableModel()
-	{
-	}
 
 	public void setRowValues(int row, Object[] values) {
 		model.setCurrentPos(row);
@@ -35,18 +29,6 @@ public class PowerTableModel extends DefaultTableModel {
 	public Data getData() {
 		return model;
 	}
-	
-	public void addNewColumn(String colName,Class colClass)
-	{
-		model.addHeader(colName);
-		Class[] newClasses = new Class[columnClasses.length+1];
-		System.arraycopy(columnClasses,0,newClasses,0,columnClasses.length);
-		newClasses[newClasses.length-1] = colClass;
-		columnClasses = newClasses;
-		Object defaultValue = createDefaultValue(columnClasses.length-1);
-		model.setColumnData(colName,defaultValue);
-		this.fireTableStructureChanged();
-	}
 
 	/****************************************
 		 * Description of the Method
@@ -57,23 +39,6 @@ public class PowerTableModel extends DefaultTableModel {
 		if (model.size() > row) {
 			model.removeRow(row);
 		}
-	}
-	
-	public void removeColumn(int col)
-	{
-		model.removeColumn(col);
-		this.fireTableStructureChanged();
-	}
-	
-	public void setColumnData(int col,List data)
-	{
-		model.setColumnData(col,data);
-	}
-	
-	
-	public List getColumnData(String colName)
-	{
-		return model.getColumnAsObjectArray(colName);
 	}
 	
 	public void clearData()

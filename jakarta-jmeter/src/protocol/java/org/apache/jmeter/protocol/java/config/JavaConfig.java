@@ -57,11 +57,10 @@ package org.apache.jmeter.protocol.java.config;
 import java.io.Serializable;
 
 import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.protocol.java.sampler.JavaSampler;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerClient;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.testelement.AbstractTestElement;
+import org.apache.log4j.Category;
 
 
 /**
@@ -70,15 +69,15 @@ import org.apache.log.Logger;
  * necessary for the Java protocol.
  *
  *@author     Brad Kiewel
- *@created    $Date: 2002/08/29 18:17:42 $
- *@version    $Revision: 1.4 $
+ *@created    $Date: 2002/08/11 19:24:52 $
+ *@version    $Revision: 1.1 $
  */
 
-public class JavaConfig extends ConfigTestElement implements Serializable
+public class JavaConfig extends AbstractTestElement implements Serializable
 {
 
 	/** Logging  */
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.protocol.java");
+	private static Category cat = Category.getInstance(JavaConfig.class);
 	
 	private transient JavaSamplerClient javaClient = null;
 

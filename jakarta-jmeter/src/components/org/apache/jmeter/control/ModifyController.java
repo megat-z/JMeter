@@ -61,6 +61,7 @@ import org.apache.jmeter.config.ResponseBasedModifier;
 import org.apache.jmeter.gui.JMeterComponentModel;
 import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.samplers.*;
+import org.apache.jmeter.util.ClassFinder;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.testelement.TestElement;
 
@@ -68,8 +69,8 @@ import org.apache.jmeter.testelement.TestElement;
  * !ToDo (Class description)
  *
  *@author    $Author: mstover1 $
- *@created   $Date: 2002/10/15 18:53:24 $
- *@version   $Revision: 1.2 $
+ *@created   $Date: 2002/08/11 19:24:40 $
+ *@version   $Revision: 1.1 $
  ***************************************/
 
 public class ModifyController extends GenericController implements SampleListener,

@@ -72,10 +72,5 @@ public class JMeterColor extends Color {
 	{
 		super(r,g,b);
 	}
-	
-	public JMeterColor()
-	{
-		super(0,0,0);
-	}
 
 }

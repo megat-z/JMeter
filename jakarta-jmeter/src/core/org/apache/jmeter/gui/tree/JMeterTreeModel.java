@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2002 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,43 +53,43 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.gui.tree;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.swing.tree.DefaultTreeModel;
-
-import org.apache.jmeter.config.gui.AbstractConfigGui;
+import java.util.*;
+import javax.swing.tree.*;
+import org.apache.jmeter.config.ConfigElement;
 import org.apache.jmeter.control.gui.TestPlanGui;
 import org.apache.jmeter.control.gui.WorkBenchGui;
-import org.apache.jmeter.exceptions.IllegalUserActionException;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.threads.gui.ThreadGroupGui;
 import org.apache.jmeter.gui.JMeterGUIComponent;
+import org.apache.jmeter.exceptions.IllegalUserActionException;
 import org.apache.jmeter.gui.NamePanel;
+import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.testelement.WorkBench;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
+import org.apache.jmeter.threads.ThreadGroup;
+import org.apache.jmeter.timers.Timer;
+import org.apache.jmeter.util.ListedHashTree;
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/12/31 18:05:54 $
+ *@created   $Date: 2002/08/11 19:24:44 $
  *@version   1.0
  ***************************************/
 
 public class JMeterTreeModel extends DefaultTreeModel
 {
+	private static ResourceBundle rb = ResourceBundle.getBundle("org.apache.jmeter.resources.messages");
 
 	/****************************************
 	 * !ToDo (Constructor description)
 	 ***************************************/
 	public JMeterTreeModel()
 	{
-		super(new JMeterTreeNode(new NamePanel(), null));
-		this.insertNodeInto(new JMeterTreeNode(new TestPlanGui(), this),
+		super(new JMeterTreeNode(new NamePanel()));
+		this.insertNodeInto(new JMeterTreeNode(new TestPlanGui()),
 				(JMeterTreeNode)getRoot(), 0);
-		this.insertNodeInto(new JMeterTreeNode(new WorkBenchGui(), this),
+		this.insertNodeInto(new JMeterTreeNode(new WorkBenchGui()),
 				(JMeterTreeNode)getRoot(), 1);
 	}
 
@@ -107,17 +107,15 @@ public class JMeterTreeModel extends DefaultTreeModel
 	}
 
 	/****************************************
-	 * Adds the sub tree at the given node.  Returns a boolean indicating
-	 * whether the added sub tree was a full test plan.
+	 * !ToDo
 	 *
 	 *@param subTree                         !ToDo
 	 *@param current                         !ToDo
 	 *@exception IllegalUserActionException  !ToDo (Exception description)
 	 ***************************************/
-	public boolean addSubTree(HashTree subTree, JMeterTreeNode current)
+	public void addSubTree(ListedHashTree subTree, JMeterTreeNode current)
 			 throws IllegalUserActionException
 	{
-		boolean ret = false;
 		Iterator iter = subTree.list().iterator();
 		while(iter.hasNext())
 		{
@@ -126,15 +124,13 @@ public class JMeterTreeModel extends DefaultTreeModel
 			{
 				current = (JMeterTreeNode)((JMeterTreeNode)getRoot()).getChildAt(0);
 				current.configure(item.createTestElement());
-				addSubTree(subTree.getTree(item), current);
-				ret = true;
+				addSubTree(subTree.get(item), current);
 			}
 			else
 			{
-				addSubTree(subTree.getTree(item), addComponent(item, current));
+				addSubTree(subTree.get(item), addComponent(item, current));
 			}
 		}
-		return ret;
 	}
 
 	/****************************************
@@ -148,11 +144,15 @@ public class JMeterTreeModel extends DefaultTreeModel
 	public JMeterTreeNode addComponent(Object component, JMeterTreeNode node)
 			 throws IllegalUserActionException
 	{
+		if((node.getUserObject() instanceof TestPlanGui) && !(component instanceof ThreadGroupGui))
+		{
+			throw new IllegalUserActionException("Only ThreadGroups can be added to Test Plan nodes");
+		}
 		if(node.getUserObject() instanceof AbstractConfigGui)
 		{
 			throw new IllegalUserActionException("This node cannot hold sub-elements");
 		}
-		JMeterTreeNode newNode = new JMeterTreeNode((JMeterGUIComponent)component, this);
+		JMeterTreeNode newNode = new JMeterTreeNode((JMeterGUIComponent)component);
 		this.insertNodeInto(newNode, node, node.getChildCount());
 		return newNode;
 	}
@@ -185,7 +185,7 @@ public class JMeterTreeModel extends DefaultTreeModel
 		}
 	}
 
-	public HashTree getCurrentSubTree(JMeterTreeNode node)
+	public ListedHashTree getCurrentSubTree(JMeterTreeNode node)
 	{
 		ListedHashTree hashTree = new ListedHashTree(node);
 		Enumeration enum = node.children();
@@ -197,18 +197,18 @@ public class JMeterTreeModel extends DefaultTreeModel
 		return hashTree;
 	}
 
-	public HashTree getTestPlan()
+	public ListedHashTree getTestPlan()
 	{
 		return getCurrentSubTree((JMeterTreeNode)((JMeterTreeNode)this.getRoot()).getChildAt(0));
 	}
-
+	
 	public void clearTestPlan()
 	{
 		super.removeNodeFromParent((JMeterTreeNode)getChild(getRoot(), 0));
-		this.insertNodeInto(new JMeterTreeNode(new TestPlanGui(), this),
+		this.insertNodeInto(new JMeterTreeNode(new TestPlanGui()),
 				(JMeterTreeNode)getRoot(), 0);
 		super.removeNodeFromParent((JMeterTreeNode)getChild(getRoot(), 1));
-		this.insertNodeInto(new JMeterTreeNode(new WorkBenchGui(), this),
+		this.insertNodeInto(new JMeterTreeNode(new WorkBenchGui()),
 				(JMeterTreeNode)getRoot(), 1);
 	}
 }

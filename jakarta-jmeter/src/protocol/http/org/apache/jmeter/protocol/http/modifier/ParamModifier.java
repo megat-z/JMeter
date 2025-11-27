@@ -1,14 +1,14 @@
 package org.apache.jmeter.protocol.http.modifier;
 
-import java.io.Serializable;
-import java.util.Iterator;
-
-import org.apache.jmeter.config.Argument;
-import org.apache.jmeter.config.Modifier;
-import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
-import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.testelement.AbstractTestElement;
-import org.apache.jmeter.testelement.TestListener;
+import org.apache.jmeter.samplers.Entry;
+import org.apache.jmeter.config.Modifier;
+import org.apache.jmeter.config.Argument;
+import org.apache.jmeter.samplers.Sampler;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  *  <P>
@@ -34,7 +34,7 @@ import org.apache.jmeter.testelement.TestListener;
  *@created    Jan 18, 2002
  *@see        ParamMask
  */
-public class ParamModifier extends AbstractTestElement implements TestListener,Modifier, Serializable
+public class ParamModifier extends AbstractTestElement implements Modifier, Serializable
 {
 
 	/*
@@ -65,24 +65,6 @@ public class ParamModifier extends AbstractTestElement implements TestListener,M
 	{
 		return (ParamMask)getProperty(MASK);
 	}
-	
-	public void testStarted()
-	{
-		getMask().resetValue();
-	}
-	
-	public void testStarted(String host)
-	{
-		getMask().resetValue();
-	}
-	
-	public void testEnded()
-	{
-	}
-	
-	public void testEnded(String host)
-	{
-	}	
 
 	/*
 	 *  ----------------------------------------------------------------------------------------------

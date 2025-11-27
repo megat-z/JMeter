@@ -58,9 +58,6 @@
 import java.io.Serializable;
 import java.util.Random;
 
-import org.apache.jmeter.testelement.ThreadListener;
-import org.apache.jmeter.threads.JMeterVariables;
-
 /**
  * @author Administrator
  *
@@ -69,49 +66,22 @@ import org.apache.jmeter.threads.JMeterVariables;
  */
 public class RandomController
 	extends InterleaveControl
-	implements Serializable,ThreadListener
+	implements Serializable 
 {
-	static Random rand = new Random();
+	Random rand;
 	
 	public RandomController()
 	{
-		
+		rand = new Random();
 	}
 	
 	protected void resetCurrent()
 	{
-		if(getSubControllers().size() > 0)
-		{
-			current = rand.nextInt(this.getSubControllers().size());
-		}
-		else
-		{
-			current = 0;
-		}
+		current = rand.nextInt(this.getSubControllers().size());
 	}
 	
 	protected void incrementCurrent()
 	{
-		setInterleave(NEW_STYLE);
 		current = rand.nextInt(this.getSubControllers().size());
 	}
-
-
-	/**
-	 * @see org.apache.jmeter.testelement.ThreadListener#iterationStarted(int)
-	 */
-	public void iterationStarted(int iterationCount)
-	{
-		if(iterationCount == 1)
-		{
-			resetCurrent();
-		}
-	}
-
-	/**
-	 * @see org.apache.jmeter.testelement.ThreadListener#setJMeterVariables(org.apache.jmeter.threads.JMeterVariables)
-	 */
-	public void setJMeterVariables(JMeterVariables jmVars)
-	{}
-
 }

@@ -53,28 +53,25 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.jdbc.config.gui;
-import java.awt.Font;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
-import org.apache.jmeter.config.ConfigTestElement;
-import org.apache.jmeter.config.gui.AbstractConfigGui;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
 import org.apache.jmeter.config.gui.LoginConfigGui;
-import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
-import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.gui.util.VerticalLayout;
+import org.apache.jmeter.protocol.jdbc.config.DbConfig;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
+import org.apache.jmeter.config.ConfigTestElement;
 
 /****************************************
  * Title: Description: Copyright: Copyright (c) 2001 Company:
  *
  *@author    Michael Stover
- *@created   $Date: 2002/10/17 19:47:20 $
+ *@created   $Date: 2002/08/11 19:24:53 $
  *@version   1.0
  ***************************************/
 

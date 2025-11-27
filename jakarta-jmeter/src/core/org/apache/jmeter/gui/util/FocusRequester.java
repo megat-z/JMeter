@@ -1,10 +1,8 @@
 package org.apache.jmeter.gui.util;
-import java.awt.Component;
-
-import javax.swing.SwingUtilities;
-
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
@@ -18,8 +16,6 @@ import org.apache.log.Logger;
 
 public class FocusRequester implements Runnable
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	private Component comp;
 
 	/****************************************
@@ -36,7 +32,7 @@ public class FocusRequester implements Runnable
 		}
 		catch(Exception e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 	}
 

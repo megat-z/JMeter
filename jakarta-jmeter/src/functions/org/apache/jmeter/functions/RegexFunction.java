@@ -1,6 +1,5 @@
 package org.apache.jmeter.functions;
 
-import java.io.Serializable;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -15,8 +14,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
@@ -33,9 +30,8 @@ import org.apache.oro.text.regex.Util;
  * To change this generated comment edit the template variable "typecomment":
  * Window>Preferences>Java>Templates.
  */
-public class RegexFunction extends AbstractFunction implements Serializable {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.elements");
+public class RegexFunction extends AbstractFunction {
+	
 	public static final String ALL = "ALL";
 	public static final String RAND = "RAND";
 	public static final String KEY = "__regexFunction";	
@@ -45,17 +41,8 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 	Pattern searchPattern;
 	Object[] template;
 	String valueIndex,defaultValue,between;
-	transient PatternCompiler compiler = new Perl5Compiler();
+	PatternCompiler compiler = new Perl5Compiler();
 	Pattern templatePattern;
-	private String name;
-	private static ThreadLocal localMatcher =
-				 new ThreadLocal()
-				 {
-					protected Object initialValue()
-					{
-						 return new Perl5Matcher();
-					}
-				 };
 	
 	static
 	{
@@ -64,7 +51,6 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 		desc.add(JMeterUtils.getResString("regexfunc_param_3"));
 		desc.add(JMeterUtils.getResString("regexfunc_param_4"));
 		desc.add(JMeterUtils.getResString("regexfunc_param_5"));
-		desc.add(JMeterUtils.getResString("function_name_param"));
 	}
 	
 	public RegexFunction()
@@ -72,7 +58,7 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 		try {
 			templatePattern = compiler.compile("\\$(\\d+)\\$");
 		} catch(MalformedPatternException e) {
-			log.error("",e);
+			e.printStackTrace();
 		}
 	}
 	
@@ -82,14 +68,13 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 	 */
 	public String execute(SampleResult previousResult,Sampler currentSampler) 
 	{
-		getVariables().put(name,defaultValue);
 		if(previousResult == null || previousResult.getResponseData() == null)
 		{
 			return defaultValue;
 		}
 		List collectAllMatches = new ArrayList();
 		try {
-			PatternMatcher matcher = (PatternMatcher)localMatcher.get();
+			PatternMatcher matcher = new Perl5Matcher();
 			String responseText = new String(previousResult.getResponseData());
 			PatternMatcherInput input = new PatternMatcherInput(responseText);
 			while(matcher.contains(input,searchPattern))
@@ -98,12 +83,7 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 				collectAllMatches.add(match);
 			}
 		} catch(NumberFormatException e) {
-			log.error("",e);
-			return defaultValue;
-		}
-		catch(Exception e)
-		{
-			return defaultValue;
+			e.printStackTrace();
 		}
 		if(collectAllMatches.size() == 0)
 		{
@@ -119,9 +99,6 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 				if(!first)
 				{
 					value.append(between);
-				}
-				else
-				{
 					first = false;
 				}
 				value.append(generateResult((MatchResult)it.next()));
@@ -130,37 +107,20 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 		}
 		else if(valueIndex.equals(RAND))
 		{
-			MatchResult result = (MatchResult)collectAllMatches.get(
-					rand.nextInt(collectAllMatches.size()));
-			return generateResult(result);
+			return generateResult((MatchResult)collectAllMatches.get(
+					rand.nextInt(collectAllMatches.size())));
 		}
 		else
 		{
 			try {
 				int index = Integer.parseInt(valueIndex) - 1;
-				MatchResult result = (MatchResult)collectAllMatches.get(index);
-				return generateResult(result);
+				return generateResult((MatchResult)collectAllMatches.get(index));
 			} catch(NumberFormatException e) {
 				float ratio = Float.parseFloat(valueIndex);
-				MatchResult result = (MatchResult)collectAllMatches.get(
-						(int)(collectAllMatches.size() * ratio + .5) - 1);
-				return generateResult(result);
-			}catch (IndexOutOfBoundsException e) {
-				 return defaultValue;
+				return generateResult((MatchResult)collectAllMatches.get(
+						(int)(collectAllMatches.size() * ratio + .5) - 1));
 			}
 		}			
-	}
-	
-	private void saveGroups(MatchResult result)
-	{
-		if(result != null)
-		{
-			JMeterVariables vars = getVariables();
-			for(int x = 0;x < result.groups();x++)
-			{
-				vars.put(name+"_g"+x,result.group(x));
-			}
-		}
 	}
 	
 	public List getArgumentDesc()
@@ -170,7 +130,6 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 	
 	private String generateResult(MatchResult match)
 	{
-		saveGroups(match);
 		StringBuffer result = new StringBuffer();
 		for(int a = 0;a < template.length;a++)
 		{
@@ -183,14 +142,16 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 				result.append(match.group(((Integer)template[a]).intValue()));
 			}
 		}
-		JMeterVariables vars = getVariables();
-		vars.put(name,result.toString());
 		return result.toString();
 	}
 	
 	public String getReferenceKey()
 	{
 		return KEY;
+	}
+	
+	public void setJMeterVariables(JMeterVariables xxx)
+	{
 	}
 	
 	public void setParameters(String params) throws InvalidVariableException
@@ -215,12 +176,8 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 			{
 				defaultValue = (String)tk.next();
 			}
-			if(tk.hasNext())
-			{
-				name = (String)tk.next();
-			}
 		} catch(MalformedPatternException e) {
-				log.error("",e);
+				e.printStackTrace();
 				throw new InvalidVariableException("Bad regex pattern");
 		}
 		catch(Exception e)
@@ -272,7 +229,7 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 			Pattern pattern = compiler.compile("^\\$\\d+\\$");
 			return new Perl5Matcher().contains(rawData,pattern);
 		} catch(MalformedPatternException e) {
-			log.error("",e);
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -306,7 +263,7 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 		public void testVariableExtraction() throws Exception
 		{
 			variable.setParameters(URLEncoder.encode("<value field=\"(pinposition\\d+)\">(\\d+)</value>")+",$2$,2");
-			variable.setJMeterVariables(new JMeterVariables());
+			
 			String match = variable.execute(result,null);
 			assertEquals("5",match);			
 		}
@@ -314,31 +271,13 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 		public void testVariableExtraction2() throws Exception
 		{
 			variable.setParameters(URLEncoder.encode("<value field=\"(pinposition\\d+)\">(\\d+)</value>")+",$1$,3");
-			variable.setJMeterVariables(new JMeterVariables());
 			String match = variable.execute(result,null);
 			assertEquals("pinposition3",match);			
 		}
 		
-		public void testVariableExtraction5() throws Exception
-		{
-			variable.setParameters(URLEncoder.encode("<value field=\"(pinposition\\d+)\">(\\d+)</value>")+",$1$,ALL,_");
-			variable.setJMeterVariables(new JMeterVariables());
-			String match = variable.execute(result,null);
-			assertEquals("pinposition1_pinposition2_pinposition3",match);			
-		}
-		
-		public void testVariableExtraction6() throws Exception
-				{
-					variable.setParameters(URLEncoder.encode("<value field=\"(pinposition\\d+)\">(\\d+)</value>")+",$2$,4,,default");
-					variable.setJMeterVariables(new JMeterVariables());
-					String match = variable.execute(result,null);
-					assertEquals("default",match);			
-				}
-		
 		public void testComma() throws Exception
 		{
 			variable.setParameters(URLEncoder.encode("<value,? field=\"(pinposition\\d+)\">(\\d+)</value>")+",$1$,3");
-			variable.setJMeterVariables(new JMeterVariables());
 			String match = variable.execute(result,null);
 			assertEquals("pinposition3",match);			
 		}
@@ -347,7 +286,6 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 		{
 			variable.setParameters(URLEncoder.encode("<value field=\"(pinposition\\d+)\">(\\d+)</value>")+
 					",_$1$,.5");
-			variable.setJMeterVariables(new JMeterVariables());
 			String match = variable.execute(result,null);
 			assertEquals("_pinposition2",match);			
 		}
@@ -357,7 +295,6 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 			variable.setParameters(URLEncoder.encode(
 					"<value field=\"(pinposition\\d+)\">(\\d+)</value>")+","+URLEncoder.encode("$2$, ")+
 					",.333");
-			variable.setJMeterVariables(new JMeterVariables());
 			
 			String match = variable.execute(result,null);
 			assertEquals("1, ",match);			
@@ -368,7 +305,6 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 			variable.setParameters(URLEncoder.encode(
 					"<value,, field=\"(pinposition\\d+)\">(\\d+)</value>")+","+URLEncoder.encode("$2$, ")+
 					",.333,,No Value Found");
-			variable.setJMeterVariables(new JMeterVariables());
 			
 			String match = variable.execute(result,null);
 			assertEquals("No Value Found",match);			

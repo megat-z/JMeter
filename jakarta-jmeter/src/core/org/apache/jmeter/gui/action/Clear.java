@@ -55,29 +55,24 @@
 package org.apache.jmeter.gui.action;
 
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+import java.lang.reflect.*;
 
-import org.apache.jmeter.gui.GuiPackage;
-import org.apache.jmeter.gui.JMeterGUIComponent;
-import org.apache.jmeter.gui.tree.JMeterTreeNode;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.gui.tree.*;
 import org.apache.jmeter.samplers.Clearable;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /************************************************************
  *  Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author     Michael Stover
- *@created    $Date: 2002/08/29 18:17:38 $
+ *@created    $Date: 2002/08/11 19:24:44 $
  *@version    1.0
  ***********************************************************/
 
 public class Clear implements Command
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
+
 	public final static String CLEAR = "action.clear";
 	public final static String CLEAR_ALL = "action.clear_all";
 
@@ -117,7 +112,7 @@ public class Clear implements Command
 			}
 			catch (Throwable ex)
 			{
-				log.error("",ex);
+				ex.printStackTrace();
 			}
 		}
 		else
@@ -132,7 +127,7 @@ public class Clear implements Command
 				}
 				catch (Exception ex)
 				{
-					log.error("",ex);
+					ex.printStackTrace();
 				}
 			}
 		}

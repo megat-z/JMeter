@@ -54,16 +54,8 @@
  */
 
 package org.apache.jmeter.protocol.jdbc.util;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Hashtable;
-import java.util.Iterator;
-
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import java.sql.*;
+import java.util.*;
 
 /*****************************************************************
  This class manages a pool of Connection objects (ConnectionObject).  This
@@ -77,8 +69,6 @@ import org.apache.log.Logger;
  *****************************************************************/
 public class DBConnectionManager
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.protocol.jdbc");
   int absoluteMaxConnections=100;
   long accessInterval=1800000;
   Hashtable connections;
@@ -171,7 +161,7 @@ Constructor.
 		  maxConnections=absoluteMaxConnections;
 		  key.setMaxConnections(maxConnections);
 		}
-	 }catch(Exception e){log.error("",e);
+	 }catch(Exception e){e.printStackTrace();
 		maxConnections=1;}
 	 connectionArray=new ConnectionObject[maxConnections];
 	 int count=-1;
@@ -230,7 +220,7 @@ Constructor.
 	 }
 	 else
 	 {
-		log.warn("DBConnectionManager: Lost a connection connection='"+c);
+		System.out.println("DBConnectionManager: Lost a connection connection='"+c+"'\r\n");
 		c=null;
 	 }
   } // End Method
@@ -273,7 +263,7 @@ Registers a driver for a database.
   {
 	 try{
 		DriverManager.registerDriver((Driver)Class.forName(driver).newInstance());
-	 }catch(Exception e){log.error("",e); return false;}
+	 }catch(Exception e){e.printStackTrace(); return false;}
 	 return true;
   }
 
@@ -289,7 +279,7 @@ Registers a driver for a database.
 	 {
 		DatabaseMetaData dmd=connection[counter].getCon().getMetaData();
 		int cons=dmd.getMaxConnections();
-	 }catch(SQLException e){connected=false;log.error("",e);}
+	 }catch(SQLException e){connected=false;e.printStackTrace();}
 
 	 return connected;
   }  //end of method      */

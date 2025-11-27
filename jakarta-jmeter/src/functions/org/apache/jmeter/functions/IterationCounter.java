@@ -1,12 +1,12 @@
 package org.apache.jmeter.functions;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
+import org.apache.jmeter.testelement.PerThreadClonable;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.JMeterUtils;
 
@@ -18,8 +18,9 @@ import org.apache.jmeter.util.JMeterUtils;
  * To enable and disable the creation of type comments go to
  * Window>Preferences>Java>Code Generation.
  */
-public class IterationCounter extends AbstractFunction implements Serializable
+public class IterationCounter extends AbstractFunction
 {
+	private JMeterVariables vars;
 	private static int counter;
 	private static final List desc = new LinkedList();
 	private boolean perThread = true;
@@ -27,16 +28,13 @@ public class IterationCounter extends AbstractFunction implements Serializable
 	static
 	{
 		desc.add(JMeterUtils.getResString("iteration_counter_arg_1"));
-		desc.add(JMeterUtils.getResString("function_name_param"));
 	}
 	
 	private static final String KEY = "__counter";
-	private String trueCount;
-	private String falseCount;
 	
 	public IterationCounter()
 	{
-		counter = 0;
+		counter = 1;
 	}
 	
 	public Object clone()
@@ -48,22 +46,15 @@ public class IterationCounter extends AbstractFunction implements Serializable
 	/**
 	 * @see org.apache.jmeter.functions.Function#execute(SampleResult, Sampler)
 	 */
-	public synchronized String execute(SampleResult previousResult, Sampler currentSampler)
+	public String execute(SampleResult previousResult, Sampler currentSampler)
 		throws InvalidVariableException {
-		counter++;
-		JMeterVariables vars = getVariables();
-		String falseCounterString = Integer.toString(counter);
-		String trueCounterString = Integer.toString(vars.getIteration());
-		vars.put(trueCount,trueCounterString);
-		vars.put(falseCount,falseCounterString);
-		
 		if(perThread)
 		{
-			return trueCounterString;
+			return Integer.toString(vars.getIteration());
 		}
 		else
 		{
-			return falseCounterString;
+			return Integer.toString(counter++);
 		}
 	}
 
@@ -75,11 +66,6 @@ public class IterationCounter extends AbstractFunction implements Serializable
 			Collection params = this.parseArguments(parameters);
 			String[] values = (String[])params.toArray(new String[0]);
 			perThread = new Boolean(values[0]).booleanValue();
-			if(values.length > 1)
-			{
-				trueCount = values[1]+"_true";
-				falseCount = values[1]+"_false";
-			}
 	}
 
 	/**
@@ -94,6 +80,16 @@ public class IterationCounter extends AbstractFunction implements Serializable
 	 */
 	public List getArgumentDesc() {
 		return desc;
+	}
+
+	/**
+	 * @see org.apache.jmeter.functions.Function#setJMeterVariables(JMeterVariables)
+	 */
+	public void setJMeterVariables(JMeterVariables jmv) {
+		if(vars == null)
+		{
+			vars = jmv;
+		}
 	}
 
 }

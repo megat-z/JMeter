@@ -2,7 +2,7 @@
  *  ====================================================================
  *  The Apache Software License, Version 1.1
  *
- *  Copyright  (c) 2001-2003 The Apache Software Foundation.  All rights
+ *  Copyright (c) 2001 The Apache Software Foundation.  All rights
  *  reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,6 @@
  *  <http://www.apache.org/>.
  */
 package org.apache.jmeter.reporters;
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,8 +62,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,362 +83,351 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestListener;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.io.TextFile;
+import org.apache.jmeter.util.TextFile;
 import org.xml.sax.SAXException;
 
 /**
- * Title: Description: Copyright: Copyright (c) 2001 Company:
+ *  Title: Description: Copyright: Copyright (c) 2001 Company:
  *
- * @author Michael Stover
- * @version $Id: ResultCollector.java,v 1.10 2003/01/27 06:01:04 seade Exp $
+ *@author     Michael Stover
+ *@created    $Date: 2002/08/11 19:24:47 $
+ *@version    1.0
  */
-public class ResultCollector
-    extends AbstractListenerElement
-    implements SampleListener, Clearable, Serializable, TestListener, Remoteable
+
+public class ResultCollector extends AbstractListenerElement implements SampleListener, Clearable,
+		Serializable,TestListener,Remoteable
 {
-    transient private static Logger log =
-        Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.elements");
-    private final static String COLLECTED = "collected";
-    public final static String FILENAME = "filename";
-    private static boolean functionalMode = false;
-    public static final String ERROR_LOGGING = "ResultCollector.error_logging";
+	private final static String COLLECTED = "collected";
+	public final static String FILENAME = "filename";
+	private static boolean functionalMode = false;
 
-    //protected List results = Collections.synchronizedList(new ArrayList());
-    private int current;
-    transient private DefaultConfigurationSerializer serializer;
-    private boolean inLoading = false;
-    transient private PrintWriter out;
-    private boolean inTest = false;
-    private static Map files = new HashMap();
-    private Set hosts = new HashSet();
+	/**
+	 *  !ToDo (Field description)
+	 */
+	//protected List results = Collections.synchronizedList(new ArrayList());
+	private int current;
+	private DefaultConfigurationSerializer serializer;
+	private boolean inLoading = false;
+	private PrintWriter out;
+	private boolean inTest = false;
+	private static Map files = new HashMap();
+	private Set hosts = new HashSet();
+	
 
-    /**
-     * No-arg constructor.
-     */
-    public ResultCollector()
-    {
-        current = -1;
-        serializer = new DefaultConfigurationSerializer();
-        setErrorLogging(false);
-    }
+	/**
+	 *  !ToDo (Constructor description)
+	 */
+	public ResultCollector()
+	{
+		current = -1;
+		serializer = new DefaultConfigurationSerializer();
+	}
+	
+	private void setFilenameProperty(String f)
+	{
+		setProperty(FILENAME,f);
+	}
+	
+	public String getFilename()
+	{
+		return getPropertyAsString(FILENAME);
+	}
 
-    private void setFilenameProperty(String f)
-    {
-        setProperty(FILENAME, f);
-    }
+	/**
+	 *  Sets the filename attribute of the ResultCollector object
+	 *
+	 *@param  f  The new filename value`
+	 */
+	public void setFilename(String f) throws IOException,IllegalUserActionException
+	{
+		if(inTest)
+		{
+			throw new IllegalUserActionException(JMeterUtils.getResString("busy_testing"));
+		}
+		try
+		{
+			setFilenameProperty(f);
+			loadExistingFile();
+		}
+		catch(SAXException e)
+		{
+			e.printStackTrace();
+			throw new IOException("File "+f+" was improperly formatted");
+		}
+		catch(ConfigurationException e)
+		{
+			throw new IOException("File "+f+" was improperly formatted");
+		}
+	}
+	
+	public void testEnded(String host)
+	{
+		hosts.remove(host);
+		if(hosts.size() == 0)
+		{
+			finalizeFileOutput();
+			inTest = false;
+		}
+	}
+	
+	public void testStarted(String host)
+	{
+		hosts.add(host);
+		try {
+			initializeFileOutput();
+		} catch(Exception e) {
+			e.printStackTrace();
+		} 
+		inTest = true;
+	}
+	
+	public void testEnded()
+	{
+		testEnded("local");
+	}
+	
+	public void testStarted()
+	{
+		testStarted("local");		
+	}
 
-    public String getFilename()
-    {
-        return getPropertyAsString(FILENAME);
-    }
+	public void loadExistingFile()
+		throws SAXException, IOException, ConfigurationException {
+			inLoading = true;
+		if(new File(getFilename()).exists())
+		{
+			clear();
+			try {
+				Configuration savedSamples = getConfiguration(getFilename());
+				readSamples(savedSamples);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		inLoading = false;
+	}
 
-    public boolean isErrorLogging()
-    {
-        return getPropertyAsBoolean(ERROR_LOGGING);
-    }
+	/**
+	 *  Description of the Method
+	 */
+	private static void writeFileStart(PrintWriter writer)
+	{		
+			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+			writer.println("<testResults>");
+	}
 
-    public void setErrorLogging(boolean errorLogging)
-    {
-        setProperty(ERROR_LOGGING, new Boolean(errorLogging));
-    }
+	/**
+	 *  Description of the Method
+	 */
+	private void writeFileEnd()
+	{
+		out.print("</testResults>");
+	}
+	
+	private static synchronized PrintWriter getFileWriter(String filename) throws IOException
+	{
+		PrintWriter writer = (PrintWriter)files.get(filename);
+		boolean trimmed = true;
+		if(writer == null)
+		{
+			trimmed = trimLastLine(filename);
+			writer = new PrintWriter(new OutputStreamWriter(
+					new BufferedOutputStream(new FileOutputStream(
+					filename,trimmed)),"UTF-8"));
+			files.put(filename,writer);
+		}
+		if(!trimmed)
+		{
+			writeFileStart(writer);
+		}
+		return writer;
+	}
+	
+	private static boolean trimLastLine(String filename)
+	{
+		try
+		{
+			TextFile text = new TextFile(filename);
+			String xml = text.getText();
+			xml = xml.substring(0,xml.indexOf("</testResults>"));
+			text.setText(xml);
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public static void enableFunctionalMode(boolean mode)
+	{
+		functionalMode = mode;
+	}
 
-    /**
-     * Sets the filename attribute of the ResultCollector object
-     *
-     * @param f The new filename value.
-     */
-    public void setFilename(String f) throws IOException, IllegalUserActionException
-    {
-        if (inTest)
-        {
-            throw new IllegalUserActionException(JMeterUtils.getResString("busy_testing"));
-        }
-        try
-        {
-            setFilenameProperty(f);
-            loadExistingFile();
-        }
-        catch (SAXException e)
-        {
-            log.error("", e);
-            throw new IOException("File " + f + " was improperly formatted");
-        }
-        catch (ConfigurationException e)
-        {
-            throw new IOException("File " + f + " was improperly formatted");
-        }
-    }
+	/**
+	 *  Gets the serializedSampleResult attribute of the ResultCollector object
+	 *
+	 *@param  result  Description of the Parameter
+	 *@return         The serializedSampleResult value
+	 */
+	private String getSerializedSampleResult(SampleResult result) throws SAXException,
+			IOException,ConfigurationException
+	{
+		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
+		serializer.serialize(tempOut, SaveService.getConfiguration(result,functionalMode));
+		String serVer = tempOut.toString();
+		return serVer.substring(serVer.indexOf(System.getProperty("line.separator")));
+	}
 
-    public void testEnded(String host)
-    {
-        hosts.remove(host);
-        if (hosts.size() == 0)
-        {
-            finalizeFileOutput();
-            inTest = false;
-        }
-    }
+	/**
+	 *  Description of the Method
+	 *
+	 *@param  testResults  Description of the Parameter
+	 */
+	private void readSamples(Configuration testResults) throws
+			IOException,SAXException,ConfigurationException
+	{
+		Configuration[] samples = testResults.getChildren();
+		for(int i = 0; i < samples.length; i++)
+		{
+			SampleResult result = SaveService.getSampleResult(samples[i]);
+			sendToVisualizer(result);
+			recordResult(result);
+		}
+	}
 
-    public void testStarted(String host)
-    {
-        hosts.add(host);
-        try
-        {
-            initializeFileOutput();
-        }
-        catch (Exception e)
-        {
-            log.error("", e);
-        }
-        inTest = true;
-    }
+	/**
+	 *  Gets the configuration attribute of the ResultCollector object
+	 *
+	 *@param  filename  Description of the Parameter
+	 *@return           The configuration value
+	 */
+	private Configuration getConfiguration(String filename) throws SAXException,
+			IOException,ConfigurationException
+	{
+		DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+		return builder.buildFromFile(filename);
+	}
 
-    public void testEnded()
-    {
-        testEnded("local");
-    }
+	/**
+	 *  !ToDo (Method description)
+	 */
+	public void clear()
+	{
+		current = -1;
+		if(getVisualizer() != null && getVisualizer() instanceof Clearable)
+		{
+			((Clearable)getVisualizer()).clear();
+		}
+		finalizeFileOutput();
+	}
 
-    public void testStarted()
-    {
-        testStarted("local");
-    }
+	/**
+	 *  !ToDo (Method description)
+	 *
+	 *@param  l  !ToDo (Parameter description)
+	 */
+	public void setListener(Object l) { }
 
-    public void loadExistingFile() throws SAXException, IOException, ConfigurationException
-    {
-        inLoading = true;
-        if (new File(getFilename()).exists())
-        {
-            clear();
-            try
-            {
-                Configuration savedSamples = getConfiguration(getFilename());
-                readSamples(savedSamples);
-            }
-            catch (Exception e)
-            {
-                log.error("", e);
-            }
-        }
-        inLoading = false;
-    }
+	
 
-    private static void writeFileStart(PrintWriter writer)
-    {
-        writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        writer.println("<testResults>");
-    }
+	/**
+	 *  !ToDo (Method description)
+	 *
+	 *@param  e  !ToDo (Parameter description)
+	 */
+	public void sampleStarted(SampleEvent e) { }
 
-    private void writeFileEnd()
-    {
-        out.print("</testResults>");
-    }
+	/**
+	 *  !ToDo (Method description)
+	 *
+	 *@param  e  !ToDo (Parameter description)
+	 */
+	public void sampleStopped(SampleEvent e) { }
 
-    private static synchronized PrintWriter getFileWriter(String filename) throws IOException
-    {
-        if (filename == null || filename.length() == 0)
-        {
-            return null;
-        }
-        PrintWriter writer = (PrintWriter) files.get(filename);
-        boolean trimmed = true;
-        if (writer == null)
-        {
-            trimmed = trimLastLine(filename);
-            writer =
-                new PrintWriter(
-                    new OutputStreamWriter(
-                        new BufferedOutputStream(new FileOutputStream(filename, trimmed)),
-                        "UTF-8"));
-            files.put(filename, writer);
-        }
-        if (!trimmed)
-        {
-            writeFileStart(writer);
-        }
-        return writer;
-    }
+	/**
+	 *  !ToDo (Method description)
+	 *
+	 *@param  e  !ToDo (Parameter description)
+	 */
+	public void sampleOccurred(SampleEvent e)
+	{
+		sendToVisualizer(e.getResult());
+		try
+		{
+			recordResult(e.getResult());
+		}
+		catch(Exception err)
+		{
+			err.printStackTrace(); //should throw exception back to caller
+		}
+	}
 
-    private static boolean trimLastLine(String filename)
-    {
-        try
-        {
-            TextFile text = new TextFile(filename);
-            if (!text.exists())
-            {
-                return false;
-            }
-            String xml = text.getText();
-            xml = xml.substring(0, xml.indexOf("</testResults>"));
-            text.setText(xml);
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-        return true;
-    }
+	protected void sendToVisualizer(SampleResult r) {
+		if(getVisualizer() != null)
+		{
+			getVisualizer().add(r);
+		}
+	}
 
-    public static void enableFunctionalMode(boolean mode)
-    {
-        functionalMode = mode;
-    }
+	/**
+	 *  Description of the Method
+	 *
+	 *@param  result  Description of the Parameter
+	 */
+	private void recordResult(SampleResult result) throws SAXException,IOException,
+			ConfigurationException
+	{
+		if(out != null)
+		{
+			if(!isResultMarked(result))
+			{
+				out.print(getSerializedSampleResult(result));
+			}
+		}
+	}
+	
+	private synchronized boolean isResultMarked(SampleResult res)
+	{
+		boolean marked = res.isMarked(getFilename());
+		if(!marked)
+		{
+			res.setMarked(getFilename());
+		}
+		return marked;
+	}
 
-    public boolean getFunctionalMode()
-    {
-        return functionalMode || isErrorLogging();
-    }
+	private void initializeFileOutput() throws IOException,
+			ConfigurationException,SAXException
+	{
+		
+		if(out == null && getFilename() != null)
+		{
+			if(out == null)
+			{
+				try
+				{
+					out = getFileWriter(getFilename());
+				}
+				catch(FileNotFoundException e)
+				{
+					out = null;
+				}
+			}
+		}
+	}
 
-    /**
-     * Gets the serializedSampleResult attribute of the ResultCollector object
-     *
-     * @param result Description of the Parameter
-     * @return The serializedSampleResult value
-     */
-    private String getSerializedSampleResult(SampleResult result)
-        throws SAXException, IOException, ConfigurationException
-    {
-        ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
-        serializer.serialize(tempOut, SaveService.getConfiguration(result, getFunctionalMode()));
-        String serVer = tempOut.toString();
-        return serVer.substring(serVer.indexOf(System.getProperty("line.separator")));
-    }
-
-    /**
-     * Description of the Method
-     *
-     * @param testResults Description of the Parameter
-     */
-    private void readSamples(Configuration testResults)
-        throws IOException, SAXException, ConfigurationException
-    {
-        Configuration[] samples = testResults.getChildren();
-        for (int i = 0; i < samples.length; i++)
-        {
-            SampleResult result = SaveService.getSampleResult(samples[i]);
-            sendToVisualizer(result);
-            recordResult(result);
-        }
-    }
-
-    /**
-     * Gets the configuration attribute of the ResultCollector object
-     *
-     * @param filename Description of the Parameter
-     * @return The configuration value
-     */
-    private Configuration getConfiguration(String filename)
-        throws SAXException, IOException, ConfigurationException
-    {
-        DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
-        return builder.buildFromFile(filename);
-    }
-
-    public void clear()
-    {
-        current = -1;
-        if (getVisualizer() != null && getVisualizer() instanceof Clearable)
-        {
-            ((Clearable) getVisualizer()).clear();
-        }
-        finalizeFileOutput();
-    }
-
-    public void setListener(Object l)
-    {
-    }
-
-    public void sampleStarted(SampleEvent e)
-    {
-    }
-
-    public void sampleStopped(SampleEvent e)
-    {
-    }
-
-    public void sampleOccurred(SampleEvent e)
-    {
-        if (!isErrorLogging() || !e.getResult().isSuccessful())
-        {
-            sendToVisualizer(e.getResult());
-            try
-            {
-                recordResult(e.getResult());
-            }
-            catch (Exception err)
-            {
-                log.error("", err); //should throw exception back to caller
-            }
-        }
-    }
-
-    protected void sendToVisualizer(SampleResult r)
-    {
-        if (getVisualizer() != null)
-        {
-            getVisualizer().add(r);
-        }
-    }
-
-    /**
-     * Description of the Method
-     *
-     * @param result Description of the Parameter
-     */
-    private void recordResult(SampleResult result)
-        throws SAXException, IOException, ConfigurationException
-    {
-        if (out != null)
-        {
-            if (!isResultMarked(result))
-            {
-                out.print(getSerializedSampleResult(result));
-            }
-        }
-    }
-
-    private synchronized boolean isResultMarked(SampleResult res)
-    {
-        boolean marked = res.isMarked(getFilename());
-        if (!marked)
-        {
-            res.setMarked(getFilename());
-        }
-        return marked;
-    }
-
-    private void initializeFileOutput() throws IOException, ConfigurationException, SAXException
-    {
-
-        if (out == null && getFilename() != null)
-        {
-            if (out == null)
-            {
-                try
-                {
-                    out = getFileWriter(getFilename());
-                }
-                catch (FileNotFoundException e)
-                {
-                    out = null;
-                }
-            }
-        }
-    }
-
-    /**
-     * Description of the Method
-     */
-    private synchronized void finalizeFileOutput()
-    {
-        if (out != null)
-        {
-            writeFileEnd();
-            out.close();
-            files.remove(getFilename());
-            out = null;
-        }
-    }
-    
+	/**
+	 *  Description of the Method
+	 */
+	private synchronized void finalizeFileOutput()
+	{
+		if(out != null)
+		{
+			writeFileEnd();
+			out.close();
+			files.remove(getFilename());
+			out = null;
+		}
+	}
 }

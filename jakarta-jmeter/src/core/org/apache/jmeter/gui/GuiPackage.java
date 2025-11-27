@@ -54,20 +54,17 @@
  */
  package org.apache.jmeter.gui;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.jmeter.exceptions.IllegalUserActionException;
-import org.apache.jmeter.functions.ValueReplacer;
 import org.apache.jmeter.gui.tree.JMeterTreeListener;
 import org.apache.jmeter.gui.tree.JMeterTreeModel;
-import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jorphan.collections.HashTree;
+import org.apache.jmeter.samplers.Remoteable;
+import org.apache.jmeter.testelement.TestListener;
+import org.apache.jmeter.util.ListedHashTree;
 
 /**
- * GuiPackage is a static class that provides convenient access to information about the 
- * current state of JMeter's GUI.  Any GUI class can grab a handle to GuiPackage by 
- * calling the static method 'getInstance()' and then use it to query the GUI about
- * it's state.  When actions, for instance, need to affect the GUI, they
- * typically use GuiPackage to get access to different parts of the GUI.
- * 
  * Title:        JMeter
  * Description:
  * Copyright:    Copyright (c) 2000
@@ -82,8 +79,6 @@ public class GuiPackage
 	private static GuiPackage guiPack;
 	private boolean dirty = false;
 
-	/**
-	 * GuiPackage is a Singleton class.	 * @see java.lang.Object#Object()	 */
 	private GuiPackage()
 	{
 	}
@@ -92,9 +87,6 @@ public class GuiPackage
 	private org.apache.jmeter.gui.MainFrame mainFrame;
 	private org.apache.jmeter.gui.tree.JMeterTreeListener treeListener;
 
-	/**
-	 * When GuiPackage is requested for the first time, it should be given handles to
-	 * JMeter's Tree Listener and TreeModel.  	 * @param listener The TreeListener for JMeter's test tree.	 * @param treeModel The model for JMeter's test tree.	 * @return GuiPackage	 */
 	public static GuiPackage getInstance(JMeterTreeListener listener,
 							JMeterTreeModel treeModel)
 	{
@@ -107,29 +99,22 @@ public class GuiPackage
 		return guiPack;
 	}
 
-	/**
-	 * The dirty property is a flag that indicates whether there are parts of JMeter's test tree
-	 * that the user has not saved since last modification.  Various (@link Command actions) set
-	 * this property when components are modified/created/saved.	 * @param d	 */
 	public void setDirty(boolean d)
 	{
 		dirty = d;
 	}
 
-	/**
-	 * Retrieves the state of the 'dirty' property, a flag that indicates if there are test
-	 * tree components that have been modified since they were last saved.	 * @return boolean	 */
 	public boolean isDirty()
 	{
 		return dirty;
 	}
 
-	public boolean addSubTree(HashTree subTree) throws IllegalUserActionException
+	public void addSubTree(ListedHashTree subTree) throws IllegalUserActionException
 	{
-		return treeModel.addSubTree(subTree,treeListener.getCurrentNode());
+		treeModel.addSubTree(subTree,treeListener.getCurrentNode());
 	}
 
-	public HashTree getCurrentSubTree()
+	public ListedHashTree getCurrentSubTree()
 	{
 		return treeModel.getCurrentSubTree(treeListener.getCurrentNode());
 	}
@@ -142,15 +127,6 @@ public class GuiPackage
 	public JMeterTreeModel getTreeModel()
 	{
 		return treeModel;
-	}
-	
-	public ValueReplacer getReplacer()
-	{
-		ValueReplacer replacer = new ValueReplacer(
-				((TestPlan)((JMeterGUIComponent)
-				getTreeModel().getTestPlan().getArray()
-				[0]).createTestElement()).getUserDefinedVariables());
-		return replacer;
 	}
 
 	public void setTreeModel(JMeterTreeModel newTreeModel)

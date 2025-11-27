@@ -1,7 +1,7 @@
-/JMeter.java/1.8/Sat Jan 11 11:21:07 2003//Tv1_8_1
-/NewDriver.java/1.3/Tue Oct 15 18:53:26 2002//Tv1_8_1
-/ProxyAuthenticator.java/1.1/Sun Aug 11 19:24:42 2002//Tv1_8_1
-/help.txt/1.1/Sun Aug 11 19:24:42 2002//Tv1_8_1
+/JMeter.java/1.1/Sun Aug 11 19:24:42 2002//Tv1_7_3
+/NewDriver.java/1.1/Sun Aug 11 19:24:42 2002//Tv1_7_3
+/ProxyAuthenticator.java/1.1/Sun Aug 11 19:24:42 2002//Tv1_7_3
+/help.txt/1.1/Sun Aug 11 19:24:42 2002//Tv1_7_3
 D/assertions////
 D/config////
 D/control////
@@ -11,12 +11,10 @@ D/functions////
 D/gui////
 D/images////
 D/junit////
-D/plugin////
 D/reporters////
 D/resources////
 D/samplers////
 D/save////
-D/swing////
 D/testelement////
 D/threads////
 D/timers////

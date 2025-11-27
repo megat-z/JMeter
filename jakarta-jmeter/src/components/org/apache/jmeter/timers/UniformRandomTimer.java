@@ -55,7 +55,8 @@
 
 package org.apache.jmeter.timers;
 
-import java.io.Serializable;
+import java.util.*;
+import java.io.*;
 
 import org.apache.jmeter.util.JMeterUtils;
 
@@ -65,18 +66,17 @@ import org.apache.jmeter.util.JMeterUtils;
  * an average value and a uniformly distributed variation.
  *
  * @author  <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.2 $ $Date: 2003/01/10 13:59:51 $
+ * @version $Revision: 1.1 $ $Date: 2002/08/11 19:24:41 $
  */
 public class UniformRandomTimer extends RandomTimer implements Serializable
 {
 	public long delay()
 	{
-		return (long) Math.abs((this.random.nextDouble() * getRange()) + super.delay());
+		return (long) Math.abs((this.random.nextDouble() * getRange()) + getDelay());
 	}
 
 	public String toString()
 	{
 		return JMeterUtils.getResString("uniform_timer_memo");
 	}
-	
 }

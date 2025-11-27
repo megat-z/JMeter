@@ -60,7 +60,7 @@ package org.apache.jmeter.samplers;
  * when a specific sample is obtained,
  * and when sampling is stopped.
  */
-public interface SampleListener {
+public interface SampleListener extends java.io.Serializable {
 	 /**
 	  * A sample has started and stopped.
 	  **/

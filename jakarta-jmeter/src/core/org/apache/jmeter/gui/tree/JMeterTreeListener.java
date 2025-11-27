@@ -68,18 +68,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
-import org.apache.jmeter.control.gui.TestPlanGui;
-import org.apache.jmeter.control.gui.WorkBenchGui;
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.gui.MainFrame;
 import org.apache.jmeter.gui.action.DragNDrop;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
@@ -92,8 +86,6 @@ import org.apache.log.Logger;
 public class JMeterTreeListener implements TreeSelectionListener, MouseListener, 
 		KeyListener,MouseMotionListener
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	Container endWindow;
 	JPopupMenu pop;
 	TreePath currentPath;
@@ -234,7 +226,7 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 	public void valueChanged(TreeSelectionEvent e)
 	{
 		currentPath = e.getNewLeadSelectionPath();
-		actionHandler.actionPerformed(new ActionEvent(this, 3333, "edit"));
+		actionHandler.actionPerformed(new ActionEvent(this, 3333, JMeterUtils.getResString("edit")));
 	}
 
 
@@ -253,7 +245,7 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 	 ***************************************/
 	public void mouseReleased(MouseEvent e) 
 	{ 
-		if(dragging && isValidDragAction(draggedNode,getCurrentNode()))
+		if(dragging && draggedNode != getCurrentNode())
 		{
 			dragging = false;
 			JPopupMenu dragNdrop = new JPopupMenu();
@@ -274,34 +266,12 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 			dragNdrop.add(item);
 			displayPopUp(e,dragNdrop);
 		}
-		else
-		{
-			GuiPackage.getInstance().getMainFrame().repaint();
-		}
 		dragging = false;
 	}
 	
 	public JMeterTreeNode getDraggedNode()
 	{
 		return draggedNode;
-	}
-	
-	/**
-	 * Tests if the node is being dragged into one of it's own sub-nodes, or into
-	 * itself.
-	 */
-	private boolean isValidDragAction(JMeterTreeNode source,JMeterTreeNode dest)
-	{
-		boolean isValid = true;
-		TreeNode[] path = dest.getPath();
-		for (int i = 0; i < path.length; i++)
-		{
-			if(path[i] == source)
-			{
-				isValid = false;
-			}			
-		}
-		return isValid;
 	}
 
 
@@ -371,11 +341,6 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 		{
 			dragging = true;
 			draggedNode = getCurrentNode();
-			if(draggedNode.getUserObject() instanceof TestPlanGui || 
-					draggedNode.getUserObject() instanceof WorkBenchGui)
-			{
-				dragging = false;
-			}
 			
 		}
 		changeSelectionIfDragging(e);
@@ -443,8 +408,8 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 		}
 		catch(NullPointerException e)
 		{
-			log.error("Null pointer: JMeterTreeListener.updateMenuItem()",e);
-			log.error("",e);
+			System.out.println("Null pointer: JMeterTreeListener.updateMenuItem()");
+			e.printStackTrace();
 		}
 	}
 

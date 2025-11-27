@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2002 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,32 +54,24 @@
  */
 
 package org.apache.jmeter.gui.action;
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JComponent;
-import javax.swing.tree.TreePath;
-
-import org.apache.jmeter.gui.GuiPackage;
-import org.apache.jmeter.gui.JMeterGUIComponent;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.util.ClassFinder;
+
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
 
 /**
  *  !ToDo (Class description)
  *
- *@author     $Author: jsalvata $
- *@created    $Date: 2002/12/31 18:05:54 $
- *@version    $Revision: 1.5 $
+ *@author     $Author: mstover1 $
+ *@created    $Date: 2002/08/11 19:24:44 $
+ *@version    $Revision: 1.1 $
  */
 public class AddToTree implements Command
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	private Map allJMeterComponentCommands;
 
 	public AddToTree()
@@ -87,7 +79,7 @@ public class AddToTree implements Command
 		allJMeterComponentCommands = new HashMap();
 		allJMeterComponentCommands.put("Add","Add");
 		List classes;
-
+		
 	}
 
 
@@ -109,7 +101,7 @@ public class AddToTree implements Command
 	 *@param  guiPackage  Description of Parameter
 	 */
 	public void doAction(ActionEvent e)
-	{
+	{		
 		try
 		{
 			JMeterGUIComponent gui = (JMeterGUIComponent) Class.forName(((JComponent)e.getSource()).getName()).newInstance();
@@ -117,19 +109,16 @@ public class AddToTree implements Command
 		}
 		catch(Exception err)
 		{
-			log.error("",err);
+			err.printStackTrace();
 		}
 	}
 
 	protected void addObjectToTree(JMeterGUIComponent guiObject)
 	{
 		GuiPackage guiPackage = GuiPackage.getInstance();
-		JMeterTreeNode node = new JMeterTreeNode(guiObject, guiPackage.getTreeModel());
-		guiPackage.getTreeModel().insertNodeInto(node,
+		guiPackage.getTreeModel().insertNodeInto(new JMeterTreeNode(guiObject),
 				guiPackage.getTreeListener().getCurrentNode(),
 				guiPackage.getTreeListener().getCurrentNode().getChildCount());
-		guiPackage.getMainFrame().getTree().setSelectionPath(
-				new TreePath(node.getPath()));
 	}
 
 

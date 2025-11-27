@@ -56,6 +56,7 @@ package org.apache.jmeter.protocol.http.config.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -66,9 +67,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.config.gui.ArgumentsPanel;
+import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.protocol.http.gui.HTTPArgumentsPanel;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
@@ -80,12 +86,16 @@ import org.apache.jmeter.util.JMeterUtils;
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/12/24 11:48:49 $
+ *@created   $Date: 2002/08/14 02:52:19 $
  *@version   1.0
  ***************************************/
 
-public class UrlConfigGui extends JPanel
+public class UrlConfigGui extends AbstractConfigGui
 {
+	/****************************************
+	 * !ToDo (Field description)
+	 ***************************************/
+	protected boolean displayName = true;
 
 	/****************************************
 	 * !ToDo (Field description)
@@ -93,22 +103,24 @@ public class UrlConfigGui extends JPanel
 	protected HTTPArgumentsPanel argsPanel;
 	private static String DOMAIN = "domain";
 	private static String PORT = "port";
-	private static String PROTOCOL = "protocol";
 	private static String PATH = "path";
 	private static String FOLLOW_REDIRECTS = "follow_redirects";
 	private static String USE_KEEPALIVE = "use_keepalive";
 	private static String POST = "post";
 	private static String GET = "get";
+	private static String HTTP = "http";
+	private static String HTTPS = "https";
 	private static String SEND_PARAM = "sendparam";
 
 	private JTextField domain;
 	private JTextField port;
-	private JTextField protocol;
 	private JTextField path;
 	private JCheckBox followRedirects;
 	private JCheckBox useKeepAlive;
 	private JRadioButton post;
 	private JRadioButton get;
+	private JRadioButton http;
+	private JRadioButton https;
 
 
 	/****************************************
@@ -116,15 +128,29 @@ public class UrlConfigGui extends JPanel
 	 ***************************************/
 	public UrlConfigGui()
 	{
-		init();
+		this(true);
 	}
 
-
-	  protected void configureTestElement(TestElement mc)
+	/****************************************
+	 * !ToDo (Constructor description)
+	 *
+	 *@param display  !ToDo (Parameter description)
+	 ***************************************/
+	public UrlConfigGui(boolean display)
 	{
-		mc.setProperty(TestElement.NAME, getName());
-		mc.setProperty(TestElement.GUI_CLASS, this.getClass().getName());
-		mc.setProperty(TestElement.TEST_CLASS, mc.getClass().getName());
+		displayName = display;
+		init();
+		setName(getStaticLabel());
+	}
+
+	/****************************************
+	 * !ToDoo (Method description)
+	 *
+	 *@return   !ToDo (Return description)
+	 ***************************************/
+	public String getStaticLabel()
+	{
+		return JMeterUtils.getResString("url_config_title");
 	}
 
 	/****************************************
@@ -141,11 +167,11 @@ public class UrlConfigGui extends JPanel
 		element.setProperty(HTTPSampler.ARGUMENTS, args);
 		element.setProperty(HTTPSampler.DOMAIN, domain.getText());
 		element.setProperty(HTTPSampler.PORT, port.getText());
-		element.setProperty(HTTPSampler.PROTOCOL, protocol.getText());
 		element.setProperty(HTTPSampler.METHOD, (post.isSelected() ? "POST" : "GET"));
 		element.setProperty(HTTPSampler.PATH, path.getText());
 		element.setProperty(HTTPSampler.FOLLOW_REDIRECTS, new Boolean(followRedirects.isSelected()));
 		element.setProperty(HTTPSampler.USE_KEEPALIVE, new Boolean(useKeepAlive.isSelected()));
+		element.setProperty(HTTPSampler.PROTOCOL, (http.isSelected() ? "http" : "https"));
 		return element;
 	}
 
@@ -153,7 +179,6 @@ public class UrlConfigGui extends JPanel
 	{
 		sampler.setArguments((Arguments)argsPanel.createTestElement());
 		sampler.setDomain(domain.getText());
-		sampler.setProtocol(protocol.getText());
 		sampler.setPath(path.getText());
 		sampler.setFollowRedirects(followRedirects.isSelected());
 		sampler.setUseKeepAlive(useKeepAlive.isSelected());
@@ -162,6 +187,7 @@ public class UrlConfigGui extends JPanel
 			sampler.setPort(Integer.parseInt(port.getText()));
 		}
 		sampler.setMethod((post.isSelected() ? "POST" : "GET"));
+		sampler.setProtocol((http.isSelected() ? "http" : "https"));
 	}
 
 	/****************************************
@@ -175,7 +201,6 @@ public class UrlConfigGui extends JPanel
 		argsPanel.configure((TestElement)el.getProperty(HTTPSampler.ARGUMENTS));
 		domain.setText((String)el.getProperty(HTTPSampler.DOMAIN));
 		port.setText((String)el.getPropertyAsString(HTTPSampler.PORT));
-		protocol.setText((String)el.getProperty(HTTPSampler.PROTOCOL));
 		if("POST".equals(el.getProperty(HTTPSampler.METHOD)))
 		{
 			post.setSelected(true);
@@ -189,6 +214,16 @@ public class UrlConfigGui extends JPanel
 		path.setText((String)el.getProperty(HTTPSampler.PATH));
 		followRedirects.setSelected(((AbstractTestElement)el).getPropertyAsBoolean(HTTPSampler.FOLLOW_REDIRECTS));
 		useKeepAlive.setSelected(((AbstractTestElement)el).getPropertyAsBoolean(HTTPSampler.USE_KEEPALIVE));
+		if("http".equals(el.getProperty(HTTPSampler.PROTOCOL)))
+		{
+			http.setSelected(true);
+			https.setSelected(false);
+		}
+		else
+		{
+			https.setSelected(true);
+			http.setSelected(false);
+		}
 	}
 
 	/****************************************
@@ -213,8 +248,40 @@ public class UrlConfigGui extends JPanel
 		webRequestPanel.add(northPanel,BorderLayout.NORTH);
 		webRequestPanel.add(getParameterPanel(),BorderLayout.CENTER);
 
-		this.add(webServerPanel,BorderLayout.NORTH);
-		this.add(webRequestPanel,BorderLayout.CENTER);
+		if(displayName)
+		{
+			// MAIN PANEL
+			JPanel mainPanel = new JPanel();
+			Border margin = new EmptyBorder(10, 10, 5, 10);
+			mainPanel.setBorder(margin);
+			mainPanel.setLayout(new BorderLayout());
+			JPanel normalPanel = new JPanel(new VerticalLayout(5,VerticalLayout.LEFT));
+
+			// TITLE
+			JLabel panelTitleLabel = new JLabel(JMeterUtils.getResString("url_config_title"));
+			Font curFont = panelTitleLabel.getFont();
+			int curFontSize = curFont.getSize();
+			curFontSize += 4;
+			panelTitleLabel.setFont(new Font(curFont.getFontName(), curFont.getStyle(), curFontSize));
+			normalPanel.add(panelTitleLabel);
+
+			// NAME
+			if(displayName)
+			{
+				normalPanel.add(getNamePanel());
+			}
+
+			normalPanel.add(webServerPanel);
+			mainPanel.add(normalPanel,BorderLayout.NORTH);
+			mainPanel.add(webRequestPanel,BorderLayout.CENTER);
+
+			this.add(mainPanel,BorderLayout.CENTER);
+		}
+		else
+		{
+			this.add(webServerPanel,BorderLayout.NORTH);
+			this.add(webRequestPanel,BorderLayout.CENTER);
+		}
 	}
 
 	/****************************************
@@ -294,14 +361,26 @@ public class UrlConfigGui extends JPanel
 	 ***************************************/
 	protected JPanel getProtocolAndMethodPanel()
 	{
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		panel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
+		panel.add(new JLabel(JMeterUtils.getResString("protocol")));
+		panel.add(Box.createRigidArea(new Dimension(5, 0)));
 
 		// PROTOCOL
-		panel.add(new JLabel(JMeterUtils.getResString("protocol")));
-		protocol = new JTextField(4);
-		protocol.setName(PROTOCOL);
-		panel.add(protocol);
+		http = new JRadioButton(JMeterUtils.getResString("url_config_http"));
+		https = new JRadioButton(JMeterUtils.getResString("url_config_https"));
+		ButtonGroup protocolButtonGroup = new ButtonGroup();
+		protocolButtonGroup.add(http);
+		protocolButtonGroup.add(https);
+
+		http.setSelected(true);
+
+		panel.add(http);
+		panel.add(https);
+
+		panel.add(Box.createRigidArea(new Dimension(20, 0)));
 
 		// METHOD
 		post = new JRadioButton(JMeterUtils.getResString("url_config_post"));
@@ -310,8 +389,8 @@ public class UrlConfigGui extends JPanel
 		methodButtonGroup.add(post);
 		methodButtonGroup.add(get);
 
-		panel.add(Box.createRigidArea(new Dimension(5, 0)));
 		panel.add(new JLabel(JMeterUtils.getResString("method")));
+		panel.add(Box.createRigidArea(new Dimension(5, 0)));
 
 		post.setSelected(true);
 

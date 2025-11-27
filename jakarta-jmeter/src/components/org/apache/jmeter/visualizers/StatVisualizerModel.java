@@ -52,13 +52,14 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
-package org.apache.jmeter.visualizers; // java
-import java.util.*; // apache
-import junit.framework.TestCase;
+package org.apache.jmeter.visualizers;// java
+import java.util.*;// apache
 import org.apache.jmeter.samplers.Clearable;
 import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
+
+
 /****************************************
  * Title: StatVisualizerModel.java Description: Aggregrate Table-Based Reporting
  * Model for JMeter Props to the people who've done the other visualizers ahead
@@ -70,32 +71,49 @@ import org.apache.jmeter.util.JMeterUtils;
  *@created   March 21, 2002
  *@version   1.0
  ***************************************/
+
 public class StatVisualizerModel implements Clearable
 {
+
 	private String name;
+
 	private List listeners;
-	private Vector runningSamples;
 	private Map labelMap;
-	private RunningSample total;
 
 	/****************************************
 	 * Default Constuctor
 	 ***************************************/
+
 	public StatVisualizerModel()
 	{
 		listeners = new LinkedList();
-		runningSamples = new Vector(0, 10);
 		labelMap = Collections.synchronizedMap(new HashMap(10));
-		total = new RunningSample("__TOTAL__", -1);
 	}
+
 	/****************************************
 	 * Sets the Name attribute of the StatVisualizerModel object
 	 *
 	 *@param name  The new Name value
 	 ***************************************/
+
 	public void setName(String name)
 	{
+
 		this.name = name;
+
+	}
+
+	/****************************************
+	 * Returns the Map containing the Samples we've collected and their
+	 * corresponding RunningSample instance.
+	 *
+	 *@return   The URLStats value
+	 ***************************************/
+
+	public Map getURLStats()
+	{
+
+		return (labelMap);
 	}
 
 	/****************************************
@@ -103,51 +121,36 @@ public class StatVisualizerModel implements Clearable
 	 *
 	 *@return   The GuiClass value
 	 ***************************************/
+
 	public Class getGuiClass()
 	{
+
 		return StatVisualizer.class;
 	}
+
+
+
 	/****************************************
 	 * Gets the Name attribute of the StatVisualizerModel object
 	 *
 	 *@return   The Name value
 	 ***************************************/
+
 	public String getName()
 	{
 		return name;
 	}
+
 	/****************************************
 	 * Registers a listener (a visualizer, graph, etc) to this model. This will
 	 * allow the model to fire GUI updates to anyone when data changes, etc.
 	 *
 	 *@param listener       !ToDo
 	 ***************************************/
+
 	public void addGraphListener(GraphListener listener)
 	{
 		listeners.add(listener);
-	}
-	
-	public void addAccumListener(AccumListener listener)
-	{
-		listeners.add(listener);
-	}
-
-	public int getRunningSampleCount() {
-	  	return runningSamples.size();
-	}
-
-	public RunningSample getRunningSample(int index)
-	{
-		return (RunningSample)runningSamples.get(index);
-	}
-
-	public RunningSample getRunningSample(String label)
-	{
-		return (RunningSample)labelMap.get(label);
-	}
-
-	public RunningSample getRunningSampleTotal() {
-	  	return total;
 	}
 
 	/****************************************
@@ -159,30 +162,35 @@ public class StatVisualizerModel implements Clearable
 	{
 		String aLabel = res.getSampleLabel();
 		String responseCode = res.getResponseCode();
-		RunningSample s;
-		synchronized(labelMap) {
-		  s= (RunningSample)labelMap.get(aLabel);
-		  if (s == null) {
-			  s = new RunningSample(aLabel, runningSamples.size());
-			  runningSamples.add(s);
-			  labelMap.put(aLabel, s);
-		  }
+		RunningSample myRS;
+
+		if (labelMap.containsKey(aLabel))
+		{
+			myRS = (RunningSample)labelMap.get(aLabel);
 		}
-		s.addSample(res);
-		total.addSample(res);
-		this.fireDataChanged(s);
+		else
+		{
+			// put a new one there..
+			myRS = new RunningSample();
+			labelMap.put(aLabel, myRS);
+		}
+
+		myRS.addSample(res);
+		this.fireDataChanged();
 	}
+
 	/****************************************
 	 * Reset everything we can in the model.
 	 ***************************************/
+
 	public void clear()
 	{
+//        System.out.println("StatVisualizerModel.clear() called");
 		// clear the data structures
-		runningSamples.clear();
 		labelMap.clear();
-		total= new RunningSample("__TOTAL__", -1);
 		this.fireDataChanged();
 	}
+
 	/****************************************
 	 * Called when the model changes - then we call out to all registered listeners
 	 * and tell them to update themselves.
@@ -190,85 +198,16 @@ public class StatVisualizerModel implements Clearable
 	protected void fireDataChanged()
 	{
 		Iterator iter = listeners.iterator();
-		while (iter.hasNext())
+		while(iter.hasNext())
 		{
 			Object myObj = iter.next();
-			if (!(myObj instanceof GraphListener))
+			if(!(myObj instanceof GraphListener))
 			{
 				continue;
 			}
-			((GraphListener) myObj).updateGui();
-		}
-	}
-	
-	protected void fireDataChanged(RunningSample s)
-	{
-		Iterator iter = listeners.iterator();
-		while (iter.hasNext())
-		{
-			Object myObj = iter.next();
-			if (!(myObj instanceof AccumListener))
-			{
-				continue;
-			}
-			((AccumListener) myObj).updateGui(s);
+			((GraphListener)myObj).updateGui();
 		}
 	}
 
-	public static class Test extends junit.framework.TestCase
-	{
-	  public Test(String name)
-	  {
-	    super(name);
-	  }
-
-	  private SampleResult sample(String label, long timestamp,
-	      				long time, boolean ok)
-	  {
-	    SampleResult res= new SampleResult();
-	    res.setSampleLabel(label);
-	    res.setTimeStamp(timestamp);
-	    res.setTime(time);
-	    res.setSuccessful(ok);
-	    return res;
-	  }
-
-	  public void testStatisticsCalculation() {
-	    StatVisualizerModel m= new StatVisualizerModel();
-	    long t0= System.currentTimeMillis();
-	    m.addNewSample(sample("1", t0+0, 100, true));
-	    m.addNewSample(sample("2", t0+250, 200, true));
-	    m.addNewSample(sample("1", t0+500, 300, true));
-	    assertEquals(2, m.getRunningSampleCount());
-	    assertEquals(2, m.labelMap.size());
-
-	    {
-	    RunningSample s= m.getRunningSample("1");
-	    assertEquals("1", s.getLabel());
-	    assertEquals(2, s.getNumSamples());
-	    assertEquals(100, s.getMin());
-	    assertEquals(300, s.getMax());
-	    assertEquals(200, s.getAverage());
-	    assertEquals(4.0, s.getRate(), 1e-6);
-	    }
-
-	    {
-	    RunningSample s= m.getRunningSample("2");
-	    assertEquals("2", s.getLabel());
-	    assertEquals(1, s.getNumSamples());
-	    assertEquals(200, s.getMin());
-	    assertEquals(200, s.getMax());
-	    assertEquals(200, s.getAverage());
-	    }
-
-	    {
-	    RunningSample s= m.getRunningSampleTotal();
-	    assertEquals(3, s.getNumSamples());
-	    assertEquals(100, s.getMin());
-	    assertEquals(300, s.getMax());
-	    assertEquals(200, s.getAverage());
-	    assertEquals(6.0, s.getRate(), 1e-6);
-	    }
-	  }
-	}
 }
+

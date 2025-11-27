@@ -54,20 +54,17 @@
  */
 package org.apache.jmeter.util;
 
+import java.lang.reflect.Constructor;
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Constructor;
-import java.net.HttpURLConnection;
-import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
-
+import java.security.KeyStore;
+import java.net.HttpURLConnection;
 import javax.swing.JOptionPane;
 
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.util.keystore.JmeterKeyStore;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /**
  * The SSLManager handles the KeyStore information for JMeter.  Basically, it
@@ -77,11 +74,9 @@ import org.apache.log.Logger;
  * make a decision, it will pop open a dialog asking you for more information.
  *
  * @author <a href="bloritsch@apache.org">Berin Loritsch</a>
- * @version CVS $Revision: 1.5 $ $Date: 2002/12/27 15:51:17 $
+ * @version CVS $Revision: 1.1 $ $Date: 2002/08/11 19:24:49 $
  */
 public abstract class SSLManager {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.util");
     /** Singleton instance of the manager */
     private static SSLManager manager;
     private static boolean isIAIKProvider = false;
@@ -131,11 +126,11 @@ public abstract class SSLManager {
             try {
                 if (fileName.endsWith(".p12") || fileName.endsWith(".P12")) {
                     this.keyStore = JmeterKeyStore.getInstance("pkcs12");
-                    log.info("KeyStore Type: PKCS 12");
+                    System.out.println("KeyStore Type: PKCS 12");
                     System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
                 } else {
                     this.keyStore = JmeterKeyStore.getInstance("JKS");
-                    log.info("KeyStore Type: JKS");
+                    System.out.println("KeyStore Type: JKS");
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(GuiPackage.getInstance().getMainFrame(),
@@ -169,16 +164,19 @@ public abstract class SSLManager {
                 File initStore = new File(fileName);
 
                 if (initStore.exists()) {
-		    this.keyStore.load(new FileInputStream(initStore),password);
+                    try {
+                        this.keyStore.load(new FileInputStream(initStore), password);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Can't load KeyStore!!!  " + e.getMessage());
+                    }
                 } else {
                     this.keyStore.load(null, password);
                 }
             } catch (Exception e) {
-	      throw new RuntimeException("Can't load KeyStore: "+e.toString());
             }
 
-        log.info("JmeterKeyStore Location: " + fileName);
-        log.info("JmeterKeyStore type: " + this.keyStore.getClass().toString());
+        System.out.println("JmeterKeyStore Location: " + fileName);
+        System.out.println("JmeterKeyStore type: " + this.keyStore.getClass().toString());
         }
 
         return this.keyStore;
@@ -197,7 +195,7 @@ public abstract class SSLManager {
                     this.trustStore = KeyStore.getInstance("IAIKKeyStore", "IAIK");
                 }  else {
                     this.trustStore = KeyStore.getInstance("JKS");
-                    log.info("KeyStore Type: JKS");
+                    System.out.println("KeyStore Type: JKS");
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(GuiPackage.getInstance().getMainFrame(),
@@ -212,16 +210,19 @@ public abstract class SSLManager {
                 File initStore = new File(fileName);
 
                 if (initStore.exists()) {
-		    this.trustStore.load(new FileInputStream(initStore), null);
+                    try {
+                        this.trustStore.load(new FileInputStream(initStore), null);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Can't load KeyStore!!!  " + e.getMessage());
+                    }
                 } else {
                     this.trustStore.load(null, null);
                 }
             } catch (Exception e) {
-	      throw new RuntimeException("Can't load TrustStore: "+e.toString());
             }
 
-            log.info("TrustStore Location: " + fileName);
-            log.info("TrustStore type: " + this.keyStore.getClass().toString());
+            System.out.println("TrustStore Location: " + fileName);
+            System.out.println("TrustStore type: " + this.keyStore.getClass().toString());
         }
 
         return this.trustStore;
@@ -252,7 +253,7 @@ public abstract class SSLManager {
                     Constructor con = clazz.getConstructor(new Class[] {Provider.class});
                     SSLManager.manager = (SSLManager) con.newInstance(new Object[] {SSLManager.sslProvider});
                 } catch (Exception e) {
-                    log.error("",e);
+                    e.printStackTrace(System.err);
                     SSLManager.isSSLSupported = false;
                     return null;
                 }
@@ -284,12 +285,12 @@ public abstract class SSLManager {
                 SSLManager.isSSLSupported = true;
             }
         } catch (Exception noSSL) {
-            log.error("",noSSL);
+            noSSL.printStackTrace(System.err);
         }
 
         try {
             if(SSLManager.sslProvider != null) {
-                log.info("SSL Provider is: " + SSLManager.sslProvider);
+                System.out.println("SSL Provider is: " + SSLManager.sslProvider);
                 Security.addProvider(SSLManager.sslProvider);
                 // register jsse provider
             }

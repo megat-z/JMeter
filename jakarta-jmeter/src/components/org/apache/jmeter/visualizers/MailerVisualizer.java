@@ -54,35 +54,22 @@
  */
  package org.apache.jmeter.visualizers;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.net.UnknownHostException;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
-import org.apache.jmeter.samplers.Clearable;
-import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.util.JMeterUtils;
+import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+import java.util.*;
+import java.net.*;
+import javax.mail.*;
+import javax.mail.internet.*;
+//import javax.activation.* ;
+import java.util.Properties;
+import org.apache.jmeter.util.*;
+import org.apache.jmeter.gui.util.*;
+import org.apache.jmeter.samplers.*;
 import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /*
  * TODO :
@@ -99,18 +86,34 @@ import org.apache.jorphan.gui.layout.VerticalLayout;
  *  occurs.
  *
  *@author     <a href="mailto:stuart@personalmd.com">Stuart Schmukler</a> and <a href="mailto:wolfram.rittmeyer@web.de">Wolfram Rittmeyer</a>
- *@created    $Date: 2002/10/17 19:47:15 $
- *@version    $Revision: 1.7 $ $Date: 2002/10/17 19:47:15 $
+ *@created    $Date: 2002/08/11 19:24:41 $
+ *@version    $Revision: 1.1 $ $Date: 2002/08/11 19:24:41 $
  ***********************************************************/
-public class MailerVisualizer extends AbstractVisualizer
-		implements ActionListener, FocusListener, Clearable, ModelListener {
+//public class MailerVisualizer extends JPanel implements Visualizer, ActionListener
+public class MailerVisualizer extends AbstractVisualizer 
+		implements ActionListener, FocusListener, Clearable {
+
+	private String addressie;
+	private String from;
+	private String smtpHost;
+	private String failsubject;
+	private String successsubject;
+	private long failureCount = 0;
+	private long successCount = 0;
+	private long failureLimit = 2;
+	private long successLimit = 2;
+	private boolean failureMsgSent = false;
+	private boolean siteDown = false;
+	private boolean successMsgSent = false;
+
+	private Properties appProperties;
 
 	private JButton testerButton;
 	private JTextField addressField;
 	private JTextField fromField;
 	private JTextField smtpHostField;
-	private JTextField failureSubjectField;
-	private JTextField successSubjectField;
+	private JTextField failsubjectField;
+	private JTextField successsubjectField;
 	private JTextField failureField;
 	private JTextField failureLimitField;
 	private JTextField successLimitField;
@@ -118,22 +121,46 @@ public class MailerVisualizer extends AbstractVisualizer
 	private JPanel mainPanel;
 	private JLabel panelTitleLabel;
 
-	private MailerModel model;
 
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.gui");
+	//-----------
 
-	/**
-	 * Constructs the MailerVisualizer and initializes its GUI.
-	 */
+	/************************************************************
+	 *  !ToDo (Constructor description)
+	 ***********************************************************/
 	public MailerVisualizer() {
 		super();
 
-		// construct the model
-		model = new MailerModel();
-		model.addModelListener(this);
+		// Properties connection.
+		this.appProperties = JMeterUtils.getJMeterProperties();
+
+		// retrieve successLimit from properties
+		try {
+			successLimit =	Long.parseLong(appProperties.getProperty("mailer.successlimit"));
+		}
+		catch (Exception ex) {
+			// Ignore any garbage
+		}
+
+		// retrieve failureLimit from properties
+		try {
+			failureLimit =	Long.parseLong(appProperties.getProperty("mailer.failurelimit"));
+		}
+		catch (Exception ex) {
+			// Ignore any garbage
+		}
 
 		// initialize GUI.
 		initGui();
+	}
+
+	/************************************************************
+	 *  !ToDoo (Method description)
+	 *
+	 *@return    !ToDo (Return description)
+	 ***********************************************************/
+	public synchronized boolean isFailing()
+	{
+		return (failureCount > failureLimit);
 	}
 
 	/************************************************************
@@ -146,23 +173,111 @@ public class MailerVisualizer extends AbstractVisualizer
 		return this;
 	}
 
-	/**
-	 * Adds a SampleResult. Actually this method just delegates calls
-	 * to the ActionModel.
+
+	/************************************************************
+	 *  !ToDo (Method description)
 	 *
-	 * @param sample The SampleResult encapsulating informations about the last sample.
-	 */
-	public synchronized void add(SampleResult sample)
+	 *@param  theAddressie  !ToDo (Parameter description)
+	 *@return               !ToDo (Return description)
+	 ***********************************************************/
+	public synchronized Vector newAddressVector(String theAddressie)
 	{
-		model.add(sample);
+		Vector addressVector = new Vector();
+		if (theAddressie != null) {
+			String addressSep = ", ";
+	
+			StringTokenizer next = new StringTokenizer(theAddressie, addressSep);
+	
+			while (next.hasMoreTokens())
+			{
+				String theToken = next.nextToken();
+	
+				if (theToken.indexOf("@") > 0)
+				{
+					addressVector.addElement(theToken);
+				}
+			}
+		}
+		else {
+			return new Vector(0);
+		}
+
+		return addressVector;
 	}
 
-	/**
-	 * Clears any stored sampling-informations.
-	 */
+
+	/************************************************************
+	 *  !ToDo (Method description)
+	 *
+	 *@param  sample  !ToDo (Parameter description)
+	 ***********************************************************/
+	public synchronized void add(SampleResult sample)
+	{
+
+		// -1 is the code for a failed sample.
+		//
+		if (!sample.isSuccessful())
+		{
+			failureCount++;
+		}
+		else
+		{
+			successCount++;
+		}
+
+		if (this.isFailing() && !siteDown && !failureMsgSent)
+		{
+			// Display ...
+			failureField.setText(Long.toString(failureCount));
+			repaint();
+
+			// Send the mail ...
+			Vector addressVector = newAddressVector(addressie);
+			if (addressVector.size() != 0) {
+				sendMail(from, addressVector, failsubject, "URL Failed: " +
+						sample.getSampleLabel(), smtpHost);
+				siteDown = true;
+				failureMsgSent = true;
+				successCount = 0;
+			}
+		}
+
+		if (siteDown && (sample.getTime() != -1) & !successMsgSent)
+		{
+			// Display ...
+			failureField.setText(Long.toString(failureCount));
+			repaint();
+
+			// Send the mail ...
+			if (successCount > successLimit)
+			{
+				Vector addressVector = newAddressVector(addressie);
+				sendMail(from, addressVector, successsubject, "URL Restarted: " +
+						sample.getSampleLabel(), smtpHost);
+				siteDown = false;
+				successMsgSent = true;
+			}
+		}
+
+		if (successMsgSent && failureMsgSent)
+		{
+			clear();
+		}
+	}
+
+	/************************************************************
+	 *  !ToDo (Method description)
+	 ***********************************************************/
 	public synchronized void clear()
 	{
-		model.clear();
+		failureCount = 0;
+		successCount = 0;
+		siteDown = false;
+		successMsgSent = false;
+		failureMsgSent = false;
+
+		failureField.setText(Long.toString(failureCount));
+		repaint();
 	}
 
 	/************************************************************
@@ -173,6 +288,63 @@ public class MailerVisualizer extends AbstractVisualizer
 	public String toString()
 	{
 		return "E-Mail Notification";
+	}
+
+	//-----------
+	//function to send a mail to list mailaddresses
+
+	/************************************************************
+	 *  !ToDo (Method description)
+	 *
+	 *@param  from      !ToDo (Parameter description)
+	 *@param  vEmails   !ToDo (Parameter description)
+	 *@param  subject   !ToDo (Parameter description)
+	 *@param  attText   !ToDo (Parameter description)
+	 *@param  SMTPHost  !ToDo (Parameter description)
+	 ***********************************************************/
+	public static synchronized void sendMail(String from,
+			Vector vEmails,
+			String subject,
+			String attText,
+			String SMTPHost)
+	{
+		try
+		{
+			String host = SMTPHost;
+			boolean debug = Boolean.valueOf(host).booleanValue();
+			InetAddress remote = InetAddress.getByName(host);
+
+			InternetAddress[] address = new InternetAddress[vEmails.size()];
+			for (int k = 0; k < vEmails.size(); k++)
+			{
+				address[k] = new InternetAddress(vEmails.elementAt(k).toString());
+			}
+
+			// create some properties and get the default Session
+			Properties props = new Properties();
+			props.put("mail.smtp.host", host);
+			Session session = Session.getDefaultInstance(props, null);
+			session.setDebug(debug);
+
+			// create a message
+			Message msg = new MimeMessage(session);
+			msg.setFrom(new InternetAddress(from));
+			msg.setRecipients(Message.RecipientType.TO, address);
+			msg.setSubject(subject);
+			msg.setText(attText);
+			Transport.send(msg);
+			System.out.println("Mail sent successfully!!");
+		}
+		catch (UnknownHostException e1)
+		{
+			System.out.println("NxError:Invalid Mail Server " + e1);
+			System.exit(1);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 
 	/**
@@ -201,7 +373,7 @@ public class MailerVisualizer extends AbstractVisualizer
 
 		// mailer panel
 		JPanel mailerPanel = new JPanel();
-		mailerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), model.getAttributesTitle()));
+		mailerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), getAttributesTitle()));
 		GridBagLayout g = new GridBagLayout();
 		mailerPanel.setLayout(g);
 		GridBagConstraints c = new GridBagConstraints();
@@ -211,7 +383,8 @@ public class MailerVisualizer extends AbstractVisualizer
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("From:"));
 
-		fromField = new JTextField(model.getFromAddress(), 25);
+		from = appProperties.getProperty("mailer.from");
+		fromField = new JTextField(from, 25);
 		fromField.setEditable(true);
 		fromField.addActionListener(this);
 		fromField.addFocusListener(this);
@@ -224,7 +397,8 @@ public class MailerVisualizer extends AbstractVisualizer
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("Addressie(s):"));
 
-		addressField = new JTextField(model.getToAddress(), 25);
+		addressie = appProperties.getProperty("mailer.addressies");
+		addressField = new JTextField(addressie, 25);
 		addressField.setEditable(true);
 		addressField.addActionListener(this);
 		addressField.addFocusListener(this);
@@ -235,7 +409,8 @@ public class MailerVisualizer extends AbstractVisualizer
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("SMTP Host:"));
 
-		smtpHostField = new JTextField(model.getSmtpHost(), 25);
+		smtpHost = appProperties.getProperty("mailer.smtphost");
+		smtpHostField = new JTextField(smtpHost, 25);
 		smtpHostField.setEditable(true);
 		smtpHostField.addActionListener(this);
 		smtpHostField.addFocusListener(this);
@@ -246,29 +421,31 @@ public class MailerVisualizer extends AbstractVisualizer
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("Failure Subject:"));
 
-		failureSubjectField = new JTextField(model.getFailureSubject(), 25);
-		failureSubjectField.setEditable(true);
-		failureSubjectField.addActionListener(this);
-		failureSubjectField.addFocusListener(this);
+		failsubject = appProperties.getProperty("mailer.failsubject");
+		failsubjectField = new JTextField(failsubject, 25);
+		failsubjectField.setEditable(true);
+		failsubjectField.addActionListener(this);
+		failsubjectField.addFocusListener(this);
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		g.setConstraints(failureSubjectField, c);
-		mailerPanel.add(failureSubjectField);
+		g.setConstraints(failsubjectField, c);
+		mailerPanel.add(failsubjectField);
 
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("Success Subject:"));
 
-		successSubjectField = new JTextField(model.getSuccessSubject(), 25);
-		successSubjectField.setEditable(true);
-		successSubjectField.addActionListener(this);
-		successSubjectField.addFocusListener(this);
+		successsubject = appProperties.getProperty("mailer.successsubject");
+		successsubjectField = new JTextField(successsubject, 25);
+		successsubjectField.setEditable(true);
+		successsubjectField.addActionListener(this);
+		successsubjectField.addFocusListener(this);
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		g.setConstraints(successSubjectField, c);
-		mailerPanel.add(successSubjectField);
+		g.setConstraints(successsubjectField, c);
+		mailerPanel.add(successsubjectField);
 
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("Failure Limit:"));
 
-		failureLimitField = new JTextField(Long.toString(model.getFailureLimit()), 6);
+		failureLimitField = new JTextField(Long.toString(failureLimit), 6);
 		failureLimitField.setEditable(true);
 		failureLimitField.addActionListener(this);
 		failureLimitField.addFocusListener(this);
@@ -279,7 +456,7 @@ public class MailerVisualizer extends AbstractVisualizer
 		c.gridwidth = 1;
 		mailerPanel.add(new JLabel("Success Limit:"));
 
-		successLimitField = new JTextField(Long.toString(model.getSuccessLimit()), 6);
+		successLimitField = new JTextField(Long.toString(successLimit), 6);
 		successLimitField.setEditable(true);
 		successLimitField.addActionListener(this);
 		successLimitField.addFocusListener(this);
@@ -313,11 +490,13 @@ public class MailerVisualizer extends AbstractVisualizer
 	 * as set up in the properties-file using the lookup-constant
 	 * "mailer_visualizer_title".
 	 *
-	 * @return  The title of the component.
+	 *@return  The title of the component.
 	 */
 	public String getStaticLabel()
 	{
-		return JMeterUtils.getResString("mailer_visualizer_title");
+		// should be something like this:
+		//	return JMeterUtils.getResString("mailer_visualizer_title");
+		return "Mailer Visualizer";
 	}
 
 	/**
@@ -329,8 +508,22 @@ public class MailerVisualizer extends AbstractVisualizer
 	 */
 	public String getAttributesTitle()
 	{
-		return JMeterUtils.getResString("mailer_attributes_panel");
+		// should be something like this:
+		//	return JMeterUtils.getResString("mailer_attributes_panel")
+		return "Mailing attributes";
 	}
+	/**
+	* Method used to log a String.
+	*
+	* @param str String to be logged.
+	*/
+	private static void log(String str) {
+		// this is just a tewmporary solution
+		// will be replaced by a call to the logging-API
+		// of the commons-project.
+		System.out.println("MailerVisualizer - " + str);
+	}
+
 
 	/**
 	 * Does the actual EventHandling. Gets called by EventHandlers
@@ -340,37 +533,32 @@ public class MailerVisualizer extends AbstractVisualizer
 	 */
 	private void doEventHandling(Object source) {
 		if (source == addressField) {
-			model.setToAddress(this.addressField.getText());
+			this.addressie = this.addressField.getText();
+			log("AddressField=" + addressField.getText());
 		}
 		else if (source == fromField) {
-			model.setFromAddress(this.fromField.getText());
+			this.from = this.fromField.getText();
+			log("FromField=" + fromField.getText());
 		}
 		else if (source == smtpHostField) {
-			model.setSmtpHost(this.smtpHostField.getText());
+			this.smtpHost = this.smtpHostField.getText();
+			log("smtpHostField=" + smtpHostField.getText());
 		}
-		else if (source == failureSubjectField) {
-			model.setFailureSubject(this.failureSubjectField.getText());
+		else if (source == failsubjectField) {
+			this.failsubject = this.failsubjectField.getText();
+			log("failsubjectField=" + failsubjectField.getText());
 		}
-		else if (source == successSubjectField) {
-			model.setSuccessSubject(this.successSubjectField.getText());
+		else if (source == successsubjectField) {
+			this.successsubject = this.successsubjectField.getText();
+			log("successsubjectField=" + successsubjectField.getText());
 		}
 		else if (source == failureLimitField) {
-			try {
-				model.setFailureLimit(Long.parseLong(this.failureLimitField.getText()));
-			}
-			catch (NumberFormatException e) {
-				log.warn("failureLimitField=" + failureLimitField.getText(),e);
-				JOptionPane.showMessageDialog(null, JMeterUtils.getResString("you_must_enter_a_valid_number"), "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			this.failureLimit = Long.parseLong(this.failureLimitField.getText());
+			log("failureLimitField=" + failureLimitField.getText());
 		}
 		else if (source == successLimitField) {
-			try {
-				model.setSuccessLimit(Long.parseLong(this.successLimitField.getText()));
-			}
-			catch (NumberFormatException e) {
-			log.warn("successLimitField=" + successLimitField.getText(),e);
-			JOptionPane.showMessageDialog(null, JMeterUtils.getResString("you_must_enter_a_valid_number"), "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			this.successLimit = Long.parseLong(this.successLimitField.getText());
+			log("successLimitField=" + successLimitField.getText());
 		}
 	}
 
@@ -381,37 +569,34 @@ public class MailerVisualizer extends AbstractVisualizer
 	//
 	//////////////////////////////////////////////////////////////
 
-	/**
-	 * Reacts on an ActionEvent (like pressing a button).
+	/************************************************************
+	 *  !ToDo (Method description)
 	 *
-	 * @param e The ActionEvent with information about the event and its source.
-	 */
+	 *@param  e  !ToDo (Parameter description)
+	 ***********************************************************/
 	public void actionPerformed(ActionEvent e) {
 		try {
 			JComponent c = (JComponent)e.getSource();
 			if (c == testerButton) {
-				String testString = "JMeter-Testmail" + "\n" +
-									"To:  " + model.getToAddress() + "\n" +
-									"Via:  " + model.getSmtpHost() + "\n" +
-									"Fail Subject:  " + model.getFailureSubject() + "\n" +
-									"Success Subject:  " + model.getSuccessSubject();
-				log.debug(testString);
-				model.sendMail(model.getFromAddress(), model.getAddressVector(), "Testing mail-addresses", testString, model.getSmtpHost());
-				log.info("Mail sent successfully!!");
+				log("### Test To:  " + this.addressie + ", " +
+						"Via:  " + this.smtpHost + ", " +
+						"Fail Subject:  " + this.failsubject + ", " +
+						"Success Subject:  " + this.successsubject);
+
+				String testMessage = ("### Test To:  " + this.addressie + ", " +
+						"Via:  " + this.smtpHost + ", " +
+						"Fail Subject:  " + this.failsubject + ", " +
+						"Success Subject:  " + this.successsubject);
+
+				Vector addressVector = newAddressVector(addressie);
+				sendMail(from, addressVector, "Testing addressies", testMessage, smtpHost);
 			}
 			else {
 				doEventHandling(c);
 			}
 		}
-		catch (UnknownHostException e1)
-		{
-			log.error("Invalid Mail Server ",e1);
-			displayMessage(JMeterUtils.getResString("invalid_mail_server"), true);
-		}
-		catch (Exception ex)
-		{
-			log.error("Couldn't send mail...",ex);
-			displayMessage(JMeterUtils.getResString("invalid_mail_server"), true);
+		catch (Exception ex)	{
+			JOptionPane.showMessageDialog(this, ex, "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -440,67 +625,9 @@ public class MailerVisualizer extends AbstractVisualizer
 		doEventHandling(source);
 	}
 
-	//////////////////////////////////////////////////////////////
-	//
-	// Methods used to store and retrieve the MailerVisualizer.
-	//
-	//////////////////////////////////////////////////////////////
-
-	/**
-	 * Restores MailerVisualizer.
-	 */
-	public void configure(TestElement el)
-	{
-		super.configure(el);
-		model.retrieveModel(el);
-		updateVisualizer();
-	}
-
-	/**
-	 * Makes MailerVisualizer storable.
-	 */
-	public TestElement createTestElement()
-	{
-		TestElement element = super.createTestElement();
-		model.storeModel(element);
-		return element;
-	}
-
-	//////////////////////////////////////////////////////////////
-	//
-	// Methods to implement the ModelListener.
-	//
-	//////////////////////////////////////////////////////////////
-
-	/**
-	 * Notifies this Visualizer about model-changes. Causes the Visualizer to
-	 * query the model about its new state.
-	 */
-	public void updateVisualizer() {
-		addressField.setText(model.getToAddress());
-		fromField.setText(model.getFromAddress());
-		smtpHostField.setText(model.getSmtpHost());
-		successSubjectField.setText(model.getSuccessSubject());
-		failureSubjectField.setText(model.getFailureSubject());
-		failureLimitField.setText(String.valueOf(model.getFailureLimit()));
-		failureField.setText(String.valueOf(model.getFailureCount()));
-		successLimitField.setText(String.valueOf(model.getSuccessLimit()));
-		repaint();
-	}
-
-	/**
-	 * Shows a message using a DialogBox.
-	 */
-	public void displayMessage(String message, boolean isError) {
-		int type = 0;
-		if (isError) {
-			type = JOptionPane.ERROR_MESSAGE;
-		}
-		else {
-			type = JOptionPane.INFORMATION_MESSAGE;
-		}
-		JOptionPane.showMessageDialog(null, message, "Error", type);
-	}
 }
 
+// new ressource_strings:
+// mailer_visualizer_title - used as the title of this Visualizer
+// mailer_attributes_panel - used as the title of the JPanel (EtchedBorder - title) where the attributes are entered
 

@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2002 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,18 +81,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
-import org.apache.jmeter.functions.InvalidVariableException;
-import org.apache.jmeter.functions.ValueReplacer;
-import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.gui.NamePanel;
-import org.apache.jmeter.gui.tree.JMeterTreeNode;
 import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.gui.util.PowerTableModel;
 import org.apache.jmeter.protocol.http.proxy.ProxyControl;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.util.JMeterUtils;
 
 /****************************************
@@ -100,7 +94,7 @@ import org.apache.jmeter.util.JMeterUtils;
  * Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2003/01/31 18:25:10 $
+ *@created   $Date: 2002/08/11 19:24:52 $
  *@version   1.0
  ***************************************/
 
@@ -127,7 +121,7 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 	private final static String ADD_EXCLUDE = "add_exclude";
 	private final static String DELETE_INCLUDE = "delete_include";
 	private final static String DELETE_EXCLUDE = "delete_exclude";
-
+	
 	private final static String INCLUDE_COL = JMeterUtils.getResString("patterns_to_include");
 	private final static String EXCLUDE_COL = JMeterUtils.getResString("patterns_to_exclude");
 
@@ -158,12 +152,12 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		return element;
 	}
 
-	protected void setIncludeListInProxyControl(ProxyControl element) {
+	private void setIncludeListInProxyControl(ProxyControl element) {
 		List includeList = getDataList(includeModel,INCLUDE_COL);
 		element.setIncludeList(includeList);
 	}
-
-	protected void setExcludeListInProxyControl(ProxyControl element)
+	
+	private void setExcludeListInProxyControl(ProxyControl element)
 	{
 		List excludeList = getDataList(excludeModel,EXCLUDE_COL);
 		element.setExcludeList(excludeList);
@@ -178,8 +172,8 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		}
 		return list;
 	}
-
-
+	
+	
 
 	public void setName(String name)
 	{
@@ -217,7 +211,7 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 			model.addRow(new Object[]{iter.next()});
 		}
 	}
-
+	
 	public void focusLost(FocusEvent e)
 	{
 		try
@@ -228,7 +222,7 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		{
 		}
 	}
-
+	
 	public void focusGained(FocusEvent e)
 	{
 	}
@@ -252,13 +246,16 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		else if(command.equals(START))
 		{
 			model = (ProxyControl)createTestElement();
-			startProxy();
+			model.startProxy();
+			start.setEnabled(false);
+			stop.setEnabled(true);
 		}
 		else if(command.equals(RESTART))
 		{
 			model.stopProxy();
 			model = (ProxyControl)createTestElement();
-			startProxy();
+			model.startProxy();
+			restart.setEnabled(false);
 		}
 		else if(command.equals(this.ADD_EXCLUDE))
 		{
@@ -286,25 +283,7 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 			enableRestart();
 		}
 	}
-
-	private void startProxy()
-	{
-		ValueReplacer replacer = GuiPackage.getInstance().getReplacer();
-		try
-		{
-			replacer.replaceValues(model);
-			model.startProxy();
-			start.setEnabled(false);
-			stop.setEnabled(true);
-			restart.setEnabled(false);
-		}
-		catch (InvalidVariableException e)
-		{
-			JOptionPane.showMessageDialog(this,JMeterUtils.getResString(
-					"invalid_variables"),"Error",JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
+	
 	private void enableRestart()
 	{
 		if(model != null)
@@ -422,7 +401,7 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		stop = new JButton(JMeterUtils.getResString("stop"));
 		stop.addActionListener(this);
 		stop.setActionCommand(STOP);
-
+		
 		restart = new JButton(JMeterUtils.getResString("restart"));
 		restart.addActionListener(this);
 		restart.setActionCommand(RESTART);
@@ -503,20 +482,4 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		excludeTable.addFocusListener(this);
 		return panel;
 	}
-
-
-    public void setNode(JMeterTreeNode node)
-    {
-        namePanel.setNode(node);
-    }
-
-	/**
-	 * Returns the portField.
-	 * @return JTextField
-	 */
-	protected JTextField getPortField()
-	{
-		return portField;
-	}
-
 }

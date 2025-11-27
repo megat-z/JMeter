@@ -54,9 +54,12 @@
  */
 package org.apache.jmeter.protocol.http.config.gui;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
 import java.io.File;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -64,18 +67,20 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.jmeter.gui.util.FileDialoger;
+import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/10/17 19:47:19 $
+ *@created   $Date: 2002/08/11 19:24:50 $
  *@version   1.0
  ***************************************/
 
@@ -99,7 +104,23 @@ public class MultipartUrlConfigGui extends UrlConfigGui implements ActionListene
 	 ***************************************/
 	public MultipartUrlConfigGui()
 	{
-		super();
+		this(true);
+	}
+
+	public Collection getMenuCategories()
+	{
+		return null;
+	}
+
+	/****************************************
+	 * !ToDo (Constructor description)
+	 *
+	 *@param displayName  !ToDo (Parameter description)
+	 ***************************************/
+	public MultipartUrlConfigGui(boolean displayName)
+	{
+		super(displayName);
+		setName(getStaticLabel());
 	}
 
 	/****************************************
@@ -202,8 +223,36 @@ public class MultipartUrlConfigGui extends UrlConfigGui implements ActionListene
 		webRequestPanel.add(getFilePanel(),BorderLayout.SOUTH);
 
 		// If displayName is TRUE, then this GUI is not embedded in another GUI.
-		this.add(webServerPanel,BorderLayout.NORTH);
-		this.add(webRequestPanel,BorderLayout.CENTER);
+		if(displayName)
+		{
+			// MAIN PANEL
+			JPanel mainPanel = new JPanel();
+			Border margin = new EmptyBorder(10, 10, 5, 10);
+			mainPanel.setBorder(margin);
+			mainPanel.setLayout(new BorderLayout());
+
+			// TITLE
+			JLabel panelTitleLabel = new JLabel(JMeterUtils.getResString("url_full_config_title"));
+			Font curFont = panelTitleLabel.getFont();
+			int curFontSize = curFont.getSize();
+			curFontSize += 4;
+			panelTitleLabel.setFont(new Font(curFont.getFontName(), curFont.getStyle(), curFontSize));
+			mainPanel.add(panelTitleLabel);
+
+			// NAME
+			mainPanel.add(getNamePanel());
+
+			mainPanel.add(webServerPanel);
+			mainPanel.add(webRequestPanel);
+
+			this.add(mainPanel);
+		}
+		else
+		{// Embed this GUI in the parent GUI
+
+			this.add(webServerPanel,BorderLayout.NORTH);
+			this.add(webRequestPanel,BorderLayout.CENTER);
+		}
 	}
 
 	/****************************************

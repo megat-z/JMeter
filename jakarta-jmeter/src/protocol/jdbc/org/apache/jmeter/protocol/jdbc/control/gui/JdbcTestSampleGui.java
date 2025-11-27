@@ -53,27 +53,23 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.jdbc.control.gui;
-import java.awt.Font;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
-import org.apache.jmeter.protocol.jdbc.config.gui.DbConfigGui;
-import org.apache.jmeter.protocol.jdbc.config.gui.PoolConfigGui;
-import org.apache.jmeter.protocol.jdbc.config.gui.SqlConfigGui;
-import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.gui.util.VerticalLayout;
+import org.apache.jmeter.protocol.jdbc.config.*;
+import org.apache.jmeter.protocol.jdbc.config.gui.*;
+import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
 
 /****************************************
  * Title: Description: Copyright: Copyright (c) 2001 Company:
  *
  *@author    Michael Stover
- *@created   $Date: 2002/10/17 19:47:20 $
+ *@created   $Date: 2002/08/11 19:24:53 $
  *@version   1.0
  ***************************************/
 

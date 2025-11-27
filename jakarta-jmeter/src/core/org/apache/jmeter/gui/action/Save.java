@@ -54,24 +54,15 @@
  */
 package org.apache.jmeter.gui.action;
 import java.awt.event.ActionEvent;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-
-import javax.swing.JFileChooser;
-
-import org.apache.jmeter.gui.GuiPackage;
-import org.apache.jmeter.gui.JMeterGUIComponent;
+import java.io.*;
+import java.util.*;
+import javax.swing.*;
+import org.apache.jmeter.gui.*;
 import org.apache.jmeter.gui.util.FileDialoger;
-import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.save.*;
+import org.apache.jmeter.util.*;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
+import org.apache.jmeter.save.SaveService;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
@@ -83,20 +74,14 @@ import org.apache.jorphan.collections.ListedHashTree;
 
 public class Save implements Command
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	private final static String SAVE_ALL = "save_all";
-	private final static String SAVE = "save_as";
-	private final static String SAVE_TO_PREVIOUS = "save";
-	private String chosenFile;
-	private String testPlanFile;
+	private final static String SAVE = "save";
 
 	private static Set commands = new HashSet();
 	static
 	{
 		commands.add(SAVE);
 		commands.add(SAVE_ALL);
-		commands.add(SAVE_TO_PREVIOUS);
 	}
 
 
@@ -115,11 +100,6 @@ public class Save implements Command
 	{
 		return commands;
 	}
-	
-	public void setTestPlanFile(String f)
-	{
-		testPlanFile = f;
-	}
 
 
 	/****************************************
@@ -129,12 +109,12 @@ public class Save implements Command
 	 ***************************************/
 	public void doAction(ActionEvent e)
 	{
-		HashTree subTree = null;
+		ListedHashTree subTree = null;
 		if(e.getActionCommand().equals(SAVE))
 		{
 			subTree = GuiPackage.getInstance().getCurrentSubTree();
 		}
-		else if(e.getActionCommand().equals(SAVE_ALL) || e.getActionCommand().equals(SAVE_TO_PREVIOUS))
+		else if(e.getActionCommand().equals(SAVE_ALL))
 		{
 			subTree = GuiPackage.getInstance().getTreeModel().getTestPlan();
 		}
@@ -143,38 +123,21 @@ public class Save implements Command
 			convertSubTree(subTree);
 		}catch(Exception err)
 		{}
-		if(!SAVE_TO_PREVIOUS.equals(e.getActionCommand()) || testPlanFile == null)
+		JFileChooser chooser = FileDialoger.promptToSaveFile(
+				GuiPackage.getInstance().getTreeListener().getCurrentNode().getName() + ".jmx");
+		if(chooser == null)
 		{
-			JFileChooser chooser = FileDialoger.promptToSaveFile(
-					GuiPackage.getInstance().getTreeListener().getCurrentNode().getName() + ".jmx");
-			if(chooser == null)
-			{
-				return;
-			}
-			if(e.getActionCommand().equals(SAVE_ALL) || e.getActionCommand().equals(SAVE_TO_PREVIOUS))
-			{
-				testPlanFile = chooser.getSelectedFile().getAbsolutePath();
-				chosenFile = testPlanFile;
-			}
-			else
-			{
-				chosenFile = chooser.getSelectedFile().getAbsolutePath();
-			}
+			return;
 		}
-		else
-		{
-			chosenFile = testPlanFile;
-		}
-		
 		OutputStream writer = null;
 		try
 		{
-			writer = new FileOutputStream(chosenFile);
+			writer = new FileOutputStream(chooser.getSelectedFile());
 			SaveService.saveSubTree(subTree,writer);
 		}
 		catch(Throwable ex)
 		{
-			log.error("",ex);
+			ex.printStackTrace();
 		}
 		finally
 		{
@@ -183,13 +146,13 @@ public class Save implements Command
 		}
 	}
 
-	private void convertSubTree(HashTree tree)
+	private void convertSubTree(ListedHashTree tree)
 	{
 		Iterator iter = new LinkedList(tree.list()).iterator();
 		while (iter.hasNext())
 		{
 			JMeterGUIComponent item = (JMeterGUIComponent)iter.next();
-			convertSubTree(tree.getTree(item));
+			convertSubTree(tree.get(item));
 			TestElement testElement = item.createTestElement();
 			tree.replace(item,testElement);
 		}
@@ -210,16 +173,16 @@ public class Save implements Command
 
 		public void testTreeConversion() throws Exception
 		{
-			HashTree tree = new ListedHashTree();
-			JMeterGUIComponent root = new org.apache.jmeter.config.gui.ArgumentsPanel();
+			ListedHashTree tree = new ListedHashTree();
+			JMeterGUIComponent root = new org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui();
 			tree.add(root,root);
-			tree.getTree(root).add(root,root);
+			tree.get(root).add(root,root);
 			save.convertSubTree(tree);
 			assertEquals(tree.getArray()[0].getClass().getName(),root.createTestElement().getClass().getName());
-			tree = tree.getTree(tree.getArray()[0]);
+			tree = tree.get(tree.getArray()[0]);
 			assertEquals(tree.getArray()[0].getClass().getName(),
 					root.createTestElement().getClass().getName());
-			assertEquals(tree.getTree(tree.getArray()[0]).getArray()[0].getClass().getName(),
+			assertEquals(tree.get(tree.getArray()[0]).getArray()[0].getClass().getName(),
 					root.createTestElement().getClass().getName());
 		}
 	}
@@ -240,7 +203,7 @@ public class Save implements Command
 			}
 			catch(Exception ex)
 			{
-				log.error("",ex);
+				ex.printStackTrace();
 			}
 		}
 	}

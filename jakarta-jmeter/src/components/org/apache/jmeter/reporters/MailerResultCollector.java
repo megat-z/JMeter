@@ -1,23 +1,13 @@
 package org.apache.jmeter.reporters;
 
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.*;
+import java.io.*;
+import java.net.*;
+import javax.mail.*;
+import javax.mail.internet.*;
 
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import org.apache.jmeter.samplers.SampleEvent;
-import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.samplers.*;
 
 /**
  * Title:        Apache JMeter
@@ -30,8 +20,7 @@ import org.apache.log.Logger;
 
 public class MailerResultCollector extends ResultCollector implements Serializable
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.elements");
+
 	String address;
 	String from;
 	String smtpHost;
@@ -172,7 +161,7 @@ public class MailerResultCollector extends ResultCollector implements Serializab
 
 	public void sendTestMessage()
 	{
-		log.debug("### Test To:  " + this.address + ", " +
+		System.out.println("### Test To:  " + this.address + ", " +
 						"Via:  " + this.smtpHost + ", " +
 						"Fail Subject:  " + this.failSubject + ", " +
 						"Success Subject:  " + this.successSubject);
@@ -277,16 +266,16 @@ public class MailerResultCollector extends ResultCollector implements Serializab
 			msg.setSubject(subject);
 			msg.setText(attText);
 			Transport.send(msg);
-			log.info("Mail sent successfully!!");
+			System.out.println("Mail sent successfully!!");
 		}
 		catch (UnknownHostException e1)
 		{
-			log.fatalError("NxError:Invalid Mail Server ", e1);
+			System.out.println("NxError:Invalid Mail Server " + e1);
 			System.exit(1);
 		}
 		catch (Exception e)
 		{
-			log.fatalError("",e);
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}

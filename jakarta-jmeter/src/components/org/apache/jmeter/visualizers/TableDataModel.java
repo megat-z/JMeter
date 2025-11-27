@@ -1,5 +1,3 @@
-package org.apache.jmeter.visualizers;
-
 /*
  * ====================================================================
  * The Apache Software License, Version 1.1
@@ -55,29 +53,26 @@ package org.apache.jmeter.visualizers;
  * <http://www.apache.org/>.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+package org.apache.jmeter.visualizers;
 
-import javax.swing.event.TableModelListener;
+import org.apache.jmeter.gui.*;
+import java.util.*;
 import javax.swing.table.TableModel;
+import javax.swing.event.TableModelListener;
 
-import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.samplers.*;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /**
  *  This class implements the TableModel for the information kept
  *  by the GraphModel.
  *
- * @author     <a href="mailto:alf@i100.no">Alf Hogemark</a>Hogemark
- * @created    March 10, 2002
- * @version    1.0
+ *@author     <a href="mailto:alf@i100.no">Alf Hogemark</a>Hogemark
+ *@created    March 10, 2002
+ *@version    1.0
  */
 public class TableDataModel extends GraphModel implements TableModel
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	List urlList = new ArrayList();
 
 	/**
@@ -97,12 +92,6 @@ public class TableDataModel extends GraphModel implements TableModel
 	{
 		return TableVisualizer.class;
 	}
-	
-	public void clear()
-	{
-		super.clear();
-		urlList.clear();
-	}
 
 	/**
 	 * Gets the ClassLabel attribute of the GraphModel object
@@ -111,7 +100,7 @@ public class TableDataModel extends GraphModel implements TableModel
 	 */
 	public String getClassLabel()
 	{
-		return JMeterUtils.getResString("view_results_in_table");
+		return "View Results in Table";
 	}
 
 	public Sample addNewSample(long time,long timeStamp,boolean success,String url)
@@ -126,7 +115,6 @@ public class TableDataModel extends GraphModel implements TableModel
 		Sample s = addNewSample(e.getTime(),e.getTimeStamp(),e.isSuccessful(),
 				(String)e.getSampleLabel());
 		fireDataChanged();
-		
 		return s;
 	}
 
@@ -194,15 +182,15 @@ public class TableDataModel extends GraphModel implements TableModel
 		{
 			if((rowIndex >= 0) && (rowIndex < getSampleCount()))
 			{
-				return new Integer(rowIndex+1);
+				return new Integer(rowIndex);
 			}
 		}
 		else if(columnIndex == 1)
 		{
-			log.info("rowIndex = "+rowIndex);
+			System.out.print("rowIndex = "+rowIndex);
 			if((rowIndex >= 0) && (rowIndex < urlList.size()))
 			{
-				log.info(" url = "+urlList.get(rowIndex));
+				System.out.println(" url = "+urlList.get(rowIndex));
 				return urlList.get(rowIndex);
 			}
 		}
@@ -243,7 +231,6 @@ public class TableDataModel extends GraphModel implements TableModel
 	public void removeTableModelListener(TableModelListener l)
 	{
 	}
-
 }
 
 

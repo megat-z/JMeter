@@ -69,7 +69,7 @@ import java.util.Enumeration;
  * Use this Keystore to wrap the normal KeyStore implementation.
  *
  * @author <a href="bloritsch@apache.org">Berin Loritsch</a>
- * @version CVS $Revision: 1.2 $ $Date: 2002/12/27 13:42:30 $
+ * @version CVS $Revision: 1.1 $ $Date: 2002/08/11 19:24:50 $
  */
 public class DefaultKeyStore extends JmeterKeyStore {
     private X509Certificate[] certChain;
@@ -90,11 +90,11 @@ public class DefaultKeyStore extends JmeterKeyStore {
 
         Enumeration aliases = store.aliases();
         while (aliases.hasMoreElements()) {
-	    this.alias = (String) aliases.nextElement();
             if (store.isKeyEntry(alias)) {
                 key = (PrivateKey) store.getKey(alias, pword.toCharArray());
                 Certificate[] chain = store.getCertificateChain(alias);
                 certChain = new X509Certificate[chain.length];
+                this.alias = (String) aliases.nextElement();
 
                 for (int i = 0; i < chain.length; i++) {
                     certChain[i] = (X509Certificate) chain[i];

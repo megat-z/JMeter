@@ -53,26 +53,24 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.http.modifier.gui;
-import java.awt.Font;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
+import javax.swing.*;
+import java.awt.event.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
+import java.awt.*;
+import javax.swing.text.*;
+import org.apache.jmeter.gui.util.*;
 import org.apache.jmeter.config.gui.AbstractModifierGui;
 import org.apache.jmeter.protocol.http.modifier.UserParameterModifier;
-import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.jmeter.testelement.TestElement;
 /************************************************************
  *  Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  * A swing panel to allow UI with the UserParameterModifier class.
  *
  *@author     Mark Walsh
- *@created    $Date: 2002/10/17 19:47:19 $
+ *@created    $Date: 2002/08/11 19:24:52 $
  *@version    1.0
  ***********************************************************/
 public class UserParameterModifierGui extends AbstractModifierGui {

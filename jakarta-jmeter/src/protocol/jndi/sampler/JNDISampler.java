@@ -54,8 +54,8 @@
  */
 package org.apache.jmeter.ejb.jndi.sampler;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -65,11 +65,15 @@ import java.util.Vector;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.jmeter.ejb.jndi.config.JndiConfig;
+import org.apache.jmeter.ejb.jndi.config.LookupConfig;
+import org.apache.jmeter.ejb.jndi.config.MethodConfig;
+import org.apache.jmeter.ejb.jndi.config.MethodConfigUserObjectException;
+import org.apache.jmeter.ejb.jndi.config.gui.MethodConfigGui;
 import org.apache.jmeter.samplers.Entry;
-import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.samplers.SampleResult;
+import org.apache.log4j.Category;
 /**
  * Samples the JNDI performance and records them
  *
@@ -79,8 +83,8 @@ import org.apache.log.Logger;
  */
 public class JNDISampler implements Sampler
 {
-  transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.protocol.jndi");
+  private static Category catClass = Category.getInstance(
+	JNDISampler.class.getName());
 
   public static final String QUERY = "JNDISampler.query";
 
@@ -98,7 +102,7 @@ public class JNDISampler implements Sampler
    */
   public SampleResult sample(Entry e)
   {
-    log.info("Start : sample1");
+    catClass.info("Start : sample1");
     boolean reflectionStatus = false;
     // There is a row of ifs condition which may be executed depending on the
     // state of the MethodConfig state.  During reflection only one of these
@@ -143,9 +147,9 @@ public class JNDISampler implements Sampler
           String value = jndiConfig.getValue(i);
           if(value != null)
           {
-            if(log.isDebugEnabled())
+            if(catClass.isDebugEnabled())
             {
-              log.debug("sample1 : JNDI env - " + 
+              catClass.debug("sample1 : JNDI env - " + 
 		JndiConfig.JNDI_PROPS[i] + " = " + value);
             }
             ht.put(JndiConfig.JNDI_PROPS[i], value);
@@ -155,7 +159,7 @@ public class JNDISampler implements Sampler
         start = System.currentTimeMillis();
         ctx = new InitialContext(ht);
         end = System.currentTimeMillis();
-        log.info("sample1 : Got initial context");
+        catClass.info("sample1 : Got initial context");
         // store the initial context for reuse
         jndiConfig.setInitialContext(ctx);
       }
@@ -170,15 +174,15 @@ public class JNDISampler implements Sampler
       if(lookupConfig != null)
       {
         lookupName = lookupConfig.getLookupName();
-        if(log.isDebugEnabled())
+        if(catClass.isDebugEnabled())
         {
-          log.debug("sample1 : LookupName - " + lookupName);
+          catClass.debug("sample1 : LookupName - " + lookupName);
         }
         start = System.currentTimeMillis();
         ref = ctx.lookup(lookupName);
         end = System.currentTimeMillis();
         lookupTime = end - start;
-        log.info("Got remote interface");
+        catClass.info("Got remote interface");
         lookupRes.setTime(lookupTime);
         lookupRes.putValue(SampleResult.DISPLAY_NAME, 
 		"Remote Interface Lookup - " + lookupName);
@@ -200,10 +204,10 @@ public class JNDISampler implements Sampler
       int state = model.getState();
       reflectionStatus = model.getReflectionStatus();
       String[] strings = null;
-      if(log.isDebugEnabled())
+      if(catClass.isDebugEnabled())
       {
-        log.debug("sample1 : state - " + state);
-        log.debug("sample1 : reflectionStatus - " + reflectionStatus);
+        catClass.debug("sample1 : state - " + state);
+        catClass.debug("sample1 : reflectionStatus - " + reflectionStatus);
       }
       // Perform only if : 
       // 1. doing a reflection and in this state
@@ -235,9 +239,9 @@ public class JNDISampler implements Sampler
         // for this state, get all the required parms for the selected
         // method
         String methodHomeName = methodConfig.getMethodHomeName();
-        if(log.isDebugEnabled())
+        if(catClass.isDebugEnabled())
         {
-          log.debug("sample1 : selected methodHomeName - " +
+          catClass.debug("sample1 : selected methodHomeName - " +
 		methodHomeName);
         }
         Vector returnValues = 
@@ -261,11 +265,11 @@ public class JNDISampler implements Sampler
 	&& !stateJustChanged)
 	|| (state >= MethodConfig.METHOD_INVOKE_HOME && !reflectionStatus))
       {
-        log.debug("sample1 : METHOD_INVOKE_HOME");
+        catClass.debug("sample1 : METHOD_INVOKE_HOME");
         Method method = model.getHomeMethod();
-        if(log.isDebugEnabled())
+        if(catClass.isDebugEnabled())
         {
-          log.debug("sample1 : home method to be invoked - " + method);
+          catClass.debug("sample1 : home method to be invoked - " + method);
         }
         // only initialize homeMethodRes if method execution is to be measured
         homeMethodRes = new SampleResult();
@@ -275,26 +279,29 @@ public class JNDISampler implements Sampler
         {
           parmsArray = methodConfigGui.getMethodParmsValues(
 		MethodConfig.METHOD_INVOKE_HOME);
-          if(log.isDebugEnabled())
+          if(catClass.isDebugEnabled())
           {
-            log.debug("sample1 : home method parms - " + parmsArray);
+            catClass.debug("sample1 : home method parms - " + parmsArray);
           }
           // invoke the method
           start = System.currentTimeMillis();
           remoteInterface = method.invoke(ref, parmsArray);
-			log.info("return - " + remoteInterface);
+System.out.println("return - " + remoteInterface);
         }
         catch(IllegalAccessException err)
         {
-          log.error(err);
+          catClass.error(err);
+          System.out.println(err);
         }
         catch(InvocationTargetException err)
         {
-          log.error(err);
+          catClass.error(err);
+          System.out.println(err);
         }
         catch(MethodConfigUserObjectException err)
         {
-          log.error(err);
+          catClass.error(err);
+          System.out.println(err);
         }
         end = System.currentTimeMillis();
         if(!reflectionStatus)
@@ -326,9 +333,9 @@ public class JNDISampler implements Sampler
         // interface
         remoteInterface = model.getRemoteInterfaceType();
         Class remoteInterfaceClass = remoteInterface.getClass();
-        if(log.isDebugEnabled())
+        if(catClass.isDebugEnabled())
         {
-          log.debug("updateGui1 : remoteInterfaceClass - " +
+          catClass.debug("updateGui1 : remoteInterfaceClass - " +
 		remoteInterfaceClass);
         }
         Method[] methods = remoteInterfaceClass.getMethods();
@@ -351,9 +358,9 @@ public class JNDISampler implements Sampler
         // for this state, get all the required parms for the selected
         // method
         String methodRemoteName = methodConfig.getMethodRemoteName();
-        if(log.isDebugEnabled())
+        if(catClass.isDebugEnabled())
         {
-          log.debug("sample1 : selected methodRemoteName - " +
+          catClass.debug("sample1 : selected methodRemoteName - " +
 		methodRemoteName);
         }
         Object selectedRemoteInterfaceType = model.getRemoteInterfaceType();
@@ -380,11 +387,11 @@ public class JNDISampler implements Sampler
 	&& !stateJustChanged)
 	|| (state >= MethodConfig.METHOD_INVOKE_REMOTE && !reflectionStatus))
       {
-        log.debug("sample1 : METHOD_INVOKE_REMOTE");
+        catClass.debug("sample1 : METHOD_INVOKE_REMOTE");
         Method method = model.getRemoteMethod();
-        if(log.isDebugEnabled())
+        if(catClass.isDebugEnabled())
         {
-          log.debug("sample1 : remote method to be invoked - " + method);
+          catClass.debug("sample1 : remote method to be invoked - " + method);
         }
         Object selectedRemoteInterfaceType = model.getRemoteInterfaceType();
         // only initialize homeMethodRes if method execution is to be measured
@@ -398,19 +405,22 @@ public class JNDISampler implements Sampler
           // invoke the method
           start = System.currentTimeMillis();
           results = method.invoke(selectedRemoteInterfaceType, parmsArray);
-			log.info("return - " + results);
+System.out.println("return - " + results);
         }
         catch(IllegalAccessException err)
         {
-          log.error(err);
+          catClass.error(err);
+          System.out.println(err);
         }
         catch(InvocationTargetException err)
         {
-          log.error(err);
+          catClass.error(err);
+          System.out.println(err);
         }
         catch(MethodConfigUserObjectException err)
         {
-          log.error(err);
+          catClass.error(err);
+          System.out.println(err);
         }
         end = System.currentTimeMillis();
         if(!reflectionStatus)
@@ -460,16 +470,17 @@ public class JNDISampler implements Sampler
       res.putValue(SampleResult.RESULT_LIST, resultList);
       res.putValue(SampleResult.TOTAL_TIME, new Long(totalTime));
 
-      log.info("!!!!! ctxTime : " + ctxTime);
-      log.info("!!!!! lookupTime : " + lookupTime);
-      log.info("!!!!! homeMethodTime : " + homeMethodTime);
+      System.out.println("!!!!! ctxTime : " + ctxTime);
+      System.out.println("!!!!! lookupTime : " + lookupTime);
+      System.out.println("!!!!! homeMethodTime : " + homeMethodTime);
     }
     catch(NamingException err)
     {
-      log.error(err);
+      catClass.error(err);
+      System.err.println(err);
     }
     
-    log.info("End : sample1");
+    catClass.info("End : sample1");
     return res;
   }
 
@@ -483,7 +494,7 @@ public class JNDISampler implements Sampler
    */
   protected String getMethodSignature(Method method)
   {
-    log.debug("Start : getMethodSignature1");
+    catClass.debug("Start : getMethodSignature1");
     StringBuffer strbuff = new StringBuffer();
     Class[] parameterTypes = method.getParameterTypes();
     strbuff.append(method.getName());
@@ -499,8 +510,8 @@ public class JNDISampler implements Sampler
     }
     strbuff.append(")");
     String returnVal = strbuff.toString();
-    log.debug("getMethodSignature1 : method signature - " + returnVal);
-    log.debug("End : getMethodSignature1");
+    catClass.debug("getMethodSignature1 : method signature - " + returnVal);
+    catClass.debug("End : getMethodSignature1");
     return returnVal;
   }
 
@@ -511,7 +522,7 @@ public class JNDISampler implements Sampler
    */
   protected Vector getMethodParmsTypes(String methodName, Class objectClass)
   {
-    log.debug("Start : getMethodParms1");
+    catClass.debug("Start : getMethodParms1");
     Method[] methods = objectClass.getMethods();
     Method method = null;
     Class[] methodParmTypes = null;
@@ -535,9 +546,9 @@ public class JNDISampler implements Sampler
       }
       strbuff.append(")");
       String name = strbuff.toString();
-      if(log.isDebugEnabled())
+      if(catClass.isDebugEnabled())
       {
-        log.debug("getMethodParms1 : current method to be compared - " 
+        catClass.debug("getMethodParms1 : current method to be compared - " 
 		+ name);
       }
       if(name.equals(methodName))
@@ -550,7 +561,7 @@ public class JNDISampler implements Sampler
     Vector returnValues = new Vector();
     returnValues.add(method);
     returnValues.add(methodParmTypes);
-    log.debug("End : getMethodParms1");
+    catClass.debug("End : getMethodParms1");
     return returnValues;
   }
 }

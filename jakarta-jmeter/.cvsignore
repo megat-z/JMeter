@@ -1,4 +1,2 @@
 velocity.log
-build
-jmeter.log
-dist
+bin/classes
