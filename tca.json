@@ -1,0 +1,170 @@
+[
+    {
+        "test_id": "Load_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "Save_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "TreeCloner_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "TestCompiler_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "JMeterTest",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "SaveService_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "StringUtilities_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "ArgumentsPanel_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "OnceOnlyController_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "GenericController_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "InterleaveControl_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "LoopController_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "UrlConfigTest",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HtmlParserTester",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HTTPSampler_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HTTPSamplerFull_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "URLRewritingModifier_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HtmlParser_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "ProxyControl_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HTTPArgument_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HttpRequestHdr_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "StatVisualizerModel_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "ValueReplacer_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "CollectionProperty_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "RegexExtractor_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "CookieManager_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "HttpTestSampleGui_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    },
+    {
+        "test_id": "AnchorModifier_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
+    }
+]
