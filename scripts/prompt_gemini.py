@@ -11,31 +11,45 @@ def get_file_content(filepath):
     except FileNotFoundError:
         return None
 
-def generate_with_fallback(prompt):
-    """Attempts generation with Flash, falls back to Pro if not found."""
-    generation_config = {
-        "response_mime_type": "application/json",
-        "temperature": 0.2,
-    }
-
-    models_to_try = ['gemini-1.5-flash', 'gemini-pro']
-    
-    for model_name in models_to_try:
-        try:
-            print(f"Attempting to use model: {model_name}...")
-            model = genai.GenerativeModel(model_name, generation_config=generation_config)
-            response = model.generate_content(prompt)
-            return response
-        except Exception as e:
-            print(f"Failed with {model_name}: {str(e)}")
-            # If it's a quota error (429), we should wait and retry the SAME model, not switch.
-            # But if it's 404 (Not Found), we switch to the next model.
-            if "404" in str(e) or "not found" in str(e).lower():
-                continue # Try next model
-            else:
-                raise e # Re-raise other errors (like Auth or Quota) to be handled by main loop
-    
-    raise Exception("All models failed.")
+def find_available_model():
+    """
+    Dynamically queries the API to find a usable model.
+    Prioritizes 'flash' models for speed, then 'pro'.
+    """
+    print("🔍 Discovery: querying available Gemini models...")
+    try:
+        available_models = []
+        # iterate over all models available to this API key
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                available_models.append(m.name)
+        
+        print(f"✅ Found models: {available_models}")
+        
+        # Strategy 1: Look for 1.5 Flash (Best for this task)
+        for m in available_models:
+            if 'gemini-1.5-flash' in m:
+                return m
+                
+        # Strategy 2: Look for any Flash model
+        for m in available_models:
+            if 'flash' in m.lower():
+                return m
+        
+        # Strategy 3: Look for Pro model (Fallback)
+        for m in available_models:
+            if 'gemini-pro' in m or 'gemini-1.5-pro' in m:
+                return m
+                
+        # Strategy 4: Take the first available Gemini model
+        if available_models:
+            return available_models[0]
+            
+    except Exception as e:
+        print(f"⚠️ Error listing models: {e}")
+        
+    # Absolute fallback if discovery fails completely
+    return 'gemini-1.5-flash'
 
 def main():
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -45,13 +59,22 @@ def main():
     
     genai.configure(api_key=api_key)
     
+    # 1. Select Model Dynamically
+    model_name = find_available_model()
+    print(f"🚀 Selected Model: {model_name}")
+
+    # 2. Load Data
     diff_content = get_file_content("dff.txt") or "No changes detected."
     
-    # Strict truncation for 1.5 Flash (approx 100k tokens safe limit)
-    # For gemini-pro fallback (32k tokens), we might need even stricter truncation.
-    MAX_CHARS = 100000 
+    # Dynamic truncation based on model capability
+    # Flash models can handle ~1M tokens, Pro models ~32k
+    if 'flash' in model_name.lower():
+        MAX_CHARS = 300000 # ~75k tokens (Safe for Free Tier Flash)
+    else:
+        MAX_CHARS = 80000  # ~20k tokens (Safe for Pro)
+        
     if len(diff_content) > MAX_CHARS:
-        print(f"Truncating diff from {len(diff_content)} to {MAX_CHARS} chars.")
+        print(f"Truncating diff from {len(diff_content)} to {MAX_CHARS} chars for {model_name}.")
         diff_content = diff_content[:MAX_CHARS] + "\n...[TRUNCATED]..."
 
     test_cases_content = get_file_content("test_case.txt")
@@ -59,6 +82,7 @@ def main():
         print("Error: test_case.txt is missing.")
         sys.exit(1)
 
+    # 3. Prepare Prompt
     prompt = f"""
     You are a Software Engineering Assistant.
     Task: Analyze Code Changes and assess Test Case relevance.
@@ -77,15 +101,24 @@ def main():
     Values must be objects with: "relevance" (0.0-1.0), "complexity" (0.0-1.0), "change_nature" (string).
     """
 
+    generation_config = {
+        "response_mime_type": "application/json",
+        "temperature": 0.2,
+    }
+
+    # 4. Execute with Retries
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            response = generate_with_fallback(prompt)
+            print(f"Sending request (Attempt {attempt+1})...")
+            model = genai.GenerativeModel(model_name, generation_config=generation_config)
+            response = model.generate_content(prompt)
             
-            # Clean response text just in case markdown is included despite MIME type
+            # Parse Response
             text = response.text.replace('```json', '').replace('```', '').strip()
             json_data = json.loads(text)
             
+            # Save output
             with open("llm.txt", "w", encoding='utf-8') as f:
                 json.dump(json_data, f, indent=4)
                 
@@ -95,9 +128,11 @@ def main():
         except Exception as e:
             print(f"Error on attempt {attempt+1}: {str(e)}")
             if "429" in str(e) and attempt < max_retries - 1:
+                print("Quota limit hit. Waiting 30s...")
                 time.sleep(30)
             else:
                 if attempt == max_retries - 1:
+                    print("❌ All attempts failed.")
                     sys.exit(1)
 
 if __name__ == "__main__":
