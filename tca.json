@@ -1,170 +1,170 @@
 [
     {
-        "test_id": "org.apache.jmeter.gui.action.Load$Test",
-        "magnitude": 0.91,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "Load_Test",
+        "magnitude": 0.15,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.gui.action.Save$Test",
-        "magnitude": 0.91,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "Save_Test",
+        "magnitude": 0.15,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.engine.TreeCloner$Test",
-        "magnitude": 0.94,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "TreeCloner_Test",
+        "magnitude": 0.24,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.threads.TestCompiler$Test",
-        "magnitude": 0.94,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "TestCompiler_Test",
+        "magnitude": 0.24,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.junit.JMeterTest",
-        "magnitude": 0.85,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "JMeterTest",
+        "magnitude": 0.15,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.save.SaveService$Test",
-        "magnitude": 0.97,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "SaveService_Test",
+        "magnitude": 0.27,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.util.StringUtilities$Test",
-        "magnitude": 0.76,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "StringUtilities_Test",
+        "magnitude": 0.03,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.config.gui.ArgumentsPanel$Test",
-        "magnitude": 0.82,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "ArgumentsPanel_Test",
+        "magnitude": 0.12,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.control.OnceOnlyController$Test",
-        "magnitude": 0.85,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "OnceOnlyController_Test",
+        "magnitude": 0.18,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.control.GenericController$Test",
-        "magnitude": 0.82,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "GenericController_Test",
+        "magnitude": 0.15,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.control.InterleaveControl$Test",
-        "magnitude": 0.88,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "InterleaveControl_Test",
+        "magnitude": 0.18,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.control.LoopController$Test",
-        "magnitude": 0.85,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "LoopController_Test",
+        "magnitude": 0.18,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.junit.protocol.http.config.UrlConfigTest",
-        "magnitude": 0.79,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "UrlConfigTest",
+        "magnitude": 0.12,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.junit.protocol.http.parser.HtmlParserTester",
-        "magnitude": 0.94,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HtmlParserTester",
+        "magnitude": 0.21,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.sampler.HTTPSampler$Test",
-        "magnitude": 0.97,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HTTPSampler_Test",
+        "magnitude": 0.27,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.sampler.HTTPSamplerFull$Test",
-        "magnitude": 0.97,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HTTPSamplerFull_Test",
+        "magnitude": 0.27,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.modifier.URLRewritingModifier$Test",
-        "magnitude": 0.88,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "URLRewritingModifier_Test",
+        "magnitude": 0.21,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.parser.HtmlParser$Test",
-        "magnitude": 0.94,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HtmlParser_Test",
+        "magnitude": 0.21,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.proxy.ProxyControl$Test",
-        "magnitude": 0.97,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "ProxyControl_Test",
+        "magnitude": 0.27,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.util.HTTPArgument$Test",
-        "magnitude": 0.76,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HTTPArgument_Test",
+        "magnitude": 0.09,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.proxy.HttpRequestHdr$Test",
-        "magnitude": 0.82,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HttpRequestHdr_Test",
+        "magnitude": 0.12,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.visualizers.StatVisualizerModel$Test",
-        "magnitude": 0.85,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "StatVisualizerModel_Test",
+        "magnitude": 0.18,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.engine.util.ValueReplacer$Test",
-        "magnitude": 0.88,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "ValueReplacer_Test",
+        "magnitude": 0.21,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.testelement.property.CollectionProperty$Test",
-        "magnitude": 0.85,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "CollectionProperty_Test",
+        "magnitude": 0.15,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.extractor.RegexExtractor$Test",
-        "magnitude": 0.88,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "RegexExtractor_Test",
+        "magnitude": 0.18,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.control.CookieManager$Test",
-        "magnitude": 0.91,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "CookieManager_Test",
+        "magnitude": 0.24,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui$Test",
-        "magnitude": 0.85,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "HttpTestSampleGui_Test",
+        "magnitude": 0.12,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     },
     {
-        "test_id": "org.apache.jmeter.protocol.http.modifier.AnchorModifier$Test",
-        "magnitude": 0.88,
-        "phase": 5.8469,
-        "original_semantics": "initial_commit"
+        "test_id": "AnchorModifier_Test",
+        "magnitude": 0.21,
+        "phase": 0.192,
+        "original_semantics": "no_change"
     }
 ]
