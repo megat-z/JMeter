@@ -1,0 +1,142 @@
+{
+    "Load_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "Save_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "TreeCloner_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "TestCompiler_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "JMeterTest": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "SaveService_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "StringUtilities_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "ArgumentsPanel_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "OnceOnlyController_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "GenericController_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "InterleaveControl_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "LoopController_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "UrlConfigTest": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HtmlParserTester": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HTTPSampler_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HTTPSamplerFull_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "URLRewritingModifier_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HtmlParser_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "ProxyControl_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HTTPArgument_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HttpRequestHdr_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "StatVisualizerModel_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "ValueReplacer_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "CollectionProperty_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "RegexExtractor_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "CookieManager_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "HttpTestSampleGui_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    },
+    "AnchorModifier_Test": {
+        "relevance": 0.0,
+        "complexity": 0.1,
+        "change_nature": "no_change"
+    }
+}
