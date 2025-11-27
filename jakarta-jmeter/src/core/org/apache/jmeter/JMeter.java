@@ -70,14 +70,17 @@ import org.apache.jmeter.exceptions.IllegalUserActionException;
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.action.ActionRouter;
 import org.apache.jmeter.gui.action.CheckDirty;
+import org.apache.jmeter.gui.action.Load;
 import org.apache.jmeter.gui.tree.JMeterTreeListener;
 import org.apache.jmeter.gui.tree.JMeterTreeModel;
-import org.apache.jmeter.gui.util.ComponentUtil;
 import org.apache.jmeter.reporters.ResultCollector;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestListener;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jmeter.util.ListedHashTree;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.gui.ComponentUtil;
 
 /**
  * @author mstover
@@ -86,6 +89,8 @@ import org.apache.jmeter.util.ListedHashTree;
  * Window>Preferences>Java>Templates.
  */
 public class JMeter {
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter");
 
 	private final static int PROPFILE_OPT = 'p';
 	private final static int TESTFILE_OPT = 't';
@@ -173,7 +178,7 @@ public class JMeter {
 	/**
 	 * Starts up JMeter in GUI mode
 	 */
-	public void startGui() throws IllegalUserActionException {
+	public void startGui(CLOption testFile) throws IllegalUserActionException {
 
 		JMeterTreeModel treeModel = new JMeterTreeModel();
 		JMeterTreeListener treeLis = new JMeterTreeListener(treeModel);
@@ -190,6 +195,20 @@ public class JMeter {
 		main.show();
 		ActionRouter.getInstance().actionPerformed(
 			new ActionEvent(main, 1, CheckDirty.ADD_ALL));
+		if(testFile != null)
+		{
+			try
+			{
+				File f = new File(testFile.getArgument());
+				FileInputStream reader = new FileInputStream(f);
+				HashTree tree = SaveService.loadSubTree(reader);
+				new Load().insertLoadedTree(1,tree);
+			}
+			catch (Exception e)
+			{
+				log.error("Failure loading test file",e);
+			}
+		}
 	}
 
 	/**
@@ -215,7 +234,7 @@ public class JMeter {
 			} else if (parser.getArgumentById(SERVER_OPT) != null) {
 				startServer();
 			} else if (parser.getArgumentById(NONGUI_OPT) == null) {
-				startGui();
+				startGui(parser.getArgumentById(TESTFILE_OPT));
 			} else {
 				startNonGui(
 					parser.getArgumentById(TESTFILE_OPT),
@@ -286,7 +305,7 @@ public class JMeter {
 				Thread.sleep(Long.MAX_VALUE);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 	}
 
@@ -314,7 +333,7 @@ public class JMeter {
 
 			reader = new FileInputStream(f);
 
-			ListedHashTree tree = SaveService.loadSubTree(reader);
+			HashTree tree = SaveService.loadSubTree(reader);
 			if(logFile != null)
 			{
 				ResultCollector logger = new ResultCollector();
@@ -330,7 +349,7 @@ public class JMeter {
 
 		} catch (Exception e) {
 			System.out.println("Error in NonGUIDriver" + e.getMessage());
-			e.printStackTrace();
+			log.error("",e);
 		}
 	}
 	
@@ -356,7 +375,7 @@ public class JMeter {
 		
 		public void testStarted()
 		{
-			System.out.println(JMeterUtils.getResString("running_test"));
+			log.info(JMeterUtils.getResString("running_test"));
 		}
 		
 		/**

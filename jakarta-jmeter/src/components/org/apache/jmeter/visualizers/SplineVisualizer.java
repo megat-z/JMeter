@@ -53,16 +53,26 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.visualizers;
-import java.awt.*;
-import java.util.Vector;
-import javax.swing.*;
-import javax.swing.border.*;
-import org.apache.jmeter.gui.*;
-import org.apache.jmeter.gui.util.VerticalLayout;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+
+import org.apache.jmeter.samplers.Clearable;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
-import org.apache.jmeter.samplers.Clearable;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * This class implements a statistical analyser that takes samples to process a
@@ -70,7 +80,7 @@ import org.apache.jmeter.samplers.Clearable;
  * GraphVisualizer.
  *
  *@author    <a href="mailto:norguet@bigfoot.com">Jean-Pierre Norguet</a>
- *@created   $Date: 2002/08/11 19:24:41 $
+ *@created   $Date: 2002/10/17 19:47:15 $
  *@version   0.9.1
  ***************************************/
 public class SplineVisualizer extends AbstractVisualizer implements ImageVisualizer,
@@ -107,7 +117,7 @@ public class SplineVisualizer extends AbstractVisualizer implements ImageVisuali
 	 ***************************************/
 	protected final boolean FILL_UP_WITH_ZEROS = false;
 
-	private SplineGraph graph = null;
+	transient private SplineGraph graph = null;
 
 	private JLabel minimumLabel = null;
 	private JLabel maximumLabel = null;
@@ -118,7 +128,7 @@ public class SplineVisualizer extends AbstractVisualizer implements ImageVisuali
 	private JLabel maximumNumberLabel = null;
 	private JLabel averageNumberLabel = null;
 	private JLabel incomingNumberLabel = null;
-	private SplineModel model;
+	transient private SplineModel model;
 
 	/****************************************
 	 * !ToDo (Constructor description)
@@ -359,8 +369,8 @@ public class SplineVisualizer extends AbstractVisualizer implements ImageVisuali
 	 * Component showing a Spline curve.
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/08/11 19:24:41 $
-	 *@version   $Revision: 1.1 $
+	 *@created   $Date: 2002/10/17 19:47:15 $
+	 *@version   $Revision: 1.4 $
 	 ***************************************/
 	public class SplineGraph extends JComponent
 	{

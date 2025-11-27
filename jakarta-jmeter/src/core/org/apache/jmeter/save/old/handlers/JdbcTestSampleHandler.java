@@ -62,18 +62,22 @@ import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
 import org.apache.jmeter.save.old.Saveable;
 import org.apache.jmeter.save.old.xml.TagHandler;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.xml.sax.Attributes;
 
 /************************************************************
  *  Title: Description: Copyright: Copyright (c) 2001 Company:
  *
  *@author     Michael Stover
- *@created    $Date: 2002/08/11 19:24:48 $
+ *@created    $Date: 2002/08/29 18:17:39 $
  *@version    1.0
  ***********************************************************/
 
 public class JdbcTestSampleHandler extends TagHandler
 {
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.protocol.jdbc");
 	
 	JDBCSampler sampler;
 
@@ -101,7 +105,7 @@ public class JdbcTestSampleHandler extends TagHandler
 	 ***********************************************************/
 	public void notifySubElementEnded(Object childObj)
 	{
-		System.out.println(childObj);
+		log.debug(childObj.toString());
 		if (this.getMethodName().endsWith("defaultDb"))
 		{
 			retrieveDefaultDbConfig();

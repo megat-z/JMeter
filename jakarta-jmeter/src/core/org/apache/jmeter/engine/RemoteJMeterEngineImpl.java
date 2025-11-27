@@ -57,7 +57,9 @@ import java.net.InetAddress;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
-import org.apache.jmeter.util.ListedHashTree;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.HashTree;
 
 
 /************************************************************
@@ -70,6 +72,8 @@ public class RemoteJMeterEngineImpl
 		 extends java.rmi.server.UnicastRemoteObject
 		 implements RemoteJMeterEngine
 {
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.engine");
 	JMeterEngine backingEngine;
 
 	/************************************************************
@@ -86,7 +90,7 @@ public class RemoteJMeterEngineImpl
 		}
 		catch(Exception ex)
 		{
-			ex.printStackTrace();
+			log.error("rmiregistry needs to be running to start JMeter in server mode",ex);
 		}
 	}
 	
@@ -103,7 +107,7 @@ public class RemoteJMeterEngineImpl
 	 *      attribute
 	 *@exception  RemoteException  Description of Exception
 	 ***********************************************************/
-	public void configure(ListedHashTree testTree) throws RemoteException
+	public void configure(HashTree testTree) throws RemoteException
 	{
 		backingEngine.configure(testTree);
 	}
@@ -155,7 +159,7 @@ public class RemoteJMeterEngineImpl
 		}
 		catch(Exception ex)
 		{
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 
 	}

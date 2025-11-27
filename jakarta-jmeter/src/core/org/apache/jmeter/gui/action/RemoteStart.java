@@ -55,27 +55,34 @@
 package org.apache.jmeter.gui.action;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.rmi.RemoteException;
-import java.util.*;
-import org.apache.jmeter.engine.*;
-import org.apache.jmeter.gui.*;
-import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jmeter.threads.ThreadGroup;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jmeter.util.ListedHashTree;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JOptionPane;
+
+import org.apache.jmeter.engine.ClientJMeterEngine;
+import org.apache.jmeter.engine.JMeterEngine;
+import org.apache.jmeter.engine.JMeterEngineException;
+import org.apache.jmeter.gui.GuiPackage;
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.HashTree;
 
 /****************************************
  * Title: Description: Copyright: Copyright (c) 2001 Company:
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:44 $
+ *@created   $Date: 2002/10/17 19:47:16 $
  *@version   1.0
  ***************************************/
 
 public class RemoteStart extends AbstractAction
 {
-
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.gui");
 	private Map remoteEngines = new HashMap();
 
 	private static Set commands = new HashSet();
@@ -101,6 +108,7 @@ public class RemoteStart extends AbstractAction
 		String action = e.getActionCommand();
 		if(action.equals("remote_stop"))
 		{
+			GuiPackage.getInstance().getMainFrame().showStoppingMessage(name);
 			JMeterEngine engine = (JMeterEngine)remoteEngines.get(name);
 			engine.stopTest();
 		}
@@ -116,7 +124,7 @@ public class RemoteStart extends AbstractAction
 				}
 				catch(Exception ex)
 				{
-					ex.printStackTrace();
+					log.error("",ex);
 					JMeterUtils.reportErrorToUser("Bad call to remote host");
 					return;
 				}
@@ -148,7 +156,7 @@ public class RemoteStart extends AbstractAction
 	private void startEngine(JMeterEngine engine, String host)
 	{
 		GuiPackage gui = GuiPackage.getInstance();
-		ListedHashTree testTree = gui.getTreeModel().getTestPlan();
+		HashTree testTree = gui.getTreeModel().getTestPlan();
 		convertSubTree(testTree);
 		testTree.add(testTree.getArray()[0],gui.getMainFrame());
 		engine.configure(testTree);

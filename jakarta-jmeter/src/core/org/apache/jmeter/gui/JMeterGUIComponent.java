@@ -14,7 +14,7 @@ import org.apache.jmeter.testelement.TestElement;
  * Company: Apache Foundation</p>
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:43 $
+ *@created   $Date: 2002/08/19 22:33:13 $
  *@version   1.0
  ***************************************/
 
@@ -48,6 +48,14 @@ public interface JMeterGUIComponent
 	 *@return   !ToDo (Return description)
 	 ***************************************/
 	public TestElement createTestElement();
+	
+	/**
+	 * Test GUI elements can be turned disabled, in which case
+	 * they do not become part of the test when run.
+	 */
+	public boolean isEnabled();
+	
+	public void setEnabled(boolean enabled);
 
 	/****************************************
 	 * !ToDo (Method description)

@@ -72,11 +72,11 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.jmeter.gui.util.JMeterColor;
-import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.samplers.Clearable;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * This class implements a statistical analyser that calculates both the average
@@ -85,7 +85,7 @@ import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
  *
  *@author    <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
  *@created   February 8, 2001
- *@version   $Revision: 1.1 $ $Date: 2002/08/11 19:24:41 $
+ *@version   $Revision: 1.4 $ $Date: 2002/10/17 19:47:15 $
  ***************************************/
 public class GraphVisualizer extends AbstractVisualizer
 		 implements ImageVisualizer, ItemListener, GraphListener,Clearable
@@ -157,6 +157,7 @@ public class GraphVisualizer extends AbstractVisualizer
 	public void updateGui(Sample s)
 	{
 		// We have received one more sample
+		graph.updateGui(s);
 		noSamplesField.setText(Long.toString(model.getSampleCount()));
 		dataField.setText(Long.toString(s.data));
 		averageField.setText(Long.toString(s.average));

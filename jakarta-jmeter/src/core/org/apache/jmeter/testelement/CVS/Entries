@@ -1,8 +1,10 @@
-/AbstractTestElement.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
-/PerSampleClonable.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
-/PerThreadClonable.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
-/TestElement.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
-/TestListener.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
-/TestPlan.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
-/WorkBench.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_7_3
+/AbstractTestElement.java/1.3/Thu Aug 29 18:17:40 2002//Tv1_8
+/PerSampleClonable.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_8
+/PerThreadClonable.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_8
+/TestElement.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_8
+/TestListener.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_8
+/TestPlan.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_8
+/ThreadListener.java/1.1/Fri Aug 16 21:10:21 2002//Tv1_8
+/VariablesCollection.java/1.2/Thu Aug 29 18:17:40 2002//Tv1_8
+/WorkBench.java/1.1/Sun Aug 11 19:24:48 2002//Tv1_8
 D

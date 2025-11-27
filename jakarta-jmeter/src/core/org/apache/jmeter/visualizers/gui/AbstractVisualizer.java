@@ -3,12 +3,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.swing.JCheckBox;
 import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import org.apache.jmeter.exceptions.IllegalUserActionException;
 import org.apache.jmeter.gui.AbstractJMeterGuiComponent;
-import org.apache.jmeter.gui.NamePanel;
 import org.apache.jmeter.gui.util.FilePanel;
 import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.reporters.AbstractListenerElement;
@@ -16,19 +17,25 @@ import org.apache.jmeter.reporters.ResultCollector;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.Visualizer;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:50 $
+ *@created   $Date: 2002/08/30 15:51:21 $
  *@version   1.0
  ***************************************/
 
 public abstract class AbstractVisualizer extends AbstractJMeterGuiComponent
 	implements Visualizer, ChangeListener {
+		
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.gui");
 
 		private FilePanel filePanel;
+		private JCheckBox errorLogging;
 	ResultCollector collector;
 
 	/****************************************
@@ -36,7 +43,14 @@ public abstract class AbstractVisualizer extends AbstractJMeterGuiComponent
 	 ***************************************/
 	public AbstractVisualizer() {
 		super();
-		filePanel = new FilePanel(this);
+		filePanel = new FilePanel(this,
+				JMeterUtils.getResString("file_visualizer_output_file"));
+		errorLogging = new JCheckBox(JMeterUtils.getResString("log_errors_only"));
+	}
+	
+	protected JCheckBox getErrorLoggingCheckbox()
+	{
+		return errorLogging;
 	}
 
 
@@ -66,7 +80,7 @@ public abstract class AbstractVisualizer extends AbstractJMeterGuiComponent
 	}
 
 	public void stateChanged(ChangeEvent e) {
-		System.out.println("getting new collector");
+		log.info("getting new collector");
 		collector = (ResultCollector) createTestElement();
 	}
 
@@ -84,6 +98,7 @@ public abstract class AbstractVisualizer extends AbstractJMeterGuiComponent
 			collector = new ResultCollector();
 		}
 		configureTestElement(collector);
+		collector.setErrorLogging(errorLogging.isSelected());
 		try {
 			if (!getFile().equals("")) {
 				try {
@@ -96,7 +111,7 @@ public abstract class AbstractVisualizer extends AbstractJMeterGuiComponent
 			}
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			log.error("",e);
 		}
 		return (TestElement)collector.clone();
 	}
@@ -105,6 +120,8 @@ public abstract class AbstractVisualizer extends AbstractJMeterGuiComponent
 	{
 		super.configure(el);
 		setFile(el.getPropertyAsString(ResultCollector.FILENAME));
+		ResultCollector rc = (ResultCollector)el;
+		errorLogging.setSelected(rc.isErrorLogging());
 	}
 
 	/****************************************
