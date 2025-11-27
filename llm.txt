@@ -1,142 +1,142 @@
 {
     "org.apache.jmeter.gui.action.Load$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.gui.action.Save$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.engine.TreeCloner$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.7,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.threads.TestCompiler$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.8,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.junit.JMeterTest": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.save.SaveService$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.7,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.util.StringUtilities$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.2,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.config.gui.ArgumentsPanel$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.6,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.control.OnceOnlyController$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.4,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.control.GenericController$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.4,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.control.InterleaveControl$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.control.LoopController$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.junit.protocol.http.config.UrlConfigTest": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.4,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.junit.protocol.http.parser.HtmlParserTester": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.7,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.sampler.HTTPSampler$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.8,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.sampler.HTTPSamplerFull$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.9,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.modifier.URLRewritingModifier$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.7,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.parser.HtmlParser$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.8,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.proxy.ProxyControl$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.9,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.util.HTTPArgument$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.3,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.proxy.HttpRequestHdr$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.visualizers.StatVisualizerModel$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.5,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.engine.util.ValueReplacer$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.7,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.testelement.property.CollectionProperty$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.3,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.extractor.RegexExtractor$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.6,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.control.CookieManager$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.8,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.6,
         "change_nature": "no_change"
     },
     "org.apache.jmeter.protocol.http.modifier.AnchorModifier$Test": {
         "relevance": 0.0,
-        "complexity": 0.1,
+        "complexity": 0.7,
         "change_nature": "no_change"
     }
 }
