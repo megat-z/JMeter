@@ -1,0 +1,426 @@
+<project name="JMeter" default="all" basedir=".">
+
+  <!-- Where the class files should live -->
+  <property name="build.dir" value="build"/>
+  <property name="build.core" value="build/core"/>
+  <property name="build.http" value="build/protocol/http"/>
+  <property name="build.ftp" value="build/protocol/ftp"/>
+  <property name="build.jdbc" value="build/protocol/jdbc"/>
+  <property name="build.java" value="build/protocol/java"/>
+  <property name="build.components" value="build/components"/>
+  <property name="build.functions" value="build/functions"/>
+  
+  <!-- Where the Sources live -->
+  <property name="src.dir" value="src"/>
+  <property name="src.core" value="src/core"/>
+  <property name="src.http" value="src/protocol/http"/>
+  <property name="src.ftp" value="src/protocol/ftp"/>
+  <property name="src.jdbc" value="src/protocol/jdbc"/>
+  <property name="src.java" value="src/protocol/java"/>
+  <property name="src.components" value="src/components"/>
+  <property name="src.functions" value="src/functions"/>
+  
+  <!-- Where the API documentation lives -->
+  <property name="docs.api.dest.dir" value="docs/api"/>
+  <property name="version" value="1.7.3"/>
+  <property name="docs.src" value="./xdocs"/>
+  <property name="docs.dest" value="./docs"/>
+  <property name="printable_docs.dest" value="./printable_docs"/>
+  <property name="optimize" value="on"/>
+  <property name="tools.jar" value="${java.home}/lib/tools.jar"/>
+
+  <!-- Build classpath -->
+  <path id="classpath">
+	<fileset dir=".">
+	 <include name="**/lib/*.jar"/>
+	<include name="**/ext/*.jar"/>
+	</fileset>
+	  <pathelement location="${tools.jar}"/>
+  </path>
+
+  <path id="testClasspath">
+		<path refid="classpath"/>
+		<fileset dir="./lib/ext">
+	 		<include name="*.jar"/>
+			<include name="*.jar"/>
+		</fileset>
+  </path>
+  
+  <path id="srcpaths">
+  	<pathelement location="${src.core}"/>
+  		<pathelement location="${src.core}"/>
+  		<pathelement location="${src.components}"/>
+  		<pathelement location="${src.functions}"/>
+  		<pathelement location="${src.http}"/>
+  		<pathelement location="${src.ftp}"/>
+  		<pathelement location="${src.jdbc}"/>
+  		<pathelement location="${src.java}"/>
+  </path>
+  
+  <target name="init">
+  	<mkdir dir="${build.dir}"/>
+  	<mkdir dir="${build.core}"/>
+  	<mkdir dir="${build.http}"/>
+  	<mkdir dir="${build.jdbc}"/>
+  	<mkdir dir="${build.ftp}"/>
+  	<mkdir dir="${build.java}"/>
+  	<mkdir dir="${build.components}"/>
+  	<mkdir dir="${build.functions}"/>
+  </target>
+
+
+	<!--
+	- Check for optional JSSE libs.
+	-->
+	<target name="check.jsse.libs">
+	  <available classname="com.sun.net.ssl.internal.ssl.Provider"
+					 property="jsse.present">
+		 <classpath refid="classpath"/>
+	  </available>
+	</target>
+
+	<!--
+	- Check for optional JavaMail libs.
+	-->
+	<target name="check.mail.libs">
+		<available classname="javax.mail.Transport"
+					 property="javamail.present">
+		 <classpath refid="classpath"/>
+	  </available>
+	  <available classname="javax.activation.DataHandler"
+					 property="javamail.complete"/>
+	</target>
+	
+	<!--
+	- Check for optional IAIK libs (related to SSL)
+	-->
+	<target name="check.iaik.libs">
+		<available classname="iaik.protocol.https.Handler"
+					 property="isasilk.present">
+		 <classpath refid="classpath"/>
+	  </available>
+	</target>
+
+	<!--
+	- Check for anakia task
+	-->
+	<target name="check.anakia">
+	  <available classname="org.apache.velocity.anakia.AnakiaTask"
+					 property="AnakiaTask.present"/>
+	</target>
+
+	<target name="no.anakia" depends="check.anakia" unless="AnakiaTask.present">
+	  <echo>
+		 AnakiaTask is not present, documentation will not be generated.
+	  </echo>
+	</target>
+
+	<target name="ssl.message" depends="check.jsse.libs,iaik.message" unless="jsse.present">
+	  <echo message="Classes for SSL not found in classpath"/>
+	</target>
+
+	<target name="iaik.message" depends="check.iaik.libs" unless="isasilk.present">
+	  <echo message="Classes for IAIK iSaSiLk not found in classpath"/>
+	</target>
+
+	<target name="mail.message" depends="check.mail.libs" unless="javamail.complete">
+	  <echo message="Classes for Mail support not found in classpath"/>
+	</target>
+
+	<!--
+	- Compiles the source into class files - dumping results into the
+	- bin/clases directory
+	-->
+	<target name="compile_all" depends="init,ssl.message,iaik.message,mail.message">		
+		<javac
+				 destdir="${build.dir}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+			<src>			
+				<path refid="srcpaths"/>
+			</src>
+		  <include name="**/*.java"/>
+		  <exclude name="org/apache/jmeter/util/JsseSSLManager.java"
+					  unless="jsse.present"/>
+		  <exclude name="org/apache/jmeter/util/IaikSSLManager.java"
+					  unless="isasilk.present"/>
+		  <exclude name="org/apache/jmeter/util/keystore/PKCS12KeyStore.java"
+					  unless="isasilk.present"/>
+		  <exclude name="org/apache/jmeter/util/keystore/DefaultKeyStore.java"
+					  unless="jsse.present"/>
+		  <exclude name="org/apache/jmeter/visualizers/MailerVisualizer.java"
+					  unless="javamail.complete"/>
+		  <exclude name="org/apache/jmeter/reporters/MailerResultCollector.java"
+					  unless="javamail.complete"/>
+		  <classpath refid="classpath"/>
+		</javac>
+	</target>
+	
+	<target name="compile_core" depends="init,compile_all">		
+		<copy tofile="${src.core}/org/apache/jmeter/util/JMeterUtils.java_temp"
+				file="${src.core}/org/apache/jmeter/util/JMeterUtils.java"
+				overwrite="yes"/>
+		<replace file="${src.core}/org/apache/jmeter/util/JMeterUtils.java"
+					token="@VERSION@"
+					value="${version}"/>
+		<javac   srcdir="${src.core}"
+				 destdir="${build.core}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <exclude name="org/apache/jmeter/util/JsseSSLManager.java"
+					  unless="jsse.present"/>
+		  <exclude name="org/apache/jmeter/util/IaikSSLManager.java"
+					  unless="isasilk.present"/>
+		  <exclude name="org/apache/jmeter/util/keystore/PKCS12KeyStore.java"
+					  unless="isasilk.present"/>
+		  <exclude name="org/apache/jmeter/util/keystore/DefaultKeyStore.java"
+					  unless="jsse.present"/>
+		  <exclude name="org/apache/jmeter/visualizers/MailerVisualizer.java"
+					  unless="javamail.complete"/>
+		  <exclude name="org/apache/jmeter/reporters/MailerResultCollector.java"
+					  unless="javamail.complete"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+		<copy tofile="${src.core}/org/apache/jmeter/util/JMeterUtils.java"
+				file="${src.core}/org/apache/jmeter/util/JMeterUtils.java_temp"
+				overwrite="yes"/>
+		<delete file="${src.core}/org/apache/jmeter/util/JMeterUtils.java_temp"/>
+	</target>
+	
+	<target name="compile_components" depends="init,compile_all">
+		<javac srcdir="${src.components}"
+				 destdir="${build.components}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <exclude name="org/apache/jmeter/visualizers/MailerVisualizer.java"
+					  unless="javamail.complete"/>
+		  <exclude name="org/apache/jmeter/reporters/MailerResultCollector.java"
+					  unless="javamail.complete"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+	</target>
+	
+	<target name="compile_functions" depends="init,compile_all">
+		<javac srcdir="${src.functions}"
+				 destdir="${build.functions}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+	</target>
+	
+	<target name="compile_http" depends="init,compile_all">
+		<javac srcdir="${src.http}"
+				 destdir="${build.http}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+	</target>
+	
+	<target name="compile_ftp" depends="init,compile_all">
+		<javac srcdir="${src.ftp}"
+				 destdir="${build.ftp}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+	</target>
+	
+	<target name="compile_jdbc" depends="init,compile_all">
+		<javac srcdir="${src.jdbc}"
+				 destdir="${build.jdbc}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+	</target>
+	
+	<target name="compile_java" depends="init,compile_all">
+		<javac srcdir="${src.java}"
+				 destdir="${build.java}"
+				 optimize="${optimize}"
+				 debug="on"
+				 target="1.3">
+		  <include name="**/*.java"/>
+		  <classpath>
+		  	<path refid="classpath"/>
+		  	<pathelement location="${build.dir}"/>
+		  </classpath>
+		</javac>
+	</target>
+	
+	<target name="compile_protocols" depends="clean,compile_http,compile_ftp,compile_jdbc,compile_java"/>
+	
+	<target name="compile" depends="clean,compile_core,compile_components,compile_functions,compile_protocols"/>
+
+	<target name="rmi" depends="compile">
+	  <rmic base="${build.core}" classname="org.apache.jmeter.engine.RemoteJMeterEngineImpl">
+	  	<classpath>
+	  		<path refid="classpath"/>      
+	  		<pathelement path="${build.core}"/>
+	  	</classpath>
+	  </rmic>
+	  	
+	  <rmic classpath="${build.core}" base="${build.core}" classname="org.apache.jmeter.samplers.RemoteSampleListenerImpl"/>
+	</target>
+
+	<!--
+	- Generates java-docs
+	-->
+	<target name="api-docs">
+	  <mkdir dir="${docs.api.dest.dir}"/>
+	  <javadoc sourcepathref="srcpaths"
+				  destdir="${docs.api.dest.dir}"
+				  Protected="yes" author="yes" version="yes"
+				  doctitle="Apache JMeter APIs Specification"
+				  windowtitle="Apache JMeter API Specification"
+				  header="&lt;b&gt;Apache JMeter&lt;/b&gt;&lt;br&gt;&lt;font size='-1'&gt;1.7&lt;/font&gt;"
+				  bottom="Copyright &#169; 1998-2002 Apache Software Foundation. All Rights Reserved."
+				  packagenames="org.apache.jmeter.*">
+		 <classpath refid="classpath"/>
+	  </javadoc>
+	</target>
+
+	<!--
+	- Creates the ApacheJMeter.jar file.
+	-->
+	<target name="package" depends="compile,rmi">
+	  <copy toDir="${build.core}/org/apache/jmeter/images">
+		 <fileset dir="${src.core}/org/apache/jmeter/images"/>
+	  </copy>
+	  <copy toDir="${build.core}/org/apache/jmeter/resources">
+		 <fileset dir="${src.core}/org/apache/jmeter/resources">
+			<exclude name="*eucJP*"/>
+		</fileset>
+	  </copy>
+	  <copy toFile="${build.core}/org/apache/jmeter/help.txt" 
+	  		file="${src.core}/org/apache/jmeter/help.txt"/>	
+	  <mkdir dir="./lib/ext/"/> 
+
+	  <jar jarfile="./lib/ext/ApacheJMeter_core.jar" excludes="**/NewDriver*" manifest="${src.core}/MANIFEST" basedir="${build.core}"/>
+	  <jar jarfile="bin/ApacheJMeter.jar" includes="**/NewDriver*" manifest="${src.core}/MANIFEST" basedir="${build.core}"/>
+	  <jar jarfile="./lib/ext/ApacheJMeter_components.jar" basedir="${build.components}"/>
+	  <jar jarfile="./lib/ext/ApacheJMeter_functions.jar" basedir="${build.functions}"/>
+	  <jar jarfile="./lib/ext/ApacheJMeter_http.jar" basedir="${build.http}"/>
+	  <jar jarfile="./lib/ext/ApacheJMeter_ftp.jar" basedir="${build.ftp}"/>
+	  <jar jarfile="./lib/ext/ApacheJMeter_jdbc.jar" basedir="${build.jdbc}"/>
+	  <jar jarfile="./lib/ext/ApacheJMeter_java.jar" basedir="${build.java}"/>
+	</target>
+
+	<!--
+	- Copies the jar file to bin/ and everything else needed to run JMeter
+	- from bin/.
+	-->
+	<target name="install" depends="package">
+	  <fixcrlf srcdir="." eol="lf" includes="**/jmeter,**/jmeter-server" />
+	</target>
+
+	<!--
+	- Another name for install(?)
+	-->
+	<target name="all" depends="install"/>
+
+	<target name="assume_packages_present">
+		<property name="jsse.present" value="assume"/>
+		<property name="javamail.present" value="assume"/>
+		<property name="javamail.complete" value="assume"/>
+	</target>
+
+	<!--
+	- Creates the distribution packages
+	-->
+	<target name="dist" depends="assume_packages_present,clean,install">
+		<zip zipfile="../ApacheJMeter_${version}.zip">
+			<fileset dir="../">
+				<include name="jakarta-jmeter/**"/>
+				<exclude name="**/build/**"/>
+				<exclude name="**/classes*/**"/>
+				<exclude name="**/xdocs/**"/>
+				<exclude name="jakarta-jmeter/ext/**"/>
+			</fileset>
+		</zip>
+		<tar tarfile="../ApacheJMeter_${version}.tar" basedir=".." includes="jakarta-jmeter/**"
+				excludes="**/classes*/**,**/xdocs/**,jakarta-jmeter/ext/**,**/build/**"/>
+		<gzip zipfile="../ApacheJMeter_${version}.tar.gz" src="../ApacheJMeter_${version}.tar" />
+	</target>
+
+	<!--
+	- Deletes old build files.
+	-->
+	<target name="clean">
+	  <delete file="bin/ApacheJMeter.jar"/>
+	  <delete dir="lib/ext"/>
+	  <delete dir="${build.dir}"/>
+	  <delete dir="${docs.api.dest.dir}"/>
+	</target>
+
+
+	<target name="docs" depends="no.anakia" if="AnakiaTask.present">
+	  <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask"/>
+	  <anakia basedir="${docs.src}" destdir="${docs.dest}/"
+				 extension=".html" style="./xdocs/stylesheets/site.vsl"
+				 projectFile="./stylesheets/project.xml"
+				 excludes="**/stylesheets/**"
+				 includes="**/*.xml"
+				 lastModifiedCheck="true"
+				 velocityPropertiesFile="${docs.src}/velocity.properties"/>
+		<copy todir="${docs.dest}">
+			<fileset dir="${docs.src}">
+				<include name="images/**"/>
+				<include name="demos/**"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="printable_docs" depends="no.anakia" if="AnakiaTask.present">
+	  <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask"/>
+	  <anakia basedir="${docs.src}" destdir="${docs.dest}/"
+				 extension=".html" style="./xdocs/stylesheets/site_printable.vsl"
+				 projectFile="./stylesheets/project.xml"
+				 excludes="**/stylesheets/**"
+				 includes="**/*.xml"
+				 lastModifiedCheck="true"
+				 velocityPropertiesFile="${docs.src}/velocity.properties"/>
+
+	</target>
+
+	<target name="test" depends="install">
+	  <java classname="org.apache.jmeter.junit.AllTests" fork="yes" dir="${basedir}/bin">
+		 <classpath refid="testClasspath"/>
+		 <arg value="./jmeter.properties"/>
+	  </java>
+  </target>
+
+</project>
