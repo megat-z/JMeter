@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001-2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,6 +65,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.gui.NamePanel;
+import org.apache.jmeter.gui.tree.JMeterTreeNode;
 import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.WorkBench;
@@ -75,15 +76,17 @@ import org.apache.jorphan.gui.layout.VerticalLayout;
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Kevin Hammond
- *@created   $Date: 2002/10/17 19:47:15 $
+ *@created   $Date: 2002/12/31 18:05:54 $
  *@version   1.0
  ***************************************/
 
 public class WorkBenchGui extends JPanel implements JMeterGUIComponent
 {
-	NamePanel namePanel;
+    NamePanel namePanel;
+    private JMeterTreeNode node;
 
-	/****************************************
+
+        /****************************************
 	 * !ToDo (Constructor description)
 	 ***************************************/
 	public WorkBenchGui()
@@ -199,4 +202,11 @@ public class WorkBenchGui extends JPanel implements JMeterGUIComponent
 
 		this.add(mainPanel);
 	}
+
+
+    public void setNode(JMeterTreeNode node)
+    {
+        this.node = node;
+        namePanel.setNode(node);
+    }
 }

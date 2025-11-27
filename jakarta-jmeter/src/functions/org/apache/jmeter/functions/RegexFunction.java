@@ -48,6 +48,14 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 	transient PatternCompiler compiler = new Perl5Compiler();
 	Pattern templatePattern;
 	private String name;
+	private static ThreadLocal localMatcher =
+				 new ThreadLocal()
+				 {
+					protected Object initialValue()
+					{
+						 return new Perl5Matcher();
+					}
+				 };
 	
 	static
 	{
@@ -74,13 +82,14 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 	 */
 	public String execute(SampleResult previousResult,Sampler currentSampler) 
 	{
+		getVariables().put(name,defaultValue);
 		if(previousResult == null || previousResult.getResponseData() == null)
 		{
 			return defaultValue;
 		}
 		List collectAllMatches = new ArrayList();
 		try {
-			PatternMatcher matcher = new Perl5Matcher();
+			PatternMatcher matcher = (PatternMatcher)localMatcher.get();
 			String responseText = new String(previousResult.getResponseData());
 			PatternMatcherInput input = new PatternMatcherInput(responseText);
 			while(matcher.contains(input,searchPattern))
@@ -90,6 +99,11 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 			}
 		} catch(NumberFormatException e) {
 			log.error("",e);
+			return defaultValue;
+		}
+		catch(Exception e)
+		{
+			return defaultValue;
 		}
 		if(collectAllMatches.size() == 0)
 		{
@@ -131,6 +145,8 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 				MatchResult result = (MatchResult)collectAllMatches.get(
 						(int)(collectAllMatches.size() * ratio + .5) - 1);
 				return generateResult(result);
+			}catch (IndexOutOfBoundsException e) {
+				 return defaultValue;
 			}
 		}			
 	}
@@ -167,6 +183,8 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 				result.append(match.group(((Integer)template[a]).intValue()));
 			}
 		}
+		JMeterVariables vars = getVariables();
+		vars.put(name,result.toString());
 		return result.toString();
 	}
 	
@@ -308,6 +326,14 @@ public class RegexFunction extends AbstractFunction implements Serializable {
 			String match = variable.execute(result,null);
 			assertEquals("pinposition1_pinposition2_pinposition3",match);			
 		}
+		
+		public void testVariableExtraction6() throws Exception
+				{
+					variable.setParameters(URLEncoder.encode("<value field=\"(pinposition\\d+)\">(\\d+)</value>")+",$2$,4,,default");
+					variable.setJMeterVariables(new JMeterVariables());
+					String match = variable.execute(result,null);
+					assertEquals("default",match);			
+				}
 		
 		public void testComma() throws Exception
 		{

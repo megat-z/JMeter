@@ -77,7 +77,7 @@ import org.apache.log.Logger;
  * make a decision, it will pop open a dialog asking you for more information.
  *
  * @author <a href="bloritsch@apache.org">Berin Loritsch</a>
- * @version CVS $Revision: 1.3 $ $Date: 2002/08/29 18:17:40 $
+ * @version CVS $Revision: 1.5 $ $Date: 2002/12/27 15:51:17 $
  */
 public abstract class SSLManager {
 	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
@@ -169,15 +169,12 @@ public abstract class SSLManager {
                 File initStore = new File(fileName);
 
                 if (initStore.exists()) {
-                    try {
-                        this.keyStore.load(new FileInputStream(initStore), password);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Can't load KeyStore!!!  " + e.getMessage());
-                    }
+		    this.keyStore.load(new FileInputStream(initStore),password);
                 } else {
                     this.keyStore.load(null, password);
                 }
             } catch (Exception e) {
+	      throw new RuntimeException("Can't load KeyStore: "+e.toString());
             }
 
         log.info("JmeterKeyStore Location: " + fileName);
@@ -215,15 +212,12 @@ public abstract class SSLManager {
                 File initStore = new File(fileName);
 
                 if (initStore.exists()) {
-                    try {
-                        this.trustStore.load(new FileInputStream(initStore), null);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Can't load KeyStore!!!  " + e.getMessage());
-                    }
+		    this.trustStore.load(new FileInputStream(initStore), null);
                 } else {
                     this.trustStore.load(null, null);
                 }
             } catch (Exception e) {
+	      throw new RuntimeException("Can't load TrustStore: "+e.toString());
             }
 
             log.info("TrustStore Location: " + fileName);

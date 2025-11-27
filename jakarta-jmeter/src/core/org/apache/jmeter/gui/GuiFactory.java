@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,29 +52,68 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
+
 package org.apache.jmeter.gui;
+
 import java.util.*;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import org.apache.jmeter.control.Controller;
-import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jmeter.testelement.WorkBench;
-import org.apache.jmeter.util.JMeterUtils;
 
-/****************************************
- * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
- *
- *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:43 $
- *@version   1.0
- ***************************************/
+import javax.swing.*;
 
-public class GuiFactory
-{
 
-	private static Map guiComponents = new HashMap();
-	private static Map icons = new HashMap();
+/**
+ * @author Oliver Rossmueller
+ */
+public class GUIFactory {
 
-	private GuiFactory() { }
+    private static final Map guiMap = new HashMap();
+    private static final Map iconMap = new HashMap();
 
+
+    public static ImageIcon getIcon(Class elementClass)
+    {
+        String key = elementClass.getName();
+        ImageIcon icon = (ImageIcon)iconMap.get(key);
+
+        if (icon != null)
+	{
+            return icon;
+        }
+        if (elementClass.getSuperclass() != null)
+	{
+            return getIcon(elementClass.getSuperclass());
+        }
+        return null;
+    }
+
+
+    public static JComponent getGUI(Class elementClass)
+    {
+        String key = elementClass.getName();
+        JComponent gui = (JComponent)guiMap.get(key);
+
+        if (gui != null)
+	{
+            return gui;
+        }
+        if (elementClass.getSuperclass() != null)
+	{
+            return getGUI(elementClass.getSuperclass());
+        }
+        return null;
+    }
+
+
+    public static void registerIcon(String key, ImageIcon icon)
+    {
+        iconMap.put(key, icon);
+    }
+
+
+    public static void registerGUI(String key, Class guiClass)
+            throws InstantiationException, IllegalAccessException
+    {
+        JMeterGUIComponent gui = (JMeterGUIComponent)guiClass.newInstance();
+        JComponent component = (JComponent)gui;
+        guiMap.put(key, gui);
+    }
 }

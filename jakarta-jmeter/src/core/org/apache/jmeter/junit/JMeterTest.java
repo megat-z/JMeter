@@ -24,7 +24,7 @@ import org.apache.jorphan.reflect.ClassFinder;
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/10/17 19:47:17 $
+ *@created   $Date: 2002/12/31 18:26:08 $
  *@version   1.0
  ***************************************/
 
@@ -144,14 +144,34 @@ public class JMeterTest extends TestCase
 		List objects = new LinkedList();
 		while(classes.hasNext())
 		{
-			String className = (String)classes.next();
+		    Class c= Class.forName((String)classes.next());
+		    try
+		    {
 			try
 			{
-				objects.add(Class.forName(className).newInstance());
+			    // Try with a parameter-less constructor first
+			    objects.add(c.newInstance());
 			}
-			catch (IllegalAccessException e)
+			catch (InstantiationException e)
 			{
+			    try
+			    {
+			        // Events often have this constructor
+			        objects.add(c.getConstructor(
+				      new Class[] {Object.class}).newInstance(
+				      new Object[] {this} ));
+			    }
+			    catch (NoSuchMethodException f)
+			    {
+			        // no luck. Ignore this class
+			    }
 			}
+		    }
+		    catch (IllegalAccessException e)
+		    {
+		      // We won't test serialization of restricted-access
+		      // classes.
+		    }
 		}
 		return objects;
 	}

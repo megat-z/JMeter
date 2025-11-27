@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001-2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.util.SSLManager;
+import org.apache.jorphan.util.JOrphanUtils;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 /****************************************
@@ -86,8 +87,8 @@ import org.apache.log.Logger;
  * HTTP requests, including cookies and authentication.
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/30 14:43:20 $
- *@version   $Revision: 1.13 $
+ *@created   $Date: 2002/12/30 02:22:40 $
+ *@version   $Revision: 1.19 $
  ***************************************/
 public class HTTPSampler extends AbstractSampler
 {
@@ -104,6 +105,7 @@ public class HTTPSampler extends AbstractSampler
 	public final static String PATH = "HTTPSampler.path";
 	public final static String FOLLOW_REDIRECTS = "HTTPSampler.follow_redirects";
 	public final static String PROTOCOL = "HTTPSampler.protocol";
+	public final static String DEFAULT_PROTOCOL = "http";
 	public final static String URL = "HTTPSampler.URL";
 	public final static String POST = "POST";
 	public final static String GET = "GET";
@@ -115,6 +117,7 @@ public class HTTPSampler extends AbstractSampler
 	public final static String CONTENT_TYPE = "HTTPSampler.CONTENT_TYPE";
 	public final static String NORMAL_FORM = "normal_form";
 	public final static String MULTIPART_FORM = "multipart_form";
+	private static final int MAX_REDIRECTS=10;
 	protected static String encoding = "iso-8859-1";
 	private static final PostWriter postWriter = new PostWriter();
 	transient protected HttpURLConnection conn;
@@ -141,7 +144,12 @@ public class HTTPSampler extends AbstractSampler
 	}
 	public String getProtocol()
 	{
-		return getPropertyAsString(PROTOCOL);
+		String protocol= getPropertyAsString(PROTOCOL);
+		if (protocol==null || protocol.equals(""))
+		{
+		  return DEFAULT_PROTOCOL;
+		}
+		else return protocol;
 	}
 	/**
 	 *  Sets the Path attribute of the UrlConfig object
@@ -226,8 +234,11 @@ public class HTTPSampler extends AbstractSampler
 		int port = getPropertyAsInt(PORT);
 		if (port == 0)
 		{
-			port = 80;
-			setPort(port);
+			if("https".equalsIgnoreCase(getProtocol()))
+			{
+				return 443;
+			}
+			return 80;
 		}
 		return port;
 	}
@@ -373,15 +384,15 @@ public class HTTPSampler extends AbstractSampler
 	 *@param e  <code>Entry</code> to be sampled
 	 *@return   results of the sampling
 	 *@see      org.apache.jmeter.protocol.http.sampler.HTTPSampler.sample(org.apache.jmeter.samplers.Entry,
-	 *      boolean)
+	 *      int)
 	 ***************************************/
 	public SampleResult sample(Entry e)
 	{
-		return sample(false);
+		return sample(0);
 	}
 	public SampleResult sample()
 	{
-		return sample(false);
+		return sample(0);
 	}
 	/**
 	 *  !ToDoo (Method description)
@@ -459,6 +470,18 @@ public class HTTPSampler extends AbstractSampler
 		}
 		return buf.toString();
 	}
+
+	/****************************************
+	 * Set request headers in preparation to opening a connection
+	 *
+	 *@param connection       <code>URLConnection</code> to set headers on
+	 *@exception IOException  if an I/O exception occurs
+	 ***************************************/
+	public void setPostHeaders(URLConnection conn) throws IOException
+	{
+		postWriter.setHeaders(conn, this);
+	}
+
 	/****************************************
 	 * Send POST data from <code>Entry</code> to the open connection.
 	 *
@@ -471,6 +494,7 @@ public class HTTPSampler extends AbstractSampler
 	{
 		postWriter.sendPostData(connection, this);
 	}
+
 	/****************************************
 	 * Returns a <code>HttpURLConnection</code> with request method(GET or POST),
 	 * headers, cookies, authorization properly set for the URL request
@@ -484,6 +508,16 @@ public class HTTPSampler extends AbstractSampler
 		throws IOException
 	{
 		HttpURLConnection conn;
+		// [Jordi <jsalvata@atg.com>]
+		// I've not been able to find out why we're not using this
+		// feature of HttpURLConnections and we're doing redirection
+		// by hand instead. Everything would be so much simpler...
+		// [/Jordi]
+		// Mike: answer - it didn't work.  Maybe in JDK1.4 it works, but honestly,
+		// it doesn't seem like they're working on this.
+		// My longer term plan is to use Apache's home grown HTTP Client, or
+		// maybe even HTTPUnit's classes.  I'm sure both would be better than Sun's
+		HttpURLConnection.setFollowRedirects(false);
 		conn = (HttpURLConnection) u.openConnection();
 		// delegate SSL specific stuff to SSLManager so that compilation still works otherwise.
 		if ("https".equals(u.getProtocol()))
@@ -499,16 +533,6 @@ public class HTTPSampler extends AbstractSampler
 					e);
 			}
 		}
-		// [Jordi <jsalvata@atg.com>]
-		// I've not been able to find out why we're not using this
-		// feature of HttpURLConnections and we're doing redirection
-		// by hand instead. Everything would be so much simpler...
-		// [/Jordi]
-		// Mike: answer - it didn't work.  Maybe in JDK1.4 it works, but honestly,
-		// it doesn't seem like they're working on this.
-		// My longer term plan is to use Apache's home grown HTTP Client, or
-		// maybe even HTTPUnit's classes.  I'm sure both would be better than Sun's
-		conn.setFollowRedirects(false);
 		// a well-bahaved browser is supposed to send 'Connection: close'
 		// with the last request to an HTTP server. Instead, most browsers
 		// leave it to the server to close the connection after their
@@ -535,14 +559,14 @@ public class HTTPSampler extends AbstractSampler
 	 */
 	public void parseArguments(String queryString)
 	{
-		String[] args = JMeterUtils.split(queryString, "&");
+		String[] args = JOrphanUtils.split(queryString, "&");
 		for (int i = 0; i < args.length; i++)
 		{
 			// need to handle four cases:   string contains name=value
 			//                              string contains name=
-			//                              string contains name 
+			//                              string contains name
 			//                              empty string
-			// find end of parameter name 
+			// find end of parameter name
 			int endOfNameIndex = 0;
 			String metaData = ""; // records the existance of an equal sign
 			if (args[i].indexOf("=") != -1)
@@ -799,17 +823,19 @@ public class HTTPSampler extends AbstractSampler
 		}
 		URL newUrl = new URL(loc);
 		setMethod(GET);
+		setProtocol(newUrl.getProtocol());
 		setDomain(newUrl.getHost());
+		setPort(newUrl.getPort());
 		setPath(newUrl.getFile());
 		removeArguments();
 		parseArguments(newUrl.getQuery());
 	}
-	
+
 	protected long connect() throws IOException
 	{
 		long time = System.currentTimeMillis();
 		try
-		{				
+		{
 			conn.connect();
 		}
 		catch(BindException e)
@@ -828,7 +854,7 @@ public class HTTPSampler extends AbstractSampler
 			conn = setupConnection(getUrl(),getMethod());
 			if(getMethod().equals(HTTPSampler.POST))
 			{
-				postWriter.setHeaders(conn,this);
+				setPostHeaders(conn);
 			}
 			time = connect();
 		}
@@ -843,29 +869,21 @@ public class HTTPSampler extends AbstractSampler
 		}
 		return time;
 	}
-	
+
 	/****************************************
 	 * Samples <code>Entry</code> passed in and stores the result in <code>SampleResult</code>
 	 *
 	 *@param e           <code>Entry</code> to be sampled
-	 *@param redirected  whether we're processing a redirect
+	 *@param redirects   the level of redirection we're processing (0 means
+	 *			original request) -- just used to prevent
+	 *			an infinite loop.
 	 *@return            results of the sampling
 	 ***************************************/
-	private SampleResult sample(boolean redirected)
+	private SampleResult sample(int redirects)
 	{
 		log.debug("Start : sample2");
 		long time = System.currentTimeMillis();
 		SampleResult res = new SampleResult();
-		if (redirected)
-		{
-			//url.removeArguments();
-			// [Jordi <jsalvata@atg.com>
-			// TO-DO: I need to investigate why this is necessary.
-			// ...although it won't do any harm...
-			// [/Jordi]
-			// Mike: arguments will be sent otherwise, which is not the way a browser
-			// behaves.  That's not to say it's perfect as is...
-		}
 		URL u = null;
 		try
 		{
@@ -881,23 +899,13 @@ public class HTTPSampler extends AbstractSampler
 				log.debug("sample2 : sampling url - " + u);
 			}
 			conn = setupConnection(u, getMethod());
-			// [Jordi <jsalvata@atg.com>]
-			// There's some illegality here... see my comment in sendPostData.
-			// Also, we don't seem to be including the time needed to send the POST
-			// data in the count... should we? - mike: good point, I changed it
-			// TO-DO: Is there something I'm missing here?
-			// [/Jordi]			
-			if (!redirected
-				&& getProperty(HTTPSampler.METHOD).equals(HTTPSampler.POST))
+			if (getProperty(HTTPSampler.METHOD).equals(HTTPSampler.POST))
 			{
-				postWriter.setHeaders(conn,this);
-			}
-			time = connect();
-			if (!redirected
-				&& getProperty(HTTPSampler.METHOD).equals(HTTPSampler.POST))
-			{
+				setPostHeaders(conn);
+				time = connect();
 				sendPostData(conn);
 			}
+			else time = connect();
 			saveConnectionCookies(conn, u, getCookieManager());
 			int errorLevel = 0;
 			try
@@ -917,21 +925,30 @@ public class HTTPSampler extends AbstractSampler
 			}
 			else if (errorLevel / 100 == 3)
 			{
-				if (redirected || !getFollowRedirects())
+				if (redirects >= MAX_REDIRECTS)
+				{
+					throw new IOException("Maximum number of redirects exceeded");
+				}
+
+				if (!getFollowRedirects())
 				{
 					time = bundleResponseInResult(time, res, conn);
 				}
 				else
 				{
-					redirectUrl(conn, u);
 					time = System.currentTimeMillis() - time;
-					res = sample(true);
-					time += res.getTime();
+
+					HTTPSampler redirect= (HTTPSampler)this.clone();
+					redirect.redirectUrl(conn, u);
+					SampleResult redirectResult= redirect.sample(redirects+1);
+					res.addSubResult(redirectResult);
+					res.setResponseData(redirectResult.getResponseData());
+					time += redirectResult.getTime();
 				}
 			}
 			else
 			{
-				// Could not sample the URL								
+				// Could not sample the URL
 				time = bundleResponseInResult(time, res, conn);
 				res.setSuccessful(false);
 			}
@@ -963,7 +980,7 @@ public class HTTPSampler extends AbstractSampler
 			catch (Exception e)
 			{
 			}
-			
+
 		}
 		log.debug("End : sample2");
 		return res;
@@ -981,8 +998,8 @@ public class HTTPSampler extends AbstractSampler
 		byte[] complete = new byte[ret.length + head.length];
 		System.arraycopy(head, 0, complete, 0, head.length);
 		System.arraycopy(ret, 0, complete, head.length, ret.length);
-		res.setResponseData(complete);	
-		res.setSuccessful(true);	
+		res.setResponseData(complete);
+		res.setSuccessful(true);
 		return time;
 	}
 	/****************************************

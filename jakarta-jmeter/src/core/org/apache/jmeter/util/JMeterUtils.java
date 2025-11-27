@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001-2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,6 +68,9 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.HashSet;
+import java.util.Collection;
+import java.util.Iterator;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -84,10 +87,12 @@ import org.xml.sax.XMLReader;
  *
  *@author     <a href="mailto://stefano@apache.org">Stefano Mazzocchi</a>
  *@created    June 28, 2001
- *@version    $Revision: 1.9 $ $Date: 2002/10/17 19:47:17 $
+ *@version    $Revision: 1.15 $ $Date: 2003/01/30 00:35:46 $
  */
 public class JMeterUtils implements UnitTestManager
 {
+        private static final String VERSION="1.8.1";
+
 	transient private static Logger log =
 		Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.util");
 	private static LoggingManager logManager;
@@ -108,8 +113,10 @@ public class JMeterUtils implements UnitTestManager
 		xmlFactory = temp;
 	}
 	private static Properties appProperties;
-	public static ResourceBundle RESOURCES =
-		ResourceBundle.getBundle("org.apache.jmeter.resources.messages");
+	private static Collection localeChangeListeners = new HashSet();
+	private static Locale locale;
+	private static ResourceBundle resources;
+
 	/**
 	 *  This method is used by the init method to load the property file that may
 	 *  even reside in the user space, or in the classpath under
@@ -142,6 +149,9 @@ public class JMeterUtils implements UnitTestManager
 		appProperties = p;
 		LoggingManager.initializeLogging(appProperties);
 		log = LoggingManager.getLoggerFor(UTIL);
+		String loc= appProperties.getProperty("language");
+		if (loc!=null) setLocale(new Locale(loc, ""));
+		else setLocale(Locale.getDefault());
 		return p;
 	}
 	public void initializeProperties(String file)
@@ -157,11 +167,69 @@ public class JMeterUtils implements UnitTestManager
 	{
 		return new String[] { getJMeterHome() + "/lib/ext" };
 	}
-	public static void reinitializeLocale(Locale loc)
+
+	/**
+	 * Changes the current locale: re-reads resource strings and notifies
+	 * listeners.
+	 *
+	 * @author Oliver Rossmueller
+	 * @param locale new locale
+	 */
+	public static void setLocale(Locale loc)
 	{
-		RESOURCES =
-			ResourceBundle.getBundle("org.apache.jmeter.resources.messages", loc);
+	    locale= loc;
+	    resources = ResourceBundle.getBundle(
+		    "org.apache.jmeter.resources.messages", locale);
+	    notifyLocaleChangeListeners();
 	}
+
+	/**
+	 * Gets the current locale.
+	 *
+	 * @author Oliver Rossmueller
+	 * @return current locale
+	 */
+	public static Locale getLocale()
+	{
+	    return locale;
+	}
+
+	/**
+	 * @author Oliver Rossmueller
+	 */
+	public static void addLocaleChangeListener(
+		LocaleChangeListener listener)
+	{
+	    localeChangeListeners.add(listener);
+	}
+
+	/**
+	 * @author Oliver Rossmueller
+	 */
+	public static void removeLocaleChangeListener(
+		LocaleChangeListener listener)
+	{
+	    localeChangeListeners.remove(listener);
+	}
+
+	/**
+	 * Notify all listeners interested in locale changes.
+	 *
+	 * @author Oliver Rossmueller
+	 */
+	private static void notifyLocaleChangeListeners()
+	{
+	    LocaleChangeEvent event =
+		new LocaleChangeEvent(JMeterUtils.class, locale);
+	    Iterator iterator = localeChangeListeners.iterator();
+
+	    while (iterator.hasNext()) {
+		LocaleChangeListener listener =
+			(LocaleChangeListener)iterator.next();
+		listener.localeChanged(event);
+	    }
+	}
+
 	/**
 	 *  Gets the resource string for this key.
 	 *  @param key the key in the resource file
@@ -178,7 +246,7 @@ public class JMeterUtils implements UnitTestManager
 		String resString = null;
 		try
 		{
-			resString = RESOURCES.getString(key);
+			resString = resources.getString(key);
 		}
 		catch (MissingResourceException mre)
 		{
@@ -702,50 +770,6 @@ public class JMeterUtils implements UnitTestManager
 	 *
 	 *@param  splittee   String to be split
 	 *@param  splitChar  Character to split the string on
-	 *@return            Array of all the tokens.
-	 */
-	public static String[] split(String splittee, String splitChar)
-	{
-		if (splittee == null || splitChar == null)
-		{
-			return new String[0];
-		}
-		StringTokenizer tokens;
-		String temp;
-		int spot;
-		while ((spot = splittee.indexOf(splitChar + splitChar)) != -1)
-		{
-			splittee =
-				splittee.substring(0, spot + splitChar.length())
-					+ splittee.substring(spot + 2 * splitChar.length(), splittee.length());
-		}
-		Vector returns = new Vector();
-		int start = 0;
-		int length = splittee.length();
-		spot = 0;
-		while (start < length && (spot = splittee.indexOf(splitChar, start)) > -1)
-		{
-			if (spot > 0)
-			{
-				returns.addElement(splittee.substring(start, spot));
-			}
-			start = spot + splitChar.length();
-		}
-		if (start < length)
-		{
-			returns.add(splittee.substring(start));
-		}
-		String[] values = new String[returns.size()];
-		returns.copyInto(values);
-		return values;
-	}
-	// End Method
-	/**
-	 *  Takes a String and a tokenizer character, and returns a new array of
-	 *  strings of the string split by the tokenizer character.
-	 *
-	 *@param  splittee   String to be split
-	 *@param  splitChar  Character to split the string on
 	 *@param  def        Default value to place between two split chars that have
 	 *      nothing between them
 	 *@return            Array of all the tokens.
@@ -908,6 +932,7 @@ public class JMeterUtils implements UnitTestManager
 	 */
 	public static String getJMeterVersion()
 	{
-		return "@VERSION@";
+		return VERSION;
 	}
 }
+

@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,16 +98,20 @@ import org.apache.jmeter.samplers.Remoteable;
 import org.apache.jmeter.testelement.TestListener;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.gui.ComponentUtil;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/10/17 19:47:16 $
+ *@created   $Date: 2003/01/31 18:25:09 $
  *@version   1.0
  ***************************************/
 
 public class MainFrame extends JFrame implements TestListener,Remoteable
 {
+	transient private static Logger log =
+			Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.gui");
 	JPanel all, mainPanel;
 	Box toolPanel;
 	JScrollPane treePanel;
@@ -143,13 +147,13 @@ public class MainFrame extends JFrame implements TestListener,Remoteable
 		this.treeModel = treeModel;
 		GuiPackage.getInstance().setMainFrame(this);
 		init();
-		this.setDefaultCloseOperation(this.DO_NOTHING_ON_CLOSE);
+		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
-	
+
 	public MainFrame()
 	{
 	}
-	
+
 
 	/****************************************
 	 * !ToDo (Method description)
@@ -160,7 +164,7 @@ public class MainFrame extends JFrame implements TestListener,Remoteable
 	{
 		menuBar.setFileSaveEnabled(enabled);
 	}
-	
+
 	public void showStoppingMessage(String host)
 	{
 		stoppingMessage = new JDialog(this,
@@ -328,7 +332,7 @@ public class MainFrame extends JFrame implements TestListener,Remoteable
 		hosts.remove(host);
 		if(hosts.size() == 0)
 		{
-			runningIndicator.setIcon(stoppedIcon);			
+			runningIndicator.setIcon(stoppedIcon);
 		}
 		menuBar.setRunning(false,host);
 		if(stoppingMessage != null)
@@ -425,6 +429,8 @@ public class MainFrame extends JFrame implements TestListener,Remoteable
 	{
 		tree = new JTree(this.treeModel);
 		tree.setCellRenderer(getCellRenderer());
+		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
 		treeListener.setJTree(tree);
 		tree.addTreeSelectionListener(treeListener);
 		tree.addMouseListener(treeListener);
@@ -437,8 +443,8 @@ public class MainFrame extends JFrame implements TestListener,Remoteable
 	 * !ToDo (Class description)
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/10/17 19:47:16 $
-	 *@version   $Revision: 1.6 $
+	 *@created   $Date: 2003/01/31 18:25:09 $
+	 *@version   $Revision: 1.8 $
 	 ***************************************/
 	private class WindowHappenings extends WindowAdapter
 	{
@@ -453,4 +459,5 @@ public class MainFrame extends JFrame implements TestListener,Remoteable
 					this, event.getID(), "exit"));
 		}
 	}
+	
 }

@@ -64,7 +64,7 @@ import junit.framework.TestCase;
 
 import org.apache.jmeter.config.ConfigElement;
 import org.apache.jmeter.config.ConfigTestElement;
-import org.apache.jmeter.control.gui.RecordController;
+import org.apache.jmeter.protocol.http.control.gui.RecordController;
 import org.apache.jmeter.exceptions.IllegalUserActionException;
 import org.apache.jmeter.functions.ValueReplacer;
 import org.apache.jmeter.gui.GuiPackage;
@@ -90,7 +90,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
  *  Apache Foundation
  *
  *@author     Michael Stover
- *@created    $Date: 2002/08/29 18:17:42 $
+ *@created    $Date: 2003/01/31 18:25:10 $
  *@version    1.0
  ***********************************************************/
 public class ProxyControl extends ConfigTestElement implements Serializable
@@ -171,17 +171,7 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		return org.apache.jmeter.protocol.http.proxy.gui.ProxyControlGui.class;
 	}
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public Object clone()
-	{
-		ProxyControl clone = new ProxyControl();
-		configureClone(clone);
-		return clone;
-	}
+
 	/************************************************************
 	 *  !ToDo
 	 *
@@ -245,12 +235,17 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		getIncludePatterns().clear();
 	}
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@param  config  !ToDo (Parameter description)
-	 ***********************************************************/
-	public void deliverSampler(HTTPSampler sampler, TestElement[] subConfigs)
+	
+	/**
+	 * Receives the recorded sampler from the proxy server for placing in the
+	 * test tree
+	 * @param sampler
+	 * @param subConfigs
+	 * @param serverResponse Added to allow saving of the server's response while
+	 * recording.  A future consideration.
+	 */
+	public void deliverSampler(HTTPSampler sampler, TestElement[] subConfigs,
+			byte[] serverResponse)
 	{
 		if (filterUrl(sampler))
 		{
@@ -267,7 +262,7 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 			server.stopServer();
 		}
 	}
-	private boolean filterUrl(HTTPSampler sampler)
+	protected boolean filterUrl(HTTPSampler sampler)
 	{
 		boolean ok = false;
 		if (sampler.getDomain() == null || sampler.getDomain().equals(""))
@@ -312,47 +307,53 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 			nodes = treeModel.getNodesOfType(ThreadGroupGui.class);
 		}
 		Iterator iter = nodes.iterator();
-		if (iter.hasNext())
+		while (iter.hasNext())
 		{
 			JMeterTreeNode node = (JMeterTreeNode) iter.next();
-			Enumeration enum = node.children();
-			while (enum.hasMoreElements())
-			{
-				JMeterTreeNode subNode = (JMeterTreeNode) enum.nextElement();
-				JMeterGUIComponent sample =
-					(JMeterGUIComponent) subNode.getUserObject();
-				if (sample instanceof UrlConfigGui)
-				{
-					urlConfig = sample.createTestElement();
-					break;
-				}
-			}
-			if (areMatched(sampler, urlConfig))
-			{
-				removeValuesFromSampler(sampler, urlConfig);
-				replacer.reverseReplace(sampler);
-				HttpTestSampleGui test = new HttpTestSampleGui();
-				test.configure(sampler);
-				try
-				{
-					JMeterTreeNode newNode = treeModel.addComponent(test, node);
-					for (int i = 0; subConfigs != null && i < subConfigs.length; i++)
-					{
-						if (subConfigs[i] instanceof HeaderManager)
-						{
-							HeaderPanel comp = new HeaderPanel();
-							replacer.reverseReplace(subConfigs[i]);
-							comp.configure(subConfigs[i]);
-							treeModel.addComponent(comp, newNode);
-						}
-					}
-				}
-				catch (IllegalUserActionException e)
-				{
-					JMeterUtils.reportErrorToUser(e.getMessage());
-				}
-			}
-		}
+
+            if (! node.isEnabled()) {
+                continue;
+            } else {
+                Enumeration enum = node.children();
+                while (enum.hasMoreElements())
+                {
+                    JMeterTreeNode subNode = (JMeterTreeNode) enum.nextElement();
+                    JMeterGUIComponent sample =
+                        (JMeterGUIComponent) subNode.getUserObject();
+                    if (sample instanceof UrlConfigGui)
+                    {
+                        urlConfig = sample.createTestElement();
+                        break;
+                    }
+                }
+                if (areMatched(sampler, urlConfig))
+                {
+                    removeValuesFromSampler(sampler, urlConfig);
+                    replacer.reverseReplace(sampler);
+                    HttpTestSampleGui test = new HttpTestSampleGui();
+                    test.configure(sampler);
+                    try
+                    {
+                        JMeterTreeNode newNode = treeModel.addComponent(test, node);
+                        for (int i = 0; subConfigs != null && i < subConfigs.length; i++)
+                        {
+                            if (subConfigs[i] instanceof HeaderManager)
+                            {
+                                HeaderPanel comp = new HeaderPanel();
+                                replacer.reverseReplace(subConfigs[i]);
+                                comp.configure(subConfigs[i]);
+                                treeModel.addComponent(comp, newNode);
+                            }
+                        }
+                    }
+                    catch (IllegalUserActionException e)
+                    {
+                        JMeterUtils.reportErrorToUser(e.getMessage());
+                    }
+                }
+                return;
+            }
+        }
 	}
 	private void removeValuesFromSampler(
 		HTTPSampler sampler,

@@ -28,7 +28,7 @@ public class Help implements Command
 	private static Set commands = new HashSet();
 	public final static String HELP = "help";
 	private static String helpPage =
-		"file://"
+		"file:///"
 			+ JMeterUtils.getJMeterHome()
 			+ "/docs/usermanual/component_reference.html";
 	private static JDialog helpWindow;
@@ -48,11 +48,6 @@ public class Help implements Command
 		catch (IOException err)
 		{
 			log.error("Couldn't load " + helpPage, err);
-			JOptionPane.showMessageDialog(
-				GuiPackage.getInstance().getMainFrame(),
-				JMeterUtils.getResString("error_loading_help"),
-				"Error",
-				JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	/**

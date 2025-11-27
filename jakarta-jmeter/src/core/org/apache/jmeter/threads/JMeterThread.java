@@ -77,8 +77,8 @@ import org.apache.jorphan.collections.SearchByClass;
  * timing, add listeners for sampling events and to stop the sampling process.
  *
  *@author    $Author: mstover1 $
- *@created   $Date: 2002/10/17 19:47:17 $
- *@version   $Revision: 1.11 $
+ *@created   $Date: 2003/01/22 22:51:36 $
+ *@version   $Revision: 1.13 $
  ***************************************/
 public class JMeterThread implements Runnable, java.io.Serializable {
 	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
@@ -129,10 +129,13 @@ public class JMeterThread implements Runnable, java.io.Serializable {
 			rampUpDelay();
 			log.info("Thread "+Thread.currentThread().getName()+" started");
 			while (running) {
-				notifyThreadListeners();
 				while (controller.hasNext() && running) {
 					try
 					{
+						if(controller.isNextFirst())
+						{
+							notifyThreadListeners();
+						}
 						SamplePackage pack = compiler.configureSampler(controller.next());
 						delay(pack.getTimers());
 						SampleResult result = pack.getSampler().sample(null);
@@ -220,6 +223,7 @@ public class JMeterThread implements Runnable, java.io.Serializable {
 			new SampleEvent(result, (String) controller.getProperty(TestElement.NAME));
 		compiler.sampleOccurred(event);
 		notifier.addLast(event,listeners);
+		
 	}
 	public void setInitialDelay(int delay) {
 		initialDelay = delay;

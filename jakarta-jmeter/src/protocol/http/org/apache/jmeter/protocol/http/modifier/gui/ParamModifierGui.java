@@ -28,7 +28,7 @@ import org.apache.jorphan.gui.layout.VerticalLayout;
  *@author    David La France
  *@author     <a href="mailto:seade@backstagetech.com.au">Scott Eade</a>
  *@created   Jan 18, 2002
- *@version   $Revision: 1.3 $
+ *@version   $Revision: 1.4 $
  ***************************************/
 public class ParamModifierGui extends AbstractModifierGui implements FocusListener
 {
@@ -94,7 +94,6 @@ public class ParamModifierGui extends AbstractModifierGui implements FocusListen
 		mask.setIncrement(Long.parseLong(_increment.getText()));
 		mask.setUpperBound(Long.parseLong(_upperBound.getText()));
 		mask.setSuffix(_suffix.getText());
-		mask.resetValue();
 		return modifier;
 	}
 
