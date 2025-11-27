@@ -56,6 +56,7 @@ package org.apache.jmeter.protocol.http.config.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -66,9 +67,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.config.gui.ArgumentsPanel;
+import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.protocol.http.gui.HTTPArgumentsPanel;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
@@ -80,12 +86,16 @@ import org.apache.jmeter.util.JMeterUtils;
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/10/15 18:53:29 $
+ *@created   $Date: 2002/08/14 02:52:19 $
  *@version   1.0
  ***************************************/
 
-public class UrlConfigGui extends JPanel
+public class UrlConfigGui extends AbstractConfigGui
 {
+	/****************************************
+	 * !ToDo (Field description)
+	 ***************************************/
+	protected boolean displayName = true;
 
 	/****************************************
 	 * !ToDo (Field description)
@@ -118,15 +128,29 @@ public class UrlConfigGui extends JPanel
 	 ***************************************/
 	public UrlConfigGui()
 	{
-		init();
+		this(true);
 	}
 
-
-	  protected void configureTestElement(TestElement mc)
+	/****************************************
+	 * !ToDo (Constructor description)
+	 *
+	 *@param display  !ToDo (Parameter description)
+	 ***************************************/
+	public UrlConfigGui(boolean display)
 	{
-		mc.setProperty(TestElement.NAME, getName());
-		mc.setProperty(TestElement.GUI_CLASS, this.getClass().getName());
-		mc.setProperty(TestElement.TEST_CLASS, mc.getClass().getName());
+		displayName = display;
+		init();
+		setName(getStaticLabel());
+	}
+
+	/****************************************
+	 * !ToDoo (Method description)
+	 *
+	 *@return   !ToDo (Return description)
+	 ***************************************/
+	public String getStaticLabel()
+	{
+		return JMeterUtils.getResString("url_config_title");
 	}
 
 	/****************************************
@@ -224,8 +248,40 @@ public class UrlConfigGui extends JPanel
 		webRequestPanel.add(northPanel,BorderLayout.NORTH);
 		webRequestPanel.add(getParameterPanel(),BorderLayout.CENTER);
 
-		this.add(webServerPanel,BorderLayout.NORTH);
-		this.add(webRequestPanel,BorderLayout.CENTER);
+		if(displayName)
+		{
+			// MAIN PANEL
+			JPanel mainPanel = new JPanel();
+			Border margin = new EmptyBorder(10, 10, 5, 10);
+			mainPanel.setBorder(margin);
+			mainPanel.setLayout(new BorderLayout());
+			JPanel normalPanel = new JPanel(new VerticalLayout(5,VerticalLayout.LEFT));
+
+			// TITLE
+			JLabel panelTitleLabel = new JLabel(JMeterUtils.getResString("url_config_title"));
+			Font curFont = panelTitleLabel.getFont();
+			int curFontSize = curFont.getSize();
+			curFontSize += 4;
+			panelTitleLabel.setFont(new Font(curFont.getFontName(), curFont.getStyle(), curFontSize));
+			normalPanel.add(panelTitleLabel);
+
+			// NAME
+			if(displayName)
+			{
+				normalPanel.add(getNamePanel());
+			}
+
+			normalPanel.add(webServerPanel);
+			mainPanel.add(normalPanel,BorderLayout.NORTH);
+			mainPanel.add(webRequestPanel,BorderLayout.CENTER);
+
+			this.add(mainPanel,BorderLayout.CENTER);
+		}
+		else
+		{
+			this.add(webServerPanel,BorderLayout.NORTH);
+			this.add(webRequestPanel,BorderLayout.CENTER);
+		}
 	}
 
 	/****************************************

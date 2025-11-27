@@ -54,18 +54,29 @@
  */
 package org.apache.jmeter.save.old;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+import org.apache.jmeter.control.GenericController;
+import org.apache.jmeter.gui.action.Load;
+import org.apache.jmeter.protocol.http.config.gui.UrlConfigGui;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.save.old.xml.NameSpaceHandler;
 import org.apache.jmeter.save.old.xml.TagHandler;
+import org.apache.jmeter.save.old.xml.XmlHandler;
+import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.util.ClassFinder;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.reflect.ClassFinder;
+import org.apache.jmeter.util.ListedHashTree;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * Title:        JMeter
@@ -77,14 +88,12 @@ import org.xml.sax.Attributes;
  */
 
 public class JMeterNameSpaceHandler implements NameSpaceHandler {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.util");
+
 	private static Map saveHandlers = new HashMap();
 	static {
 		try {
 			List classes =
 				ClassFinder.findClassesThatExtend(
-						JMeterUtils.getSearchPaths(),
 					new Class[] { org.apache.jmeter.save.old.xml.TagHandler.class });
 			Iterator iter = classes.iterator();
 			while (iter.hasNext()) {
@@ -93,11 +102,11 @@ public class JMeterNameSpaceHandler implements NameSpaceHandler {
 					TagHandler obj = (TagHandler) Class.forName(item).newInstance();
 					saveHandlers.put(obj.getPrimaryTagName(), obj.getClass());
 				} catch (Exception ex) {
-					log.error("",ex);
+					ex.printStackTrace();
 				}
 			}
 		} catch (Exception ex) {
-			log.error("",ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -116,7 +125,7 @@ public class JMeterNameSpaceHandler implements NameSpaceHandler {
 		{
 			return null;
 		}catch (Exception ex) {
-			log.error("",ex);
+			ex.printStackTrace();
 			return null;
 		}
 

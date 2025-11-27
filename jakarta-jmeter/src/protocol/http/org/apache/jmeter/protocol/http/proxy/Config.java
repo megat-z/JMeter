@@ -1,10 +1,15 @@
 package org.apache.jmeter.protocol.http.proxy;
 
-import java.io.File;
-import java.util.StringTokenizer;
+import java.io.*;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import java.net.*;
+
+/************************************************************
+ *  File Config.java
+ ***********************************************************/
+
+
+import java.util.*;
 
 
 
@@ -27,8 +32,6 @@ import org.apache.log.Logger;
  ***********************************************************/
 class Config
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.protocol.http");
 
 	//
 
@@ -810,7 +813,7 @@ class Config
 	public synchronized void parse(String config)
 	{
 
-		log.info("Parsing administrator request...");
+		System.out.println("Parsing administrator request...");
 
 		int size;
 
@@ -821,7 +824,7 @@ class Config
 
 		isFatherProxy = s.nextToken().equals("true");
 
-		log.info("Use father proxy = " + isFatherProxy);
+		System.out.println("Use father proxy = " + isFatherProxy);
 
 		fatherProxyHost = s.nextToken();
 
@@ -831,12 +834,12 @@ class Config
 			fatherProxyHost = "";
 		}
 
-		log.info("Father proxy name = " + fatherProxyHost);
+		System.out.println("Father proxy name = " + fatherProxyHost);
 
 
 		fatherProxyPort = Integer.parseInt(s.nextToken());
 
-		log.info("Father proxy port = " + fatherProxyPort);
+		System.out.println("Father proxy port = " + fatherProxyPort);
 
 
 		size = Integer.parseInt(s.nextToken());
@@ -848,26 +851,26 @@ class Config
 
 			deniedHosts[i] = s.nextToken();
 
-			log.info("Deny access to " + deniedHosts[i]);
+			System.out.println("Deny access to " + deniedHosts[i]);
 
 		}
 
 
 		password = s.nextToken();
 
-		log.info("password = " + password);
+		System.out.println("password = " + password);
 
 		isCaching = s.nextToken().equals("true");
 
-		log.info("Caching = " + isCaching);
+		System.out.println("Caching = " + isCaching);
 
 		cacheSize = Long.parseLong(s.nextToken());
 
-		log.info("Cache size = " + cacheSize);
+		System.out.println("Cache size = " + cacheSize);
 
 		cleanCache = s.nextToken().equals("true");
 
-		log.info("Do cache clean up = " + cleanCache);
+		System.out.println("Do cache clean up = " + cleanCache);
 
 
 		size = Integer.parseInt(s.nextToken());
@@ -879,7 +882,7 @@ class Config
 
 			cacheMasks[i] = s.nextToken();
 
-			log.info("Don't cache " + cacheMasks[i]);
+			System.out.println("Don't cache " + cacheMasks[i]);
 
 		}
 

@@ -68,8 +68,8 @@ import org.apache.jmeter.testelement.TestElement;
  *  A sampler which understands FTP file requests
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/23 22:51:46 $
- *@version    $Revision: 1.2 $
+ *@created    $Date: 2002/08/11 19:24:50 $
+ *@version    $Revision: 1.1 $
  ***********************************************************/
 
 public class FTPSampler extends AbstractSampler
@@ -157,6 +157,7 @@ public class FTPSampler extends AbstractSampler
 				// set the response code here somewhere
 			ftp.disconnect();
 				isSuccessful = true;
+			//System.out.println(s);
 		}
 		catch (java.net.ConnectException cex)
 		{

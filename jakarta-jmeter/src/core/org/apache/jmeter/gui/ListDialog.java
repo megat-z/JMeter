@@ -66,7 +66,7 @@ import org.apache.jmeter.util.JMeterUtils;
  *  value may be a list of values.
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/30 14:43:19 $
+ *@created    $Date: 2002/08/11 19:24:43 $
  *@version    $Version: 1.0 10/14/1998$
  ************************/
 
@@ -85,9 +85,6 @@ public class ListDialog extends JPanel implements ActionListener, KeyListener
 
 	Vector listData;
 
-	public ListDialog()
-	{
-	}
 
 	/*************************
 	 *  Constructor takes a label for instructions to the user, and a list of items

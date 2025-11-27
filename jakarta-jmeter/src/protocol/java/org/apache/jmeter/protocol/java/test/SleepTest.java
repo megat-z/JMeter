@@ -55,15 +55,13 @@
 
 package org.apache.jmeter.protocol.java.test;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerClient;
 import org.apache.jmeter.samplers.SampleResult;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.log4j.Category;
 
 /**
  * The <code>SleepTest</code> class is a simple example class for a
@@ -71,9 +69,9 @@ import org.apache.log.Logger;
  * <code>JavaSamplerClient</code> interface.
  */
 
-public class SleepTest implements JavaSamplerClient,Serializable {
+public class SleepTest implements JavaSamplerClient {
 	/** Define category for logging  */
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.protocol.java");
+	private static Category cat = Category.getInstance(SleepTest.class);
 	/** */
 	private long sleepTime = 1000;
 	/** */
@@ -86,7 +84,7 @@ public class SleepTest implements JavaSamplerClient,Serializable {
 	 * the client class.
 	 */
 	public SleepTest() {
-		log.debug(whoAmI() + "\tConstruct");
+		cat.debug(whoAmI() + "\tConstruct");
 	}
 
 	/**
@@ -95,11 +93,11 @@ public class SleepTest implements JavaSamplerClient,Serializable {
 	 * setupTest() provides a way to do any initialization that may be required.
 	 */
 	public void setupTest(HashMap arguments) {
-		log.debug(whoAmI() + "\tsetupTest()");
+		cat.debug(whoAmI() + "\tsetupTest()");
 		Iterator argsIt = arguments.entrySet().iterator();
 		while (argsIt.hasNext()) {
 			Entry entry = (Entry)argsIt.next();
-			log.debug(entry.getKey().toString() + "=" + entry.getValue().toString());
+			cat.debug(entry.getKey().toString() + "=" + entry.getValue().toString());
 		}
 
 		if (arguments.containsKey("SleepTime")) {
@@ -117,11 +115,11 @@ public class SleepTest implements JavaSamplerClient,Serializable {
 	 * teardownTest() provides a way to do any clean-up that may be required.
 	 */
 	public void teardownTest(HashMap arguments) {
-		log.debug(whoAmI() + "\tteardownTest()");
+		cat.debug(whoAmI() + "\tteardownTest()");
 		Iterator argsIt = arguments.entrySet().iterator();
 		while (argsIt.hasNext()) {
 			Entry entry = (Entry)argsIt.next();
-			log.debug(entry.getKey().toString() + "=" + entry.getValue().toString());
+			cat.debug(entry.getKey().toString() + "=" + entry.getValue().toString());
 		}
 	}
 
@@ -160,12 +158,12 @@ public class SleepTest implements JavaSamplerClient,Serializable {
 		} catch (Exception e) {
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug(whoAmI() + "\trunTest()" + "\tTime:\t" + results.getTime());
+		if (cat.isDebugEnabled()) {
+			cat.debug(whoAmI() + "\trunTest()" + "\tTime:\t" + results.getTime());
 			Iterator argsIt = arguments.entrySet().iterator();
 			while (argsIt.hasNext()) {
 				Entry entry = (Entry)argsIt.next();
-				log.debug(entry.getKey().toString() + "=" + entry.getValue().toString());
+				cat.debug(entry.getKey().toString() + "=" + entry.getValue().toString());
 			}
 		}
 
@@ -187,7 +185,7 @@ public class SleepTest implements JavaSamplerClient,Serializable {
 		try {
 			sleepTime = Long.parseLong((String)arg);
 		} catch (Exception e) {
-			log.debug("Exception getting sleepTime:\t",e);
+			cat.debug("Exception getting sleepTime:\t",e);
 			sleepTime = 1000l;
 		}
 	}
@@ -195,7 +193,7 @@ public class SleepTest implements JavaSamplerClient,Serializable {
 		try {
 			sleepMask = Long.parseLong((String)arg);
 		} catch (Exception e) {
-			log.debug("Exception getting sleepMask:\t",e);
+			cat.debug("Exception getting sleepMask:\t",e);
 			sleepMask = 0x3ff;
 		}
 	}

@@ -54,20 +54,14 @@
  */
  package org.apache.jmeter.gui.action;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.util.*;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.util.ClassFinder;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.reflect.ClassFinder;
 
 /**
  *  Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
@@ -82,8 +76,6 @@ public class ActionRouter implements ActionListener
 	private Map commands = new HashMap();
 	private static ActionRouter router;
 	private static AddToTree add = new AddToTree();
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 
 
 	private ActionRouter()
@@ -109,57 +101,16 @@ public class ActionRouter implements ActionListener
 				}
 				catch(Exception err)
 				{
-					log.error("",err);
+					err.printStackTrace();
 				}
 			}
 		}
 		catch (NullPointerException er)
 		{
-			log.error("",er);
+			er.printStackTrace();
 			JMeterUtils.reportErrorToUser("Sorry, this feature (" + e.getActionCommand() +
 					") not yet implemented");
 		}
-	}
-	
-	public Set getAction(String actionName)
-	{
-		Set set = new HashSet();
-		Set commandObjects = (Set)commands.get(actionName);
-		Iterator iter = commandObjects.iterator();
-		while(iter.hasNext())
-		{
-			try
-			{
-				set.add(iter.next());
-			}
-			catch(Exception err)
-			{
-				log.error("",err);
-			}
-		}
-		return set;
-	}
-	
-	public Command getAction(String actionName,String className)
-	{
-		Set commandObjects = (Set)commands.get(actionName);
-		Iterator iter = commandObjects.iterator();
-		while(iter.hasNext())
-		{
-			try
-			{
-				Command com = (Command)iter.next();
-				if(com.getClass().getName().equals(className))
-				{
-					return com;
-				}
-			}
-			catch(Exception err)
-			{
-				log.error("",err);
-			}
-		}
-		return null;
 	}
 
 	private void populateCommandMap()
@@ -171,12 +122,11 @@ public class ActionRouter implements ActionListener
 		try
 		{
 			listClasses = ClassFinder.findClassesThatExtend(
-					JMeterUtils.getSearchPaths(),
 					new Class[]{Class.forName("org.apache.jmeter.gui.action.Command")});
 			commands = new HashMap(listClasses.size());
 			if (listClasses.size() == 0)
 			{
-				log.warn("!!!!!Uh-oh, didn't find any action handlers!!!!!");
+				System.out.println("!!!!!Uh-oh, didn't find any action handlers!!!!!");
 			}
 			iterClasses = listClasses.iterator();
 			while (iterClasses.hasNext())
@@ -203,7 +153,8 @@ public class ActionRouter implements ActionListener
 		}
 		catch (Exception e)
 		{
-			log.error("exception finding action handlers",e);
+			System.out.println("exception finding action handlers");
+			e.printStackTrace();
 		}
 	}
 

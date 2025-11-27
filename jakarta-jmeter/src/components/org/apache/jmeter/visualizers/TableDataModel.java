@@ -55,16 +55,13 @@
 
 package org.apache.jmeter.visualizers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.event.TableModelListener;
+import org.apache.jmeter.gui.*;
+import java.util.*;
 import javax.swing.table.TableModel;
+import javax.swing.event.TableModelListener;
 
-import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.samplers.*;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /**
  *  This class implements the TableModel for the information kept
@@ -76,8 +73,6 @@ import org.apache.log.Logger;
  */
 public class TableDataModel extends GraphModel implements TableModel
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	List urlList = new ArrayList();
 
 	/**
@@ -96,12 +91,6 @@ public class TableDataModel extends GraphModel implements TableModel
 	public Class getGuiClass()
 	{
 		return TableVisualizer.class;
-	}
-	
-	public void clear()
-	{
-		super.clear();
-		urlList.clear();
 	}
 
 	/**
@@ -126,7 +115,6 @@ public class TableDataModel extends GraphModel implements TableModel
 		Sample s = addNewSample(e.getTime(),e.getTimeStamp(),e.isSuccessful(),
 				(String)e.getSampleLabel());
 		fireDataChanged();
-		
 		return s;
 	}
 
@@ -194,15 +182,15 @@ public class TableDataModel extends GraphModel implements TableModel
 		{
 			if((rowIndex >= 0) && (rowIndex < getSampleCount()))
 			{
-				return new Integer(rowIndex+1);
+				return new Integer(rowIndex);
 			}
 		}
 		else if(columnIndex == 1)
 		{
-			log.info("rowIndex = "+rowIndex);
+			System.out.print("rowIndex = "+rowIndex);
 			if((rowIndex >= 0) && (rowIndex < urlList.size()))
 			{
-				log.info(" url = "+urlList.get(rowIndex));
+				System.out.println(" url = "+urlList.get(rowIndex));
 				return urlList.get(rowIndex);
 			}
 		}

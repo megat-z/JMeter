@@ -15,8 +15,6 @@ import org.apache.jmeter.testelement.TestElement;
 public abstract class AbstractJMeterGuiComponent
 	extends JPanel
 	implements JMeterGUIComponent {
-		
-		private boolean enabled = true;
 
 	public AbstractJMeterGuiComponent() {
 		namePanel = new NamePanel();
@@ -28,16 +26,6 @@ public abstract class AbstractJMeterGuiComponent
 	 */
 	public void setName(String name) {
 		namePanel.setName(name);
-	}
-	
-	public boolean isEnabled()
-	{
-		return enabled;
-	}
-	
-	public void setEnabled(boolean e)
-	{
-		enabled = e;
 	}
 
 	/**

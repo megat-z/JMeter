@@ -82,7 +82,6 @@ public class RandomController
 	
 	protected void incrementCurrent()
 	{
-		setInterleave(NEW_STYLE);
 		current = rand.nextInt(this.getSubControllers().size());
 	}
 }

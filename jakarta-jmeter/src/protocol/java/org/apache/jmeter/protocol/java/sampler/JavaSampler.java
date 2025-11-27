@@ -65,8 +65,7 @@ import org.apache.jmeter.samplers.AbstractSampler;
 import org.apache.jmeter.samplers.Entry;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.log4j.Category;
 
 /**
  * 
@@ -81,10 +80,10 @@ public class JavaSampler extends AbstractSampler implements JavaSamplerClient {
 	
 	public final static String ARGUMENTS = "arguments";
 
-	transient private JavaSamplerClient javaClient = null;
+	private JavaSamplerClient javaClient = null;
 
 	/** Logging  */
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.protocol.java");
+	private static Category cat = Category.getInstance(JavaSampler.class);
 
 	public JavaSampler() {
 		setArguments(new Arguments());
@@ -194,15 +193,15 @@ public class JavaSampler extends AbstractSampler implements JavaSamplerClient {
 						Object[] args = {};
 						javaClient = (JavaSamplerClient)constructors[i].newInstance(args);
 						javaClient.setupTest(createArgumentsHashMap(getArguments()));
-						if (log.isDebugEnabled()) {
-							log.debug(whoAmI() + "\tCreated:\t"+ getClassname()+ "@" + Integer.toHexString(javaClient.hashCode()));
+						if (cat.isDebugEnabled()) {
+							cat.debug(whoAmI() + "\tCreated:\t"+ getClassname()+ "@" + Integer.toHexString(javaClient.hashCode()));
 						}
 						break;
 					}
 				}
 
 			} catch (Exception e) {
-				log.error(whoAmI() + "\tException creating: " + getClassname(),e);
+				cat.error(whoAmI() + "\tException creating: " + getClassname(),e);
 				javaClient = this;
 			}
 		}
@@ -229,7 +228,7 @@ public class JavaSampler extends AbstractSampler implements JavaSamplerClient {
 	 * @see JavaSamplerClient#setupTest()
 	 */
 	public void setupTest(HashMap arguments) {
-		log.debug(whoAmI() + "\tsetupTest");
+		cat.debug(whoAmI() + "\tsetupTest");
 	}
 
 	/**
@@ -237,7 +236,7 @@ public class JavaSampler extends AbstractSampler implements JavaSamplerClient {
 	 * @see JavaSamplerClient#teardownTest()
 	 */
 	public void teardownTest(HashMap arguments) {
-		log.debug(whoAmI() + "\tteardownTest");
+		cat.debug(whoAmI() + "\tteardownTest");
 		javaClient = null;
 	}
 
@@ -246,7 +245,7 @@ public class JavaSampler extends AbstractSampler implements JavaSamplerClient {
 	 * @see JavaSamplerClient#runTest()
 	 */
 	public SampleResult runTest(HashMap arguments) {
-		log.debug(whoAmI() + "\trunTest");
+		cat.debug(whoAmI() + "\trunTest");
 		Thread.yield();
 		SampleResult results = new SampleResult();
 		results.setTime(0);

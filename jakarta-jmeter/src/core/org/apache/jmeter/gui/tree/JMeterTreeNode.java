@@ -68,7 +68,7 @@ import javax.swing.ImageIcon;
  *  Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author     Michael Stover
- *@created    $Date: 2002/08/19 22:33:13 $
+ *@created    $Date: 2002/08/11 19:24:44 $
  *@version    1.0
  ***********************************************************/
 
@@ -83,16 +83,6 @@ public class JMeterTreeNode extends DefaultMutableTreeNode implements JMeterGUIC
 	public JMeterTreeNode(JMeterGUIComponent userObj)
 	{
 		super(userObj);
-	}
-	
-	public boolean isEnabled()
-	{
-		return ((JMeterGUIComponent)getUserObject()).isEnabled();
-	}
-	
-	public void setEnabled(boolean enabled)
-	{
-		((JMeterGUIComponent)getUserObject()).setEnabled(enabled);
 	}
 	
 	public ImageIcon getIcon()

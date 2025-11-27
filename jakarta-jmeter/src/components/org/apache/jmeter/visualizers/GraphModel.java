@@ -55,14 +55,13 @@
 package org.apache.jmeter.visualizers;
 
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import org.apache.jmeter.gui.*;
 
-import org.apache.jmeter.samplers.Clearable;
-import org.apache.jmeter.samplers.SampleResult;
+import java.util.*;
+
+
+import org.apache.jmeter.samplers.*;
+import org.apache.jmeter.util.JMeterUtils;
 
 /**
  *  Title: Apache JMeter Description: Copyright: Copyright (c) 2000 Company:
@@ -74,7 +73,7 @@ import org.apache.jmeter.samplers.SampleResult;
  */
 
 
-public class GraphModel implements Clearable,Serializable
+public class GraphModel implements Clearable
 {
 
 	private String name;

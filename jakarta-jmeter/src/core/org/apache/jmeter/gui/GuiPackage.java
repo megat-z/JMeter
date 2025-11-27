@@ -54,12 +54,15 @@
  */
  package org.apache.jmeter.gui;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.jmeter.exceptions.IllegalUserActionException;
-import org.apache.jmeter.functions.ValueReplacer;
 import org.apache.jmeter.gui.tree.JMeterTreeListener;
 import org.apache.jmeter.gui.tree.JMeterTreeModel;
-import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jorphan.collections.HashTree;
+import org.apache.jmeter.samplers.Remoteable;
+import org.apache.jmeter.testelement.TestListener;
+import org.apache.jmeter.util.ListedHashTree;
 
 /**
  * Title:        JMeter
@@ -106,12 +109,12 @@ public class GuiPackage
 		return dirty;
 	}
 
-	public boolean addSubTree(HashTree subTree) throws IllegalUserActionException
+	public void addSubTree(ListedHashTree subTree) throws IllegalUserActionException
 	{
-		return treeModel.addSubTree(subTree,treeListener.getCurrentNode());
+		treeModel.addSubTree(subTree,treeListener.getCurrentNode());
 	}
 
-	public HashTree getCurrentSubTree()
+	public ListedHashTree getCurrentSubTree()
 	{
 		return treeModel.getCurrentSubTree(treeListener.getCurrentNode());
 	}
@@ -124,15 +127,6 @@ public class GuiPackage
 	public JMeterTreeModel getTreeModel()
 	{
 		return treeModel;
-	}
-	
-	public ValueReplacer getReplacer()
-	{
-		ValueReplacer replacer = new ValueReplacer(
-				((TestPlan)((JMeterGUIComponent)
-				getTreeModel().getTestPlan().getArray()
-				[0]).createTestElement()).getUserDefinedVariables());
-		return replacer;
 	}
 
 	public void setTreeModel(JMeterTreeModel newTreeModel)

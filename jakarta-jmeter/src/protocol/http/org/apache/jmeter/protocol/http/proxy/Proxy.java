@@ -53,27 +53,16 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.http.proxy;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
+import java.net.*;
+import java.io.*;
+import java.util.*;
 import org.apache.jmeter.protocol.http.control.CookieManager;
-import org.apache.jmeter.protocol.http.control.HeaderManager;
-import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
+import org.apache.jmeter.samplers.Entry;
+import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
 //
 // Class:     Proxy
 // Abstract:  Thread to handle one client request. get the requested
@@ -87,8 +76,6 @@ import org.apache.log.Logger;
  *@created    June 8, 2001
  */
 public class Proxy extends Thread {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.protocol.http");
 	//
 	// Member variables
 	//
@@ -160,14 +147,14 @@ public class Proxy extends Thread {
 			headers.removeHeaderNamed("cookie");
 			target.deliverSampler(sampler,new TestElement[]{headers});
 		} catch (UnknownHostException uhe) {
-			log.warn("Server Not Found.",uhe);
+			System.out.println("Server Not Found.");
 			try {
 				DataOutputStream out = new DataOutputStream(ClientSocket.getOutputStream());
 				out.writeBytes(reply.formServerNotFound());
 				out.flush();
 			} catch (Exception uhe2) {}
 		} catch (Exception e) {
-			log.error("",e);
+			e.printStackTrace();
 			try {
 				if (TakenFromCache) {
 					fileInputStream.close();
@@ -183,7 +170,7 @@ public class Proxy extends Thread {
 			try {
 				ClientSocket.close();
 			} catch (Exception e) {
-				log.error("",e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -199,7 +186,7 @@ public class Proxy extends Thread {
 	// Send to administrator web page containing reference to applet
 	//
 	private void sendAppletWebPage() {
-		log.info("Sending the applet...");
+		System.out.println("Sending the applet...");
 		String page = "";
 		try {
 			File appletHtmlPage =
@@ -220,7 +207,7 @@ public class Proxy extends Thread {
 			out.flush();
 			out.close();
 		} catch (Exception e) {
-			log.error("can't open applet html page",e);
+			System.out.println("Error: can't open applet html page");
 		}
 	}
 	//
@@ -252,9 +239,9 @@ public class Proxy extends Thread {
 			
 			out.write(inBytes);
 			out.flush();
-			log.info("Done writing to client");
+			System.out.println("Done writing to client");
 		} catch (IOException e) {
-			log.error("",e);
+			e.printStackTrace();
 		} finally {
 			try {
 				out.close();

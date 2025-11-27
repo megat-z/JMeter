@@ -54,32 +54,24 @@
  */
 
 package org.apache.jmeter.gui.action;
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JComponent;
-import javax.swing.tree.TreePath;
-
-import org.apache.jmeter.gui.GuiPackage;
-import org.apache.jmeter.gui.JMeterGUIComponent;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.util.ClassFinder;
+
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
 
 /**
  *  !ToDo (Class description)
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/29 18:17:38 $
- *@version    $Revision: 1.4 $
+ *@created    $Date: 2002/08/11 19:24:44 $
+ *@version    $Revision: 1.1 $
  */
 public class AddToTree implements Command
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	private Map allJMeterComponentCommands;
 
 	public AddToTree()
@@ -117,19 +109,16 @@ public class AddToTree implements Command
 		}
 		catch(Exception err)
 		{
-			log.error("",err);
+			err.printStackTrace();
 		}
 	}
 
 	protected void addObjectToTree(JMeterGUIComponent guiObject)
 	{
 		GuiPackage guiPackage = GuiPackage.getInstance();
-		JMeterTreeNode node = new JMeterTreeNode(guiObject);
-		guiPackage.getTreeModel().insertNodeInto(node,
+		guiPackage.getTreeModel().insertNodeInto(new JMeterTreeNode(guiObject),
 				guiPackage.getTreeListener().getCurrentNode(),
 				guiPackage.getTreeListener().getCurrentNode().getChildCount());
-		guiPackage.getMainFrame().getTree().setSelectionPath(
-				new TreePath(node.getPath()));
 	}
 
 

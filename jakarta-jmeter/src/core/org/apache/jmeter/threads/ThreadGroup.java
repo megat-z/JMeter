@@ -68,23 +68,20 @@ import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.PerThreadClonable;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /****************************************
  * Title: Apache JMeter Description: Copyright: Copyright (c) 2000 Company:
  * Apache Foundation
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/29 18:17:40 $
+ *@created   $Date: 2002/08/11 19:24:49 $
  *@version   1.0
  ***************************************/
 
 public class ThreadGroup extends AbstractTestElement implements SampleListener,
 		Serializable,Controller,PerThreadClonable
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.elements");
+
 	/****************************************
 	 * !ToDo (Field description)
 	 ***************************************/
@@ -259,8 +256,8 @@ public class ThreadGroup extends AbstractTestElement implements SampleListener,
 	 * issues.
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/08/29 18:17:40 $
-	 *@version   $Revision: 1.3 $
+	 *@created   $Date: 2002/08/11 19:24:49 $
+	 *@version   $Revision: 1.1 $
 	 ***************************************/
 	private class SampleQueue implements Runnable, Serializable
 	{
@@ -317,7 +314,7 @@ public class ThreadGroup extends AbstractTestElement implements SampleListener,
 							}
 							catch(Exception ex)
 							{
-								log.error("",ex);
+								ex.printStackTrace();
 							}
 						}
 					}
@@ -328,7 +325,7 @@ public class ThreadGroup extends AbstractTestElement implements SampleListener,
 				}
 				catch(Throwable ex)
 				{
-					log.error("",ex);
+					ex.printStackTrace();
 				}
 
 			}
@@ -342,7 +339,7 @@ public class ThreadGroup extends AbstractTestElement implements SampleListener,
 			}
 			catch(Exception ex)
 			{
-				log.error("",ex);
+				ex.printStackTrace();
 			}
 		}
 	}

@@ -54,7 +54,9 @@
  */
 package org.apache.jmeter.config;
 
-import java.io.Serializable;
+import java.util.*;
+import java.io.*;
+import org.apache.jmeter.testelement.AbstractTestElement;
 
 /************************************************************
  *  Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
@@ -64,7 +66,7 @@ import java.io.Serializable;
  *@version    1.0
  ***********************************************************/
 
-public class LoginConfig extends ConfigTestElement implements Serializable
+public class LoginConfig extends AbstractTestElement implements Serializable
 {
 
 	/************************************************************

@@ -53,25 +53,18 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.visualizers;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.Image;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
-import org.apache.jmeter.samplers.Clearable;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.samplers.Clearable;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.log4j.*;
 /****************************************
  * This class implements a statistical analyser that plots the accumulated time
  * taken to load each set of pages. The number of plots is equivalent to the
@@ -79,7 +72,7 @@ import org.apache.jorphan.gui.layout.VerticalLayout;
  *
  *@author    Khor Soon Hin
  *@created   2001/08/11
- *@version   $Revision: 1.6 $ $Date: 2002/10/17 19:47:15 $
+ *@version   $Revision: 1.1 $ $Date: 2002/08/11 19:24:41 $
  ***************************************/
 public class GraphAccumVisualizer extends AbstractVisualizer
 		 implements ImageVisualizer, GraphAccumListener,Clearable
@@ -88,17 +81,18 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	/****************************************
 	 * !ToDo (Field description)
 	 ***************************************/
-	protected transient GraphAccumModel model;
+	protected GraphAccumModel model;
 	/****************************************
 	 * !ToDo (Field description)
 	 ***************************************/
-	protected transient GraphAccum graph;
+	protected GraphAccum graph;
 
 	/****************************************
 	 * !ToDo (Field description)
 	 ***************************************/
-	transient protected JPanel legendPanel;
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.gui");
+	protected JPanel legendPanel;
+	private static Category catClass =
+			Category.getInstance(GraphAccumVisualizer.class.getName());
 
 
 	/****************************************
@@ -110,8 +104,8 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 		model = new GraphAccumModel();
 		model.addGraphAccumListener(this);
 		init();
-		log.debug("Start : GraphAccumVisualizer1");
-		log.debug("End : GraphAccumVisualizer1");
+		catClass.debug("Start : GraphAccumVisualizer1");
+		catClass.debug("End : GraphAccumVisualizer1");
 	}
 
 	/****************************************
@@ -153,10 +147,10 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	 ***************************************/
 	public Image getImage()
 	{
-		log.debug("Start : getImage1");
+		catClass.debug("Start : getImage1");
 		Image result = graph.createImage(graph.getWidth(), graph.getHeight());
 		graph.paintComponent(result.getGraphics());
-		log.debug("End : getImage1");
+		catClass.debug("End : getImage1");
 		return result;
 	}
 
@@ -166,9 +160,9 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	 ***************************************/
 	public void updateGui()
 	{
-		log.debug("Start : updateGui1");
+		catClass.debug("Start : updateGui1");
 		graph.updateGui();
-		log.debug("End : updateGui1");
+		catClass.debug("End : updateGui1");
 	}
 
 
@@ -179,8 +173,8 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	 ***************************************/
 	public void updateGui(SampleResult s)
 	{
-		log.debug("Start : updateGui2");
-		log.debug("End : updateGui2");
+		catClass.debug("Start : updateGui2");
+		catClass.debug("End : updateGui2");
 	}
 
 
@@ -191,9 +185,9 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	{
 		model.clear();
 		graph.clear();
-		log.debug("Start : clear1");
+		catClass.debug("Start : clear1");
 		repaint();
-		log.debug("End : clear1");
+		catClass.debug("End : clear1");
 	}
 
 
@@ -205,7 +199,7 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	public String toString()
 	{
 		String toString = "Show the samples analysys as dot plots";
-		log.debug("toString1 : Returning - " + toString);
+		catClass.debug("toString1 : Returning - " + toString);
 		return toString;
 	}
 
@@ -215,7 +209,7 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 	 ***************************************/
 	private void init()
 	{
-		log.debug("Start : init1");
+		catClass.debug("Start : init1");
 		graph = new GraphAccum(model);
 		graph.setVisualizer(this);
 
@@ -251,6 +245,6 @@ public class GraphAccumVisualizer extends AbstractVisualizer
 
 		this.add(mainPanel, BorderLayout.NORTH);
 		this.add(graphSplitPane, BorderLayout.CENTER);
-		log.debug("End : init1");
+		catClass.debug("End : init1");
 	}
 }

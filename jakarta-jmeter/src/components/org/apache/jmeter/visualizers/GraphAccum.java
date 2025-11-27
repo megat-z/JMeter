@@ -54,26 +54,17 @@
  */
 package org.apache.jmeter.visualizers;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.Iterator;
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Scrollable;
-import javax.swing.SwingUtilities;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.samplers.*;
+import org.apache.jmeter.util.*;
 
-import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jmeter.util.ColorHelper;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerFull;
+
+import org.apache.log4j.*;
 /**
  *  Draws the graph
  *
@@ -121,7 +112,8 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 *  Description of the Field
 	 */
 	protected final static int PLOT_X_WIDTH = 10;
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.gui");
+	private static Category catClass =
+			Category.getInstance(GraphAccum.class.getName());
 
 	// Ensure that previousPts is allocated
 
@@ -135,9 +127,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 */
 	public GraphAccum()
 	{
-		log.debug("Start : GraphAnnum1");
+		catClass.debug("Start : GraphAnnum1");
 		this.setPreferredSize(new Dimension(width, 800));
-		log.debug("End : GraphAnnum1");
+		catClass.debug("End : GraphAnnum1");
 	}
 
 
@@ -149,9 +141,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 	public GraphAccum(GraphAccumModel model)
 	{
 		this();
-		log.debug("Start : GraphAnnum2");
+		catClass.debug("Start : GraphAnnum2");
 		setModel(model);
-		log.debug("End : GraphAnnum2");
+		catClass.debug("End : GraphAnnum2");
 	}
 
 
@@ -162,11 +154,11 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 */
 	private void setModel(Object model)
 	{
-		log.debug("Start : setModel1");
+		catClass.debug("Start : setModel1");
 		this.model = (GraphAccumModel) model;
 		this.model.addGraphAccumListener(this);
 		repaint();
-		log.debug("End : setModel1");
+		catClass.debug("End : setModel1");
 	}
 
 
@@ -177,9 +169,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 */
 	public void setVisualizer(Object visualizer)
 	{
-		if (log.isDebugEnabled())
+		if (catClass.isDebugEnabled())
 		{
-			log.debug("setVisualizer1 : Setting visualizer - " + visualizer);
+			catClass.debug("setVisualizer1 : Setting visualizer - " + visualizer);
 		}
 		this.visualizer = (GraphAccumVisualizer) visualizer;
 	}
@@ -277,9 +269,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 */
 	public void updateGui()
 	{
-		log.debug("Start : updateGui1");
+		catClass.debug("Start : updateGui1");
 		repaint();
-		log.debug("End : updateGui1");
+		catClass.debug("End : updateGui1");
 	}
 
 
@@ -290,7 +282,7 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 */
 	public void updateGui(final SampleResult oneSample)
 	{
-		log.debug("Start : updateGui2");
+		catClass.debug("Start : updateGui2");
 		final int xPos = model.getSampleCount();
 		SwingUtilities.invokeLater(
 			new Runnable()
@@ -305,7 +297,7 @@ public class GraphAccum extends JComponent implements Scrollable,
 				}
 			}
 				);
-		log.debug("End : updateGui2");
+		catClass.debug("End : updateGui2");
 	}
 
 
@@ -317,7 +309,7 @@ public class GraphAccum extends JComponent implements Scrollable,
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
-		log.debug("Start : paintComponent1");
+		catClass.debug("Start : paintComponent1");
 		Dimension d = this.getSize();
 		synchronized (model.getList())
 		{
@@ -331,7 +323,7 @@ public class GraphAccum extends JComponent implements Scrollable,
 				drawSample(i * PLOT_X_WIDTH, s, g);
 			}
 		}
-		log.debug("End : paintComponent1");
+		catClass.debug("End : paintComponent1");
 	}
 
 
@@ -355,7 +347,7 @@ public class GraphAccum extends JComponent implements Scrollable,
 	 */
 	private void drawSample(int x, SampleResult oneSample, Graphics g)
 	{
-		log.debug("Start : drawSample1");
+		catClass.debug("Start : drawSample1");
 		int lastLevel = 0;
 		// used to keep track of accumulated load times of
 		// components
@@ -386,9 +378,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 		long totalTime = oneSample.getTime();
 		// if the page has other components then set the total time to be that including
 		// all its components' load time
-		if (log.isDebugEnabled())
+		if (catClass.isDebugEnabled())
 		{
-			log.debug("drawSample1 : total time - " + totalTime);
+			catClass.debug("drawSample1 : total time - " + totalTime);
 		}
 		int data = (int) (totalTime * d.height / model.getMax());
 		g.setColor(currColor);
@@ -417,9 +409,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 			legendPanel.add(totalTimeLabel);
 		}
 		// plot the time of the page itself without all its components
-		if (log.isDebugEnabled())
+		if (catClass.isDebugEnabled())
 		{
-			log.debug("drawSample1 : main page load time - "
+			catClass.debug("drawSample1 : main page load time - "
 					 + oneSample.getTime());
 		}
 		data = (int) (oneSample.getTime()
@@ -458,9 +450,9 @@ public class GraphAccum extends JComponent implements Scrollable,
 			for(int i = 0;i < resultList.length;i++)
 			{
 				SampleResult componentRes = (SampleResult) resultList[i];
-				if (log.isDebugEnabled())
+				if (catClass.isDebugEnabled())
 				{
-					log.debug("drawSample1 : componentRes - " +
+					catClass.debug("drawSample1 : componentRes - " +
 							componentRes.getSampleLabel() + " loading time - " +
 							componentRes.getTime());
 				}
@@ -510,6 +502,6 @@ public class GraphAccum extends JComponent implements Scrollable,
 		{
 			previousPtsAlloc = true;
 		}
-		log.debug("End : drawSample1");
+		catClass.debug("End : drawSample1");
 	}
 }

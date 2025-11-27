@@ -5,22 +5,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.protocol.http.util.HTTPArgument;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/29 18:17:40 $
+ *@created   $Date: 2002/08/11 19:24:48 $
  *@version   1.0
  ***************************************/
 
 public abstract class AbstractTestElement implements TestElement,Serializable
 {
 	private Map testInfo = new HashMap();
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.elements");
+
 
 	/****************************************
 	 * !ToDo (Method description)
@@ -37,7 +35,7 @@ public abstract class AbstractTestElement implements TestElement,Serializable
 		}
 		catch(Exception e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -145,7 +143,7 @@ public abstract class AbstractTestElement implements TestElement,Serializable
 				try {
 					newObject.setProperty(key,cloneCollection(value));
 				} catch(Exception e) {
-					log.error("",e);
+					e.printStackTrace();
 				}
 			}
 			else

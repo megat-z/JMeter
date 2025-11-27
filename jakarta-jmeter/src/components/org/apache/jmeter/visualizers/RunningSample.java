@@ -87,7 +87,6 @@ public class RunningSample {
     private long firstTime;
     private long lastTime;
     private Set threadNames;
-    private String label;
 
     /**
      * use this constructor.
@@ -126,6 +125,7 @@ public class RunningSample {
         double samplesPerSecond = (double)((double)howLongRunning * threadNames.size()) / (double)getAverage();
         double factor = (double)((double)1000 / (double)howLongRunning);
         samplesPerSecond = samplesPerSecond * factor;
+//        System.out.println("Running for " + howLongRunning + " seconds - " + samplesPerSecond + " samples per second.");
         String perString = "/sec";
         if (samplesPerSecond < 1.0) {
             samplesPerSecond *= 60;
@@ -139,11 +139,6 @@ public class RunningSample {
         String rval = rateFormatter.format(samplesPerSecond) + perString;
         return (rval);
     }
-    
-    public String getLabel()
-    {
-    	return label;
-    }
 
 
     /**
@@ -156,7 +151,7 @@ public class RunningSample {
 		long aTimeInMillis = res.getTime();
 		boolean aSuccessFlag = res.isSuccessful();
 		lastTime = res.getTimeStamp();
-		label = res.getSampleLabel();
+
         counter++;
         if (firstTime == 0L) {
             // this is our first sample, set the start time to current timestamp

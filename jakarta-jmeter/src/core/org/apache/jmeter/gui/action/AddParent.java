@@ -1,27 +1,21 @@
 package org.apache.jmeter.gui.action;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.*;
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/29 18:17:38 $
+ *@created   $Date: 2002/08/11 19:24:43 $
  *@version   1.0
  ***************************************/
 
 public class AddParent implements Command
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.gui");
 	private static Set commands = new HashSet();
 	static
 	{
@@ -48,7 +42,7 @@ public class AddParent implements Command
 		}
 		catch(Exception err)
 		{
-			log.error("",err);
+			err.printStackTrace();
 		}
 
 	}

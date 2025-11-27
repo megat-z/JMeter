@@ -53,42 +53,19 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.http.gui;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
 import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.gui.*;
 import org.apache.jmeter.gui.util.FileDialoger;
-import org.apache.jmeter.protocol.http.control.AuthManager;
-import org.apache.jmeter.protocol.http.control.Authorization;
+import org.apache.jmeter.gui.util.VerticalLayout;
+import org.apache.jmeter.protocol.http.control.*;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Handles input for determining if authentication services are required for a
@@ -96,13 +73,12 @@ import org.apache.jorphan.gui.layout.VerticalLayout;
  * user selects.
  *
  *@author    $Author: mstover1 $
- *@created   $Date: 2002/10/17 19:47:19 $
- *@version   $Revision: 1.5 $
+ *@created   $Date: 2002/08/11 19:24:51 $
+ *@version   $Revision: 1.1 $
  ***************************************/
 public class AuthPanel extends AbstractConfigGui implements ActionListener
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.protocol.http");
+
 	InnerTableModel tableModel;
 
 	/****************************************
@@ -284,7 +260,7 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener
 			}
 			catch(IOException ex)
 			{
-				log.error("",ex);
+				ex.printStackTrace();
 			}
 			catch(NullPointerException err){}
 		}
@@ -300,7 +276,7 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener
 			}
 			catch(IOException ex)
 			{
-				log.error("",ex);
+				ex.printStackTrace();
 			}
 			catch(NullPointerException err){}
 		}
@@ -399,8 +375,8 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener
 	 * !ToDo (Class description)
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/10/17 19:47:19 $
-	 *@version   $Revision: 1.5 $
+	 *@created   $Date: 2002/08/11 19:24:51 $
+	 *@version   $Revision: 1.1 $
 	 ***************************************/
 	private class InnerTableModel extends AbstractTableModel
 	{
@@ -553,8 +529,8 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener
 	 * !ToDo (Class description)
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/10/17 19:47:19 $
-	 *@version   $Revision: 1.5 $
+	 *@created   $Date: 2002/08/11 19:24:51 $
+	 *@version   $Revision: 1.1 $
 	 ***************************************/
 	private class PasswordCellRenderer extends JPasswordField implements TableCellRenderer
 	{

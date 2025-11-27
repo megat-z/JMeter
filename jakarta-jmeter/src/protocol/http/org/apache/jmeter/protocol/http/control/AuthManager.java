@@ -68,8 +68,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.jmeter.config.ConfigElement;
-import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.protocol.http.util.Base64Encoder;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 
@@ -80,10 +80,10 @@ import org.apache.jmeter.util.JMeterUtils;
  *
  *@author    <a href="mailto:luta.raphael@networks.vivendi.com">Raphaël Luta
  *      </a>
- *@created   $Date: 2002/08/20 01:55:24 $
+ *@created   $Date: 2002/08/11 19:24:51 $
  *@version   0.9
  ***************************************/
-public class AuthManager extends ConfigTestElement implements ConfigElement,
+public class AuthManager extends AbstractTestElement implements ConfigElement,
 		Serializable
 {
 	private final static String AUTH_LIST = "AuthManager.auth_list";

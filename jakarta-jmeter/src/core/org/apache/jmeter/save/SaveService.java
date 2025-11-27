@@ -1,9 +1,11 @@
 package org.apache.jmeter.save;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -11,20 +13,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.configuration.DefaultConfigurationSerializer;
-import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.assertions.ResponseAssertion;
+import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
+import org.apache.jmeter.util.ListedHashTree;
 import org.xml.sax.SAXException;
 /**
  * <p>Title: </p>
@@ -37,10 +35,6 @@ import org.xml.sax.SAXException;
 
 public class SaveService
 {
-	private final static String XML_SPACE = "xml:space";
-	private final static String PRESERVE = "preserve";
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.util");
 	private static final String ASSERTION_RESULT_TAG_NAME = "assertionResult";
 	private static final String SAMPLE_RESULT_TAG_NAME = "sampleResult";
 	private static final String TIME = "time";
@@ -62,7 +56,7 @@ public class SaveService
 	{
 	}
 
-	public static void saveSubTree(HashTree subTree,OutputStream writer) throws
+	public static void saveSubTree(ListedHashTree subTree,OutputStream writer) throws
 			IOException
 	{
 		Configuration config = (Configuration)getConfigsFromTree(subTree).get(0);
@@ -107,7 +101,7 @@ public class SaveService
 		return result;
 	}
 
-	private static List getConfigsFromTree(HashTree subTree)
+	private static List getConfigsFromTree(ListedHashTree subTree)
 	{
 		Iterator iter = subTree.list().iterator();
 		List configs = new LinkedList();
@@ -116,7 +110,7 @@ public class SaveService
 			TestElement item = (TestElement)iter.next();
 			DefaultConfiguration config = new DefaultConfiguration("node","node");
 			config.addChild(getConfigForTestElement(null,item));
-			List configList = getConfigsFromTree(subTree.getTree(item));
+			List configList = getConfigsFromTree(subTree.get(item));
 			Iterator iter2 = configList.iterator();
 			while(iter2.hasNext())
 			{
@@ -133,7 +127,7 @@ public class SaveService
 		try {
 			config.setValue(new String(bin,"utf-8"));
 		} catch(UnsupportedEncodingException e) {
-			log.error("",e);
+			e.printStackTrace();
 		}
 		return config;
 	}
@@ -267,29 +261,27 @@ public class SaveService
 	{
 		DefaultConfiguration config = new DefaultConfiguration("string","string");
 		config.setValue(value);
-		config.setAttribute(XML_SPACE,PRESERVE);
 		return config;
 	}
 
 	private static Configuration createConfigForString(String name,String value)
 	{
-		if(value == null)
+		if(value == null || value.equals(""))
 		{
-			value = "";
+			value = " ";
 		}
 		DefaultConfiguration config = new DefaultConfiguration("property","property");
 		config.setAttribute("name",name);
 		config.setValue(value);
-		config.setAttribute(XML_SPACE,PRESERVE);
 		return config;
 	}
 
-	public synchronized static HashTree loadSubTree(InputStream in) throws IOException
+	public synchronized static ListedHashTree loadSubTree(InputStream in) throws IOException
 	{
 		try
 		{
 			Configuration config = builder.build(in);
-			HashTree loadedTree = generateNode(config);
+			ListedHashTree loadedTree = generateNode(config);
 			return loadedTree;
 		}
 		catch(ConfigurationException e)
@@ -330,7 +322,6 @@ public class SaveService
 				}
 				catch (Exception ex)
 				{
-					log.error("Problem loading property",ex);
 					element.setProperty(children[i].getAttribute("name"),"");
 				}
 			}
@@ -357,7 +348,7 @@ public class SaveService
 		{
 			if(items[i].getName().equals("property"))
 			{
-				coll.add(items[i].getValue(""));
+				coll.add(items[i].getValue());
 			}
 			else if(items[i].getName().equals("testelement"))
 			{
@@ -369,13 +360,13 @@ public class SaveService
 			}
 			else if(items[i].getName().equals("string"))
 			{
-				coll.add(items[i].getValue(""));
+				coll.add(items[i].getValue());
 			}
 		}
 		return coll;
 	}
 
-	private static HashTree generateNode(Configuration config)
+	private static ListedHashTree generateNode(Configuration config)
 	{
 		TestElement element = null;
 		try
@@ -384,14 +375,19 @@ public class SaveService
 		}
 		catch(Exception e)
 		{
-			log.error("Problem loading part of file",e);
+			try{
+				PrintWriter logger = new PrintWriter(new FileWriter("c:\\log.txt"));
+			e.printStackTrace(logger);
+			logger.close();
+			System.out.println("Problem loading part of file");
+			}catch(Exception err){}
 			return null;
 		}
-		HashTree subTree = new ListedHashTree(element);
+		ListedHashTree subTree = new ListedHashTree(element);
 		Configuration[] subNodes = config.getChildren("node");
 		for (int i = 0; i < subNodes.length; i++)
 		{
-			HashTree t = generateNode(subNodes[i]);
+			ListedHashTree t = generateNode(subNodes[i]);
 			if(t != null)
 			{
 				subTree.add(element,t);

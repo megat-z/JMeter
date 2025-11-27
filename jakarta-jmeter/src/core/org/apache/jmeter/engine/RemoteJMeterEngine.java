@@ -57,7 +57,7 @@ package org.apache.jmeter.engine;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import org.apache.jorphan.collections.HashTree;
+import org.apache.jmeter.util.ListedHashTree;
 
 /************************************************************
  *  Description of the Interface
@@ -67,7 +67,7 @@ import org.apache.jorphan.collections.HashTree;
  ***********************************************************/
 public interface RemoteJMeterEngine extends Remote
 {
-	void configure(HashTree testTree) throws RemoteException;
+	void configure(ListedHashTree testTree) throws RemoteException;
 
 	void runTest() throws RemoteException,JMeterEngineException;
 

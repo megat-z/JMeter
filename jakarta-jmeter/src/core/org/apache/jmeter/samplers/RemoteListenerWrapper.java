@@ -1,12 +1,9 @@
 package org.apache.jmeter.samplers;
 
-import java.io.Serializable;
 import java.rmi.RemoteException;
-
-import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestListener;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.jmeter.testelement.AbstractTestElement;
+import java.io.Serializable;
 
 /**
  * <p>Title: </p>
@@ -20,8 +17,6 @@ import org.apache.log.Logger;
 public class RemoteListenerWrapper extends AbstractTestElement implements
 		SampleListener,TestListener,Serializable
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.elements");
 	RemoteSampleListener listener;
 
 	public RemoteListenerWrapper(RemoteSampleListener l)
@@ -41,7 +36,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch (Exception ex)
 		{
-			log.error("",ex);
+			ex.printStackTrace();
 		}
 
 	}
@@ -53,7 +48,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch (Exception ex)
 		{
-			log.error("",ex);
+			ex.printStackTrace();
 		}
 	}
 	public void testStarted(String host)
@@ -64,7 +59,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch (Exception ex)
 		{
-			log.error("",ex);
+			ex.printStackTrace();
 		}
 	}
 	public void testEnded(String host)
@@ -75,7 +70,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch (Exception ex)
 		{
-			log.error("",ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -87,7 +82,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch(RemoteException err)
 		{
-			log.error("",err);
+			err.printStackTrace();
 		}
 	}
 	public void sampleStarted(SampleEvent e)
@@ -98,7 +93,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch(RemoteException err)
 		{
-			log.error("",err);
+			err.printStackTrace();
 		}
 	}
 	public void sampleStopped(SampleEvent e)
@@ -109,7 +104,7 @@ public class RemoteListenerWrapper extends AbstractTestElement implements
 		}
 		catch(RemoteException err)
 		{
-			log.error("",err);
+			err.printStackTrace();
 		}
 	}
 }

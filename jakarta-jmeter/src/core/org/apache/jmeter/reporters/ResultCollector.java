@@ -62,8 +62,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,37 +83,32 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestListener;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.io.TextFile;
+import org.apache.jmeter.util.TextFile;
 import org.xml.sax.SAXException;
 
 /**
  *  Title: Description: Copyright: Copyright (c) 2001 Company:
  *
  *@author     Michael Stover
- *@created    $Date: 2002/10/17 19:47:17 $
+ *@created    $Date: 2002/08/11 19:24:47 $
  *@version    1.0
  */
 
 public class ResultCollector extends AbstractListenerElement implements SampleListener, Clearable,
 		Serializable,TestListener,Remoteable
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.elements");
 	private final static String COLLECTED = "collected";
 	public final static String FILENAME = "filename";
 	private static boolean functionalMode = false;
-	public static final String ERROR_LOGGING = "ResultCollector.error_logging";
 
 	/**
 	 *  !ToDo (Field description)
 	 */
 	//protected List results = Collections.synchronizedList(new ArrayList());
 	private int current;
-	transient private DefaultConfigurationSerializer serializer;
+	private DefaultConfigurationSerializer serializer;
 	private boolean inLoading = false;
-	transient private PrintWriter out;
+	private PrintWriter out;
 	private boolean inTest = false;
 	private static Map files = new HashMap();
 	private Set hosts = new HashSet();
@@ -123,7 +121,6 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 	{
 		current = -1;
 		serializer = new DefaultConfigurationSerializer();
-		setErrorLogging(false);
 	}
 	
 	private void setFilenameProperty(String f)
@@ -134,16 +131,6 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 	public String getFilename()
 	{
 		return getPropertyAsString(FILENAME);
-	}
-	
-	public boolean isErrorLogging()
-	{
-		return getPropertyAsBoolean(ERROR_LOGGING);
-	}
-	
-	public void setErrorLogging(boolean errorLogging)
-	{
-		setProperty(ERROR_LOGGING,new Boolean(errorLogging));
 	}
 
 	/**
@@ -164,7 +151,7 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 		}
 		catch(SAXException e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 			throw new IOException("File "+f+" was improperly formatted");
 		}
 		catch(ConfigurationException e)
@@ -189,7 +176,7 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 		try {
 			initializeFileOutput();
 		} catch(Exception e) {
-			log.error("",e);
+			e.printStackTrace();
 		} 
 		inTest = true;
 	}
@@ -214,7 +201,7 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 				Configuration savedSamples = getConfiguration(getFilename());
 				readSamples(savedSamples);
 			} catch(Exception e) {
-				log.error("",e);
+				e.printStackTrace();
 			}
 		}
 		inLoading = false;
@@ -239,10 +226,6 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 	
 	private static synchronized PrintWriter getFileWriter(String filename) throws IOException
 	{
-		if(filename == null || filename.length() == 0)
-		{
-			return null;
-		}
 		PrintWriter writer = (PrintWriter)files.get(filename);
 		boolean trimmed = true;
 		if(writer == null)
@@ -280,11 +263,6 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 	{
 		functionalMode = mode;
 	}
-	
-	public boolean getFunctionalMode()
-	{
-		return functionalMode || isErrorLogging();
-	}
 
 	/**
 	 *  Gets the serializedSampleResult attribute of the ResultCollector object
@@ -296,7 +274,7 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 			IOException,ConfigurationException
 	{
 		ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
-		serializer.serialize(tempOut, SaveService.getConfiguration(result,getFunctionalMode()));
+		serializer.serialize(tempOut, SaveService.getConfiguration(result,functionalMode));
 		String serVer = tempOut.toString();
 		return serVer.substring(serVer.indexOf(System.getProperty("line.separator")));
 	}
@@ -374,17 +352,14 @@ public class ResultCollector extends AbstractListenerElement implements SampleLi
 	 */
 	public void sampleOccurred(SampleEvent e)
 	{
-		if(!isErrorLogging() || !e.getResult().isSuccessful())
+		sendToVisualizer(e.getResult());
+		try
 		{
-			sendToVisualizer(e.getResult());
-			try
-			{
-				recordResult(e.getResult());
-			}
-			catch(Exception err)
-			{
-				log.error("",err); //should throw exception back to caller
-			}
+			recordResult(e.getResult());
+		}
+		catch(Exception err)
+		{
+			err.printStackTrace(); //should throw exception back to caller
 		}
 	}
 

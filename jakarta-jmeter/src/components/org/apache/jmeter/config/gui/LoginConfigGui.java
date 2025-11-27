@@ -53,15 +53,14 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.config.gui;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
-import org.apache.jmeter.config.ConfigTestElement;
-import org.apache.jmeter.testelement.TestElement;
+import java.awt.event.*;
+import javax.swing.*;
+import org.apache.jmeter.config.LoginConfig;
+import org.apache.jmeter.gui.*;
+import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.config.ConfigTestElement;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache

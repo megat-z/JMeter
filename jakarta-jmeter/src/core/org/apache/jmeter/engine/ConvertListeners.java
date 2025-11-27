@@ -3,19 +3,17 @@ package org.apache.jmeter.engine;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 
-import org.apache.jmeter.samplers.RemoteListenerWrapper;
 import org.apache.jmeter.samplers.RemoteSampleListener;
 import org.apache.jmeter.samplers.RemoteSampleListenerImpl;
-import org.apache.jmeter.samplers.RemoteSampleListenerWrapper;
-import org.apache.jmeter.samplers.RemoteTestListenerWrapper;
 import org.apache.jmeter.samplers.Remoteable;
 import org.apache.jmeter.samplers.SampleListener;
+import org.apache.jmeter.samplers.RemoteListenerWrapper;
+import org.apache.jmeter.samplers.RemoteSampleListenerWrapper;
+import org.apache.jmeter.samplers.RemoteTestListenerWrapper;
 import org.apache.jmeter.testelement.TestListener;
+import org.apache.jmeter.util.ListedHashTree;
+import org.apache.jmeter.util.ListedHashTreeVisitor;
 import org.apache.jmeter.threads.ThreadGroup;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.HashTreeTraverser;
 
 /**
  * @author mstover
@@ -23,17 +21,15 @@ import org.apache.jorphan.collections.HashTreeTraverser;
  * To change this generated comment edit the template variable "typecomment":
  * Window>Preferences>Java>Templates.
  */
-public class ConvertListeners implements HashTreeTraverser {
+public class ConvertListeners implements ListedHashTreeVisitor {
 
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.engine");
 	/**
 	 * @see ListedHashTreeVisitor#addNode(Object, ListedHashTree)
 	 */
-	public void addNode(Object node, HashTree subTree) {
+	public void addNode(Object node, ListedHashTree subTree) {
 		if(node instanceof ThreadGroup)
 			{
-				log.info("num threads = "+((ThreadGroup)node).getNumThreads());
+				System.out.println("num threads = "+((ThreadGroup)node).getNumThreads());
 			}
 		Iterator iter = subTree.list().iterator();
 		while(iter.hasNext())
@@ -41,7 +37,7 @@ public class ConvertListeners implements HashTreeTraverser {
 			Object item = iter.next();
 			if(item instanceof ThreadGroup)
 			{
-				log.info("num threads = "+((ThreadGroup)item).getNumThreads());
+				System.out.println("num threads = "+((ThreadGroup)item).getNumThreads());
 			}
 			if(item instanceof Remoteable && (item instanceof TestListener || item instanceof SampleListener))
 			{
@@ -63,7 +59,7 @@ public class ConvertListeners implements HashTreeTraverser {
 						subTree.replace(item,wrap);
 					}
 				} catch(RemoteException e) {
-					log.error("",e);
+					e.printStackTrace();
 				}
 			}
 		}

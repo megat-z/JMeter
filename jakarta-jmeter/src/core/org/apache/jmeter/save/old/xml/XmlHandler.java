@@ -54,32 +54,27 @@
  */
 package org.apache.jmeter.save.old.xml;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
+import org.apache.xerces.parsers.SAXParser;
+import java.util.*;
+import java.lang.reflect.*;
+
+import org.apache.jmeter.util.*;
 
 /************************************************************
  *  Title: Description: Copyright: Copyright (c) 2000 Company:
  *
  *@author
- *@created    $Date: 2002/10/17 19:47:17 $
+ *@created    $Date: 2002/08/11 19:24:48 $
  *@version    1.0
  ***********************************************************/
 
 public class XmlHandler extends DefaultHandler
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.util");
 	protected LinkedList objectStack;
 
 	NameSpaceHandler informer;
@@ -124,7 +119,7 @@ public class XmlHandler extends DefaultHandler
 	 ***********************************************************/
 	public void fatalError(SAXParseException e) throws SAXException
 	{
-		log.error("***Parsing Fatal Error**\n" +
+		System.out.println("***Parsing Fatal Error**\n" +
 				" Line:   " + e.getLineNumber() + "\n" +
 				" URI:    " + e.getSystemId() + "\n" +
 				" Message: " + e.getMessage());
@@ -141,7 +136,7 @@ public class XmlHandler extends DefaultHandler
 	 ***********************************************************/
 	public void error(SAXParseException errs) throws SAXException
 	{
-		log.error("***Parsing Error**\n" +
+		System.out.println("***Parsing Error**\n" +
 				" Line:   " + errs.getLineNumber() + "\n" +
 				" URI:    " + errs.getSystemId() + "\n" +
 				" Message: " + errs.getMessage());
@@ -158,7 +153,7 @@ public class XmlHandler extends DefaultHandler
 	 ***********************************************************/
 	public void warning(SAXParseException err) throws SAXException
 	{
-		log.warn("***Parsing Warning**\n" +
+		System.out.println("***Parsing Warning**\n" +
 				" Line:   " + err.getLineNumber() + "\n" +
 				" URI:    " + err.getSystemId() + "\n" +
 				" Message: " + err.getMessage());
@@ -184,7 +179,7 @@ public class XmlHandler extends DefaultHandler
 		}
 		catch (Exception e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 	}
 
@@ -198,7 +193,7 @@ public class XmlHandler extends DefaultHandler
 	 ***********************************************************/
 	public void startElement(String uri, String localName, String qName, Attributes atts)
 	{
-		documentElement(localName+":"+qName, atts);
+		//documentElement(localName+":"+qName, atts);
 		TagHandler newXmlObject = informer.getXmlObject(qName, atts);
 		if (newXmlObject == null)
 		{
@@ -208,7 +203,7 @@ public class XmlHandler extends DefaultHandler
 			}
 			catch (Exception ex)
 			{
-				log.debug("No current Handler for " + qName);
+				System.out.println("No current Handler for " + qName);
 			}
 		}
 		else
@@ -222,7 +217,7 @@ public class XmlHandler extends DefaultHandler
 			}
 			catch (Exception ex)
 			{
-				log.debug("(2)No current Handler for " + qName);
+				System.out.println("(2)No current Handler for " + qName);
 			}
 		}
 	}
@@ -244,7 +239,7 @@ public class XmlHandler extends DefaultHandler
 		}
 		catch (Exception ex)
 		{
-			//log.error("",ex);
+			//ex.printStackTrace();
 		}
 		if (currentHandlerIsDone())
 		{
@@ -279,7 +274,7 @@ public class XmlHandler extends DefaultHandler
 				break;
 			}
 		}
-		HashTree subTree = objectHierarchy.getTree(stack);
+		ListedHashTree subTree = objectHierarchy.get(stack);
 		if (subTree == null)
 		{
 			return new LinkedList();
@@ -326,15 +321,14 @@ public class XmlHandler extends DefaultHandler
 		}
 	}
 
-	private void replaceWithModels(HashTree tree)
+	private void replaceWithModels(ListedHashTree tree)
 	{
-		log.debug("XML elements: "+tree.list());
 		Iterator iter = new LinkedList(tree.list()).iterator();
 		while (iter.hasNext())
 		{
 			TagHandler item = (TagHandler)iter.next();
 			tree.replace(item,item.getModel());
-			replaceWithModels(tree.getTree(item.getModel()));
+			replaceWithModels(tree.get(item.getModel()));
 		}
 	}
 
@@ -352,25 +346,22 @@ public class XmlHandler extends DefaultHandler
 
 	private void documentElement(String name, Attributes atts)
 	{
-		if(log.isDebugEnabled())
+		System.out.println("startElement= " + name);
+		for (int i = 0; i < atts.getLength(); i++)
 		{
-			log.debug("startElement= " + name);
-			for (int i = 0; i < atts.getLength(); i++)
-			{
-				log.debug(" Attribute= " + atts.getQName(i) + "=" + atts.getValue(i));
-			}
+			System.out.println(" Attribute= " + atts.getQName(i) + "=" + atts.getValue(i));
 		}
 	}
 
-	private void replaceSubItems(HashTree subTree, Object item)
+	private void replaceSubItems(ListedHashTree subTree, Object item)
 	{
-		HashTree subSubTree = subTree.getTree(item);
-		Collection subItems = subSubTree.list();
+		ListedHashTree subSubTree = subTree.get(item);
+		List subItems = subSubTree.list();
 		Iterator iter2 = subItems.iterator();
 		while (iter2.hasNext())
 		{
 			Object subItem = iter2.next();
-			subTree.set(subItem, subSubTree.getTree(subItem));
+			subTree.set(subItem, subSubTree.get(subItem));
 		}
 	}
 }

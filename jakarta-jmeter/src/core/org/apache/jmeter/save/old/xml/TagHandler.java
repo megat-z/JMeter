@@ -54,17 +54,13 @@
  */
  package org.apache.jmeter.save.old.xml;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
+import java.lang.reflect.*;
+import java.io.*;
+
+import org.xml.sax.Attributes;
 
 import org.apache.jmeter.save.old.SaveHandler;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.xml.sax.Attributes;
 
 /**
  * Title:
@@ -77,8 +73,6 @@ import org.xml.sax.Attributes;
 
 public abstract class TagHandler implements SaveHandler
 {
-	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
-			"jmeter.util");
 	private LinkedList tagsIn = new LinkedList();
 	private boolean done = false;
 	protected String tagName;
@@ -197,7 +191,7 @@ public abstract class TagHandler implements SaveHandler
 		}
 		catch (Exception e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 	}
 
@@ -231,7 +225,7 @@ public abstract class TagHandler implements SaveHandler
 			}
 			catch (Exception ex)
 			{
-				log.error("",ex);
+				ex.printStackTrace();
 			}
 		}
 		dataStore = null;
@@ -253,11 +247,11 @@ public abstract class TagHandler implements SaveHandler
 		}
 		catch(InvocationTargetException e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 		catch(IllegalAccessException e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 		callTagCombo(atts);
 	}
@@ -278,11 +272,11 @@ public abstract class TagHandler implements SaveHandler
 		}
 		catch(InvocationTargetException e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 		catch(IllegalAccessException e)
 		{
-			log.error("",e);
+			e.printStackTrace();
 		}
 	}
 
