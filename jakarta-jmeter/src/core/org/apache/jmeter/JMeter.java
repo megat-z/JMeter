@@ -70,14 +70,29 @@ import org.apache.jmeter.exceptions.IllegalUserActionException;
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.action.ActionRouter;
 import org.apache.jmeter.gui.action.CheckDirty;
+import org.apache.jmeter.gui.action.Load;
 import org.apache.jmeter.gui.tree.JMeterTreeListener;
 import org.apache.jmeter.gui.tree.JMeterTreeModel;
-import org.apache.jmeter.gui.util.ComponentUtil;
 import org.apache.jmeter.reporters.ResultCollector;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestListener;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jmeter.util.ListedHashTree;
+import org.apache.jmeter.plugin.JMeterPlugin;
+import org.apache.jmeter.plugin.PluginManager;
+import org.apache.jmeter.control.gui.TestPlanGui;
+import org.apache.jmeter.control.gui.AbstractControllerGui;
+import org.apache.jmeter.control.gui.WorkBenchGui;
+import org.apache.jmeter.threads.gui.ThreadGroupGui;
+import org.apache.jmeter.timers.gui.AbstractTimerGui;
+import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
+import org.apache.jmeter.config.gui.AbstractModifierGui;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.config.gui.AbstractResponseBasedModifierGui;
+import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.gui.ComponentUtil;
 
 /**
  * @author mstover
@@ -85,7 +100,9 @@ import org.apache.jmeter.util.ListedHashTree;
  * To change this generated comment edit the template variable "typecomment":
  * Window>Preferences>Java>Templates.
  */
-public class JMeter {
+public class JMeter implements JMeterPlugin {
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter");
 
 	private final static int PROPFILE_OPT = 'p';
 	private final static int TESTFILE_OPT = 't';
@@ -173,8 +190,9 @@ public class JMeter {
 	/**
 	 * Starts up JMeter in GUI mode
 	 */
-	public void startGui() throws IllegalUserActionException {
+	public void startGui(CLOption testFile) throws IllegalUserActionException, IllegalAccessException, ClassNotFoundException, InstantiationException {
 
+        PluginManager.install(this, true);
 		JMeterTreeModel treeModel = new JMeterTreeModel();
 		JMeterTreeListener treeLis = new JMeterTreeListener(treeModel);
 		treeLis.setActionHandler(ActionRouter.getInstance());
@@ -190,6 +208,20 @@ public class JMeter {
 		main.show();
 		ActionRouter.getInstance().actionPerformed(
 			new ActionEvent(main, 1, CheckDirty.ADD_ALL));
+		if(testFile != null)
+		{
+			try
+			{
+				File f = new File(testFile.getArgument());
+				FileInputStream reader = new FileInputStream(f);
+				HashTree tree = SaveService.loadSubTree(reader);
+				new Load().insertLoadedTree(1,tree);
+			}
+			catch (Exception e)
+			{
+				log.error("Failure loading test file",e);
+			}
+		}
 	}
 
 	/**
@@ -215,7 +247,7 @@ public class JMeter {
 			} else if (parser.getArgumentById(SERVER_OPT) != null) {
 				startServer();
 			} else if (parser.getArgumentById(NONGUI_OPT) == null) {
-				startGui();
+				startGui(parser.getArgumentById(TESTFILE_OPT));
 			} else {
 				startNonGui(
 					parser.getArgumentById(TESTFILE_OPT),
@@ -225,7 +257,11 @@ public class JMeter {
 			System.out.println(e.getMessage());
 			System.out.println("Incorrect Usage");
 			System.out.println(CLUtil.describeOptions(options).toString());
-		}
+		} catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("An error occurred: " + e.getMessage());
+            System.exit(-1);
+        }
 	}
 
 	/**
@@ -286,13 +322,15 @@ public class JMeter {
 				Thread.sleep(Long.MAX_VALUE);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 	}
 
 	public void startNonGui(CLOption testFile, CLOption logFile)
-		throws IllegalUserActionException {
+		throws IllegalUserActionException, IllegalAccessException, ClassNotFoundException, InstantiationException {
 		JMeter driver = new JMeter();
+        PluginManager.install(this, false);
+
 		if (testFile == null) {
 			throw new IllegalUserActionException();
 		}
@@ -314,7 +352,7 @@ public class JMeter {
 
 			reader = new FileInputStream(f);
 
-			ListedHashTree tree = SaveService.loadSubTree(reader);
+			HashTree tree = SaveService.loadSubTree(reader);
 			if(logFile != null)
 			{
 				ResultCollector logger = new ResultCollector();
@@ -330,7 +368,7 @@ public class JMeter {
 
 		} catch (Exception e) {
 			System.out.println("Error in NonGUIDriver" + e.getMessage());
-			e.printStackTrace();
+			log.error("",e);
 		}
 	}
 	
@@ -356,7 +394,7 @@ public class JMeter {
 		
 		public void testStarted()
 		{
-			System.out.println(JMeterUtils.getResString("running_test"));
+			log.info(JMeterUtils.getResString("running_test"));
 		}
 		
 		/**
@@ -378,4 +416,27 @@ public class JMeter {
 	private static void println(String str) {
 		System.out.println(str);
 	}
+
+
+    public String[][] getIconMappings()
+    {
+        return new String[][] {
+            { TestPlanGui.class.getName(), "org/apache/jmeter/images/beaker.gif"},
+            { AbstractTimerGui.class.getName(), "org/apache/jmeter/images/timer.gif"},
+            { ThreadGroupGui.class.getName(), "org/apache/jmeter/images/thread.gif"},
+            { AbstractVisualizer.class.getName(), "org/apache/jmeter/images/meter.png"},
+            { AbstractConfigGui.class.getName(), "org/apache/jmeter/images/testtubes.png"},
+            { AbstractModifierGui.class.getName(), "org/apache/jmeter/images/testtubes.gif"},
+            { AbstractResponseBasedModifierGui.class.getName(), "org/apache/jmeter/images/testtubes.gif"},
+            { AbstractControllerGui.class.getName(), "org/apache/jmeter/images/knob.gif"},
+            { WorkBenchGui.class.getName(), "org/apache/jmeter/images/clipboard.gif"},
+            { AbstractSamplerGui.class.getName(), "org/apache/jmeter/images/pipet.png"}
+        };
+    }
+
+
+    public String[][] getResourceBundles()
+    {
+        return new String[0][];
+    }
 }

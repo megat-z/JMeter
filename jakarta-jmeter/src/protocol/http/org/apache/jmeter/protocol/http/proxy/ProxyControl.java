@@ -52,42 +52,51 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
-
 package org.apache.jmeter.protocol.http.proxy;
-
+import java.io.Serializable;
 import java.net.UnknownHostException;
-import java.util.*;
-import java.io.*;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.jmeter.config.*;
-import org.apache.jmeter.threads.ThreadGroup;
-import org.apache.jmeter.protocol.http.config.gui.UrlConfigGui;
-import org.apache.oro.text.regex.*;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jmeter.gui.*;
-import org.apache.jmeter.gui.tree.*;
-import org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui;
+import org.apache.jmeter.config.ConfigElement;
+import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.protocol.http.control.gui.RecordController;
 import org.apache.jmeter.exceptions.IllegalUserActionException;
+import org.apache.jmeter.functions.ValueReplacer;
+import org.apache.jmeter.gui.GuiPackage;
+import org.apache.jmeter.gui.JMeterGUIComponent;
+import org.apache.jmeter.gui.tree.JMeterTreeModel;
+import org.apache.jmeter.gui.tree.JMeterTreeNode;
+import org.apache.jmeter.protocol.http.config.gui.UrlConfigGui;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
+import org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui;
+import org.apache.jmeter.protocol.http.gui.HeaderPanel;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.protocol.http.control.HeaderManager;
-import org.apache.jmeter.protocol.http.gui.HeaderPanel;
-import org.apache.jmeter.control.gui.LogicControllerGui;
 import org.apache.jmeter.threads.gui.ThreadGroupGui;
-
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
 /************************************************************
  *  Title: Apache JMeter Description: Copyright: Copyright (c) 2000 Company:
  *  Apache Foundation
  *
  *@author     Michael Stover
- *@created    $Date: 2002/08/14 17:49:04 $
+ *@created    $Date: 2003/01/31 18:25:10 $
  *@version    1.0
  ***********************************************************/
-
 public class ProxyControl extends ConfigTestElement implements Serializable
 {
+	transient private static Logger log =
+		Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.protocol.http");
 	Daemon server;
 	private final int DEFAULT_PORT = 8080;
 	transient Perl5Compiler compiler;
@@ -95,7 +104,6 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	public final static String PORT = "ProxyControlGui.port";
 	public final static String EXCLUDE_LIST = "ProxyControlGui.exclude_list";
 	public final static String INCLUDE_LIST = "ProxyControlGui.include_list";
-
 	/************************************************************
 	 *  !ToDo (Constructor description)
 	 ***********************************************************/
@@ -107,7 +115,6 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 		setExcludeList(new LinkedList());
 		setIncludeList(new LinkedList());
 	}
-
 	/************************************************************
 	 *  !ToDo (Method description)
 	 *
@@ -117,17 +124,14 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		this.setProperty(PORT, new Integer(port));
 	}
-
 	public void setIncludeList(List list)
 	{
-		setProperty(INCLUDE_LIST,list);
+		setProperty(INCLUDE_LIST, list);
 	}
-
 	public void setExcludeList(List list)
 	{
-		setProperty(EXCLUDE_LIST,list);
+		setProperty(EXCLUDE_LIST, list);
 	}
-
 	/************************************************************
 	 *  !ToDoo (Method description)
 	 *
@@ -137,7 +141,6 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		return JMeterUtils.getResString("proxy_title");
 	}
-
 	/************************************************************
 	 *  !ToDoo (Method description)
 	 *
@@ -147,15 +150,14 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		if (this.getProperty(PORT) instanceof String)
 		{
-			setPort(Integer.parseInt((String)getProperty(PORT)));
-			return ((Integer)this.getProperty(PORT)).intValue();
+			setPort(Integer.parseInt((String) getProperty(PORT)));
+			return ((Integer) this.getProperty(PORT)).intValue();
 		}
 		else
 		{
-			return ((Integer)this.getProperty(PORT)).intValue();
+			return ((Integer) this.getProperty(PORT)).intValue();
 		}
 	}
-
 	/************************************************************
 	 *  !ToDoo (Method description)
 	 *
@@ -165,22 +167,9 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		return DEFAULT_PORT;
 	}
-
 	public Class getGuiClass()
 	{
 		return org.apache.jmeter.protocol.http.proxy.gui.ProxyControlGui.class;
-	}
-
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public Object clone()
-	{
-		ProxyControl clone = new ProxyControl();
-		configureClone(clone);
-		return clone;
 	}
 
 	/************************************************************
@@ -191,7 +180,6 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	public void addConfigElement(ConfigElement config)
 	{
 	}
-
 	/************************************************************
 	 *  !ToDo (Method description)
 	 ***********************************************************/
@@ -204,10 +192,9 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 		}
 		catch (UnknownHostException e)
 		{
-			e.printStackTrace();
+			log.error("", e);
 		}
 	}
-
 	/************************************************************
 	 *  !ToDo
 	 *
@@ -217,12 +204,10 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		getExcludePatterns().add(pattern);
 	}
-
 	public List getExcludePatterns()
 	{
-		return (List)getProperty(EXCLUDE_LIST);
+		return (List) getProperty(EXCLUDE_LIST);
 	}
-
 	/************************************************************
 	 *  !ToDo
 	 *
@@ -232,12 +217,10 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		getIncludePatterns().add(pattern);
 	}
-
 	public List getIncludePatterns()
 	{
-		return (List)getProperty(INCLUDE_LIST);
+		return (List) getProperty(INCLUDE_LIST);
 	}
-
 	/************************************************************
 	 *  !ToDo (Method description)
 	 ***********************************************************/
@@ -245,7 +228,6 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		getExcludePatterns().clear();
 	}
-
 	/************************************************************
 	 *  !ToDo (Method description)
 	 ***********************************************************/
@@ -253,20 +235,23 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 	{
 		getIncludePatterns().clear();
 	}
-
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@param  config  !ToDo (Parameter description)
-	 ***********************************************************/
-	public void deliverSampler(HTTPSampler sampler,TestElement[] subConfigs)
+	
+	/**
+	 * Receives the recorded sampler from the proxy server for placing in the
+	 * test tree
+	 * @param sampler
+	 * @param subConfigs
+	 * @param serverResponse Added to allow saving of the server's response while
+	 * recording.  A future consideration.
+	 */
+	public void deliverSampler(HTTPSampler sampler, TestElement[] subConfigs,
+			byte[] serverResponse)
 	{
 		if (filterUrl(sampler))
 		{
-			placeConfigElement(sampler,subConfigs);
+			placeConfigElement(sampler, subConfigs);
 		}
 	}
-
 	/************************************************************
 	 *  !ToDo (Method description)
 	 ***********************************************************/
@@ -277,11 +262,10 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 			server.stopServer();
 		}
 	}
-
-	private boolean filterUrl(HTTPSampler sampler)
+	protected boolean filterUrl(HTTPSampler sampler)
 	{
 		boolean ok = false;
-		if(sampler.getDomain() == null || sampler.getDomain().equals(""))
+		if (sampler.getDomain() == null || sampler.getDomain().equals(""))
 		{
 			return false;
 		}
@@ -310,87 +294,99 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 		}
 		return ok;
 	}
-
-	private void placeConfigElement(HTTPSampler sampler,TestElement[] subConfigs)
+	private void placeConfigElement(
+		HTTPSampler sampler,
+		TestElement[] subConfigs)
 	{
+		ValueReplacer replacer = GuiPackage.getInstance().getReplacer();
 		TestElement urlConfig = null;
 		JMeterTreeModel treeModel = GuiPackage.getInstance().getTreeModel();
-		List nodes = treeModel.getNodesOfType(LogicControllerGui.class);
-		if(nodes.size() == 0)
+		List nodes = treeModel.getNodesOfType(RecordController.class);
+		if (nodes.size() == 0)
 		{
 			nodes = treeModel.getNodesOfType(ThreadGroupGui.class);
 		}
 		Iterator iter = nodes.iterator();
-		if (iter.hasNext())
+		while (iter.hasNext())
 		{
-			JMeterTreeNode node = (JMeterTreeNode)iter.next();
-			Enumeration enum = node.children();
-			while(enum.hasMoreElements())
-			{
-				JMeterTreeNode subNode = (JMeterTreeNode)enum.nextElement();
-				JMeterGUIComponent sample = (JMeterGUIComponent)subNode.getUserObject();
-				if(sample instanceof UrlConfigGui)
-				{
-					urlConfig = sample.createTestElement();
-					break;
-				}
-			}
-			if(areMatched(sampler, urlConfig))
-			{
-				removeValuesFromSampler(sampler, urlConfig);
-				HttpTestSampleGui test = new HttpTestSampleGui();
-				test.configure(sampler);
-				try
-				{
-					JMeterTreeNode newNode = treeModel.addComponent(test,node);
-					for(int i = 0;subConfigs != null && i < subConfigs.length;
-							i++)
-					{
-						if(subConfigs[i] instanceof HeaderManager)
-						{
-							HeaderPanel comp = new HeaderPanel();
-							comp.configure(subConfigs[i]);
-							treeModel.addComponent(comp,newNode);
-						}
-					}
-				}
-				catch(IllegalUserActionException e)
-				{
-					JMeterUtils.reportErrorToUser(e.getMessage());
-				}
-			}
-		}
-	}
+			JMeterTreeNode node = (JMeterTreeNode) iter.next();
 
+            if (! node.isEnabled()) {
+                continue;
+            } else {
+                Enumeration enum = node.children();
+                while (enum.hasMoreElements())
+                {
+                    JMeterTreeNode subNode = (JMeterTreeNode) enum.nextElement();
+                    JMeterGUIComponent sample =
+                        (JMeterGUIComponent) subNode.getUserObject();
+                    if (sample instanceof UrlConfigGui)
+                    {
+                        urlConfig = sample.createTestElement();
+                        break;
+                    }
+                }
+                if (areMatched(sampler, urlConfig))
+                {
+                    removeValuesFromSampler(sampler, urlConfig);
+                    replacer.reverseReplace(sampler);
+                    HttpTestSampleGui test = new HttpTestSampleGui();
+                    test.configure(sampler);
+                    try
+                    {
+                        JMeterTreeNode newNode = treeModel.addComponent(test, node);
+                        for (int i = 0; subConfigs != null && i < subConfigs.length; i++)
+                        {
+                            if (subConfigs[i] instanceof HeaderManager)
+                            {
+                                HeaderPanel comp = new HeaderPanel();
+                                replacer.reverseReplace(subConfigs[i]);
+                                comp.configure(subConfigs[i]);
+                                treeModel.addComponent(comp, newNode);
+                            }
+                        }
+                    }
+                    catch (IllegalUserActionException e)
+                    {
+                        JMeterUtils.reportErrorToUser(e.getMessage());
+                    }
+                }
+                return;
+            }
+        }
+	}
 	private void removeValuesFromSampler(
 		HTTPSampler sampler,
-		TestElement urlConfig) {
-		if(urlConfig != null && sampler.getDomain().equals(urlConfig.getProperty(HTTPSampler.DOMAIN)))
+		TestElement urlConfig)
+	{
+		if (urlConfig != null
+			&& sampler.getDomain().equals(urlConfig.getProperty(HTTPSampler.DOMAIN)))
 		{
 			sampler.setDomain("");
 		}
-		if(urlConfig != null && sampler.getPath().equals(urlConfig.getProperty(HTTPSampler.PATH)))
+		if (urlConfig != null
+			&& sampler.getPath().equals(urlConfig.getProperty(HTTPSampler.PATH)))
 		{
 			sampler.setPath("");
 		}
 	}
-
-	private boolean areMatched(HTTPSampler sampler, TestElement urlConfig) {
-		return urlConfig == null || (urlConfig.getProperty(HTTPSampler.DOMAIN) == null ||
-				urlConfig.getProperty(HTTPSampler.DOMAIN).equals("") ||
-				urlConfig.getProperty(HTTPSampler.DOMAIN).equals(sampler.getDomain())) &&
-				(urlConfig.getProperty(HTTPSampler.PATH) == null ||
-				urlConfig.getProperty(HTTPSampler.PATH).equals("") ||
-				urlConfig.getProperty(HTTPSampler.PATH).equals(sampler.getPath()));
+	private boolean areMatched(HTTPSampler sampler, TestElement urlConfig)
+	{
+		return urlConfig == null
+			|| (urlConfig.getProperty(HTTPSampler.DOMAIN) == null
+				|| urlConfig.getProperty(HTTPSampler.DOMAIN).equals("")
+				|| urlConfig.getProperty(HTTPSampler.DOMAIN).equals(sampler.getDomain()))
+			&& (urlConfig.getProperty(HTTPSampler.PATH) == null
+				|| urlConfig.getProperty(HTTPSampler.PATH).equals("")
+				|| urlConfig.getProperty(HTTPSampler.PATH).equals(sampler.getPath()));
 	}
-
 	private boolean checkIncludes(HTTPSampler sampler)
 	{
 		boolean ok = false;
 		Iterator iter = getIncludePatterns().iterator();
 		while (iter.hasNext())
 		{
-			String item = (String)iter.next();
+			String item = (String) iter.next();
 			try
 			{
 				Pattern pattern = compiler.compile(item);
@@ -398,7 +394,7 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 				url.append(":");
 				url.append(sampler.getPort());
 				url.append(sampler.getPath());
-				if(sampler.getQueryString().length() > 0)
+				if (sampler.getQueryString().length() > 0)
 				{
 					url.append("?");
 					url.append(sampler.getQueryString());
@@ -416,14 +412,13 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 		}
 		return ok;
 	}
-
 	private boolean checkExcludes(HTTPSampler sampler)
 	{
 		boolean ok = true;
 		Iterator iter = getExcludePatterns().iterator();
 		while (iter.hasNext())
 		{
-			String item = (String)iter.next();
+			String item = (String) iter.next();
 			try
 			{
 				Pattern pattern = compiler.compile(item);
@@ -431,7 +426,7 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 				url.append(":");
 				url.append(sampler.getPort());
 				url.append(sampler.getPath());
-				if(sampler.getQueryString().length() > 0)
+				if (sampler.getQueryString().length() > 0)
 				{
 					url.append("?");
 					url.append(sampler.getQueryString());
@@ -449,14 +444,12 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 		}
 		return ok;
 	}
-
 	public static class Test extends TestCase
 	{
 		public Test(String name)
 		{
 			super(name);
 		}
-
 		public void testFiltering() throws Exception
 		{
 			ProxyControl control = new ProxyControl();
@@ -473,5 +466,4 @@ public class ProxyControl extends ConfigTestElement implements Serializable
 			assertTrue(!control.filterUrl(sampler));
 		}
 	}
-
 }

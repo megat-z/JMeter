@@ -55,97 +55,139 @@
 
 package org.apache.jmeter.timers;
 
-import java.util.*;
-import java.io.*;
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.apache.jmeter.testelement.AbstractTestElement;
+import org.apache.jmeter.testelement.ThreadListener;
+import org.apache.jmeter.testelement.VariablesCollection;
+import org.apache.jmeter.threads.JMeterVariables;
 
-/************************************************************
- *  This class implements a constant timer with its own panel and fields for
- *  value update and user interaction.
+/**
+ * This class implements a constant timer with its own panel and fields for
+ * value update and user interaction.
  *
- *@author     <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- *@created    $Date: 2002/08/11 19:24:41 $
- *@version    $Revision: 1.1 $ $Date: 2002/08/11 19:24:41 $
- ***********************************************************/
-
-public class ConstantTimer extends AbstractTestElement implements Timer, Serializable
+ * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
+ * @author <a href="mailto:seade@backstagetech.com.au">Scott Eade</a>
+ * @version $Revision: 1.4 $ $Date: 2003/01/13 03:48:54 $
+ */
+public class ConstantTimer
+    extends AbstractTestElement
+    implements Timer, Serializable, ThreadListener
 {
-	public final static String DELAY = "ConstantTimer.delay";
-	private static List addableList = new LinkedList();
+    private static Logger log =
+        Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.elements");
 
-	/************************************************************
-	 *  !ToDo (Constructor description)
-	 ***********************************************************/
-	public ConstantTimer()
-	{
-	}
+    public final static String DELAY = "ConstantTimer.delay";
+    private VariablesCollection vars = new VariablesCollection();
+    private JMeterVariables variables;
+    private static List addableList = new LinkedList();
+    private long delay = 0;
 
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@param  delay  !ToDo (Parameter description)
-	 ***********************************************************/
-	public void setDelay(long delay)
-	{
-		setProperty(DELAY,new Long(delay));
-	}
+    /**
+     * No-arg constructor.
+     */
+    public ConstantTimer()
+    {
+    }
 
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@param  range  !ToDo (Parameter description)
-	 ***********************************************************/
-	public void setRange(double range)
-	{
-	}
+    /**
+     * Set the delay for this timer.
+     *  
+     * @see org.apache.jmeter.timers.Timer#setDelay(String)
+     */
+    public void setDelay(String delay)
+    {
+        setProperty(DELAY, delay);
+    }
 
-	/************************************************************
-	 *  !ToDoo (Method description)
-	 *
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public long getDelay()
-	{
-		Object delay = getProperty(DELAY);
-		if(delay instanceof Long)
-		{
-			return ((Long)delay).longValue();
-		}
-		else
-		{
-			return Long.parseLong((String)delay);
-		}
-	}
+    /**
+     * Set the range (not used for this timer).
+     * 
+     * @see org.apache.jmeter.timers.Timer#setRange(double)
+     */
+    public void setRange(double range)
+    {
+    }
 
-	/************************************************************
-	 *  !ToDoo (Method description)
-	 *
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public double getRange()
-	{
-		return (double)0;
-	}
+    /**
+     * Get the delay value for display.
+     * 
+     * @return the delay value for display.
+     * @see org.apache.jmeter.timers.Timer#getDelay()
+     */
+    public String getDelay()
+    {
+        return (String) getProperty(DELAY);
+    }
 
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public long delay()
-	{
-		return getDelay();
-	}
+    /**
+     * Retrieve the range (not used for this timer).
+     * 
+     * @return the range (always zero for this timer).
+     * @see org.apache.jmeter.timers.Timer#getRange()
+     */
+    public double getRange()
+    {
+        return (double) 0;
+    }
 
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public String toString()
-	{
-		return JMeterUtils.getResString("constant_timer_memo");
-	}
+    /**
+     * Retrieve the delay to use during test execution.
+     * 
+     * @return the delay.
+     */
+    public long delay()
+    {
+        return delay;
+    }
+
+    /**
+     * Provide a description of this timer class.
+     * 
+     * @return the description of this timer class.
+     */
+    public String toString()
+    {
+        return JMeterUtils.getResString("constant_timer_memo");
+    }
+
+    /**
+     * Gain access to any variables that have been defined.
+     * 
+     * @see org.apache.jmeter.testelement.ThreadListener#iterationStarted(int)
+     */
+    public void iterationStarted(int iterationCount)
+    {
+        variables = vars.getVariables();
+
+        try
+        {
+            String delayString = (String) getProperty(DELAY);
+            delay = Long.parseLong(delayString);
+        }
+        catch (ClassCastException ex)
+        {
+            log.error(
+                "Unable to determine delay - you may have used an undefined "                    + "variable in the test element with the name: "
+                    + getName(),
+                ex);
+            delay = 0;
+        }
+    }
+
+    /**
+     * Make changes to variables available elsewhere.
+     * 
+     * @see org.apache.jmeter.testelement.ThreadListener#setJMeterVariables(JMeterVariables)
+     */
+    public void setJMeterVariables(JMeterVariables jmVars)
+    {
+        //vars.addJMeterVariables(jmVars);
+    }
+
 }

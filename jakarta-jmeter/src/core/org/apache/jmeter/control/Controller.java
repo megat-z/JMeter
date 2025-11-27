@@ -71,7 +71,7 @@ import org.apache.jmeter.samplers.Sampler;
  * }
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:42 $
+ *@created   $Date: 2002/12/13 21:37:28 $
  *@version   1.0
  ***************************************/
 public interface Controller extends TestElement
@@ -92,4 +92,9 @@ public interface Controller extends TestElement
 	 * of the test.
 	 */
 	public boolean isDone();
+	
+	/**
+	 * By using this method, one can ask the controller if the next Sampler is the
+	 * first in the Controller's list.	 * @return boolean	 */
+	public boolean isNextFirst();
 }

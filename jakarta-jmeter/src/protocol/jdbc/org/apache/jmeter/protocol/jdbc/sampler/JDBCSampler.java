@@ -2,7 +2,7 @@
  * ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001-2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,7 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
- package org.apache.jmeter.protocol.jdbc.sampler;
-
-import java.net.URL;
+package org.apache.jmeter.protocol.jdbc.sampler;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -74,246 +72,251 @@ import org.apache.jmeter.samplers.Entry;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestListener;
-import org.apache.jmeter.util.Data;
-
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.Data;
 /************************************************************
  *  A sampler which understands JDBC database requests
  *
- *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/11 19:24:53 $
- *@version    $Revision: 1.1 $
+ *@author     $Author: jsalvata $
+ *@created    $Date: 2003/01/12 01:28:40 $
+ *@version    $Revision: 1.10 $
  ***********************************************************/
-
 public class JDBCSampler extends AbstractSampler implements TestListener
 {
+    transient private static Logger log =
+            Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.protocol.jdbc");
+    public final static String URL = "JDBCSampler.url";
+    public final static String DRIVER = "JDBCSampler.driver";
+    public static String CONNECTIONS = "JDBCSampler.connections";
+    public static String MAXUSE = "JDBCSampler.maxuse";
+    //database connection pool manager
+    transient DBConnectionManager manager = DBConnectionManager.getManager();
+    // end method
+    public final static String QUERY = "JDBCSampler.query";
+    private static Map keyMap = new HashMap();
+    private static boolean running = false;
 
-	public final static String URL = "JDBCSampler.url";
-	public final static String DRIVER = "JDBCSampler.driver";
-	public static String CONNECTIONS = "JDBCSampler.connections";
-	public static String MAXUSE = "JDBCSampler.maxuse";
-	//database connection pool manager
-	DBConnectionManager manager = DBConnectionManager.getManager();
-	// end method
+    /**
+     * Creates a JDBCSampler.
+     */
+    public JDBCSampler()
+    {
+    }
 
-	public final static String QUERY = "JDBCSampler.query";
-	private static Map keyMap = new HashMap();
-	private static boolean running = false;
+    public void addCustomTestElement(TestElement element)
+    {
+        if (element instanceof SqlConfig
+                || element instanceof PoolConfig
+                || element instanceof DbConfig)
+        {
+            this.mergeIn(element);
+        }
+    }
 
-	/************************************************************
-	 *  !ToDo (Constructor description)
-	 ***********************************************************/
-	public JDBCSampler()
-	{
+    public void testStarted(String host)
+    {
+    }
 
-	}
+    public void testEnded(String host)
+    {
+    }
 
-	public void addCustomTestElement(TestElement element)
-	{
-		if(element instanceof SqlConfig || element instanceof PoolConfig ||
-				element instanceof DbConfig)
-		{
-			this.mergeIn(element);
-		}
-	}
-	
-	public void testStarted(String host)
-	{
-	}
-	
-	public void testEnded(String host)
-	{
-	}
-	
-	public synchronized void testStarted()
-	{
-		if(!running)
-		{
-			running = true;
-		}
-	}
-	
-	public synchronized void testEnded()
-	{
-		if(running)
-		{
-			manager.shutdown();
-			keyMap.clear();
-			running = false;
-		}
-	}
-	
-	public String getQuery()
-	{
-		return this.getPropertyAsString(QUERY);
-	}
+    public synchronized void testStarted()
+    {
+        if (!running)
+        {
+            running = true;
+        }
+    }
 
-	/************************************************************
-	 *  !ToDo (Method description)
-	 *
-	 *@param  e  !ToDo (Parameter description)
-	 *@return    !ToDo (Return description)
-	 ***********************************************************/
-	public SampleResult sample(Entry e)
-	{
-		DBKey key = getKey();
-		long start;
-		long end;
-		long time;
-		time = start = end = 0;
-		SampleResult res = new SampleResult();
-		Connection con = null;
-		ResultSet rs = null;
-		Statement stmt = null;
-		Data data = new Data();
-		res.setSampleLabel(getQuery());
-		start = System.currentTimeMillis();
-		try
-		{
-			int count = 0;
-			while (count < 20 && (con = manager.getConnection(key)) == null)
-			{
-				try
-				{
-					Thread.sleep(10);
-				}
-				catch (Exception err)
-				{
-					count++;
-				}
-			}
-			stmt = con.createStatement();
-			// Execute database query
-			boolean retVal = stmt.execute(getQuery());
-			// Based on query return value, get results
-			if (retVal)
-			{
-				rs = stmt.getResultSet();
-				data = getDataFromResultSet(rs);
-				rs.close();
-			}
-			else
-			{
-				int updateCount = stmt.getUpdateCount();
-			}
-			stmt.close();
-			manager.releaseConnection(con);
-		}
-		catch (Exception ex)
-		{
-			if (rs != null)
-			{
-				try
-				{
-					rs.close();
-				}
-				catch (SQLException err)
-				{
-					rs = null;
-				}
-			}
-			if (stmt != null)
-			{
-				try
-				{
-					stmt.close();
-				}
-				catch (SQLException err)
-				{
-					stmt = null;
-				}
-			}
-			manager.releaseConnection(con);
-			ex.printStackTrace();
-		}
-		// Calculate response time
-		end = System.currentTimeMillis();
-		time += end - start;
-		res.setTime(time);
-		res.setResponseData(data.toString().getBytes());
-		res.setSamplerData(this);
-		res.setSuccessful(true);
-		return res;
-	}
-	
-	public String getUrl()
-	{
-		return getPropertyAsString(URL);
-	}
-	
-	public String getUsername()
-	{
-		return getPropertyAsString(ConfigTestElement.USERNAME);
-	}
-	
-	public String getPassword()
-	{
-		return getPropertyAsString(ConfigTestElement.PASSWORD);
-	}
-	
-	public String getDriver()
-	{
-		return getPropertyAsString(DRIVER);
-	}
-	
-	public int getMaxUse()
-	{
-		return getPropertyAsInt(this.MAXUSE);
-	}
-	
-	public int getNumConnections()
-	{
-		return getPropertyAsInt(CONNECTIONS);
-	}
+    public synchronized void testEnded()
+    {
+        if (running)
+        {
+            manager.shutdown();
+            keyMap.clear();
+            running = false;
+        }
+    }
 
-	private DBKey getKey()
-	{
-		DBKey key = (DBKey)keyMap.get(getUrl());
-		if (key == null)
-		{
-			key = manager.getKey(getUrl(), getUsername(),getPassword(),
-					getDriver(), getMaxUse(), getNumConnections());
-			keyMap.put(getUrl(), key);
-		}
-		return key;
-	}
+    public String getQuery()
+    {
+        return this.getPropertyAsString(QUERY);
+    }
 
-	/************************************************************
-	 *  Gets a Data object from a ResultSet.
-	 *
-	 *@param  rs                      ResultSet passed in from a database query
-	 *@return                         A Data object (com.stover.utils)
-	 *@exception  SQLException        !ToDo (Exception description)
-	 *@throws  java.sql.SQLException
-	 ***********************************************************/
-	private Data getDataFromResultSet(ResultSet rs) throws SQLException
-	{
-		ResultSetMetaData meta;
-		Data data = new Data();
-		meta = rs.getMetaData();
-		int numColumns = meta.getColumnCount();
-		String[] dbCols = new String[numColumns];
-		for (int count = 1; count <= numColumns; count++)
-		{
-			dbCols[count - 1] = meta.getColumnName(count);
-			data.addHeader(dbCols[count - 1]);
-		}
-		while (rs.next())
-		{
-			data.next();
-			for (int count = 0; count < numColumns; count++)
-			{
-				Object o = rs.getObject(count + 1);
-				if(o == null)
-				{
-				}
-				else if(o instanceof byte[])
-				{
-					o = new String((byte[])o);
-				}
-				data.addColumnValue(dbCols[count], o);
-			}
-		}
-		return data;
-	}
+    public SampleResult sample(Entry e)
+    {
+        DBKey key = getKey();
+        long start;
+        long end;
+        long time;
+        time = start = end = 0;
+        SampleResult res = new SampleResult();
+        Connection con = null;
+        ResultSet rs = null;
+        Statement stmt = null;
+        Data data = new Data();
+        res.setSampleLabel(getQuery());
+        start = System.currentTimeMillis();
+        try
+        {
+            int count = 0;
+            while (count < 20 && (con = manager.getConnection(key)) == null)
+            {
+                try
+                {
+                    Thread.sleep(10);
+                }
+                catch (Exception err)
+                {
+                    count++;
+                }
+            }
+            stmt = con.createStatement();
+            // Execute database query
+            boolean retVal = stmt.execute(getQuery());
+            // Based on query return value, get results
+            if (retVal)
+            {
+                rs = stmt.getResultSet();
+                data = getDataFromResultSet(rs);
+                rs.close();
+            }
+            else
+            {
+                int updateCount = stmt.getUpdateCount();
+            }
+            stmt.close();
+            manager.releaseConnection(con);
+            res.setResponseData(data.toString().getBytes());
+            res.setDataType(res.TEXT);
+            res.setSuccessful(true);
+        }
+        catch (Exception ex)
+        {
+            if (rs != null)
+            {
+                try
+                {
+                    rs.close();
+                }
+                catch (SQLException err)
+                {
+                    rs = null;
+                }
+            }
+            if (stmt != null)
+            {
+                try
+                {
+                    stmt.close();
+                }
+                catch (SQLException err)
+                {
+                    stmt = null;
+                }
+            }
+            manager.releaseConnection(con);
+            log.error("Error in JDBC sampling", ex);
+            res.setResponseData(new byte[0]);
+            res.setSuccessful(false);
+        }
+        // Calculate response time
+        end = System.currentTimeMillis();
+        time += end - start;
+        res.setTime(time);
+        res.setSamplerData(this);
+        return res;
+    }
+
+    public String getUrl()
+    {
+        return getPropertyAsString(URL);
+    }
+
+    public String getUsername()
+    {
+        return getPropertyAsString(ConfigTestElement.USERNAME);
+    }
+
+    public String getPassword()
+    {
+        return getPropertyAsString(ConfigTestElement.PASSWORD);
+    }
+
+    public String getDriver()
+    {
+        return getPropertyAsString(DRIVER);
+    }
+
+    public int getMaxUse()
+    {
+        return getPropertyAsInt(this.MAXUSE);
+    }
+
+    public int getNumConnections()
+    {
+        return getPropertyAsInt(CONNECTIONS);
+    }
+
+    private DBKey getKey()
+    {
+        DBKey key = (DBKey) keyMap.get(getUrl());
+        if (key == null)
+        {
+            key = manager.getKey(getUrl(),
+                                 getUsername(),
+                                 getPassword(),
+                                 getDriver(),
+                                 getMaxUse(),
+                                 getNumConnections());
+            keyMap.put(getUrl(), key);
+        }
+        return key;
+    }
+
+    /**
+     * Gets a Data object from a ResultSet.
+     *
+     * @param  rs                      ResultSet passed in from a database query
+     * @return                         A Data object (com.stover.utils)
+     * @exception  SQLException        !ToDo (Exception description)
+     * @throws  java.sql.SQLException
+     */
+    private Data getDataFromResultSet(ResultSet rs) throws SQLException
+    {
+        ResultSetMetaData meta;
+        Data data = new Data();
+        meta = rs.getMetaData();
+        int numColumns = meta.getColumnCount();
+        String[] dbCols = new String[numColumns];
+        for (int count = 1; count <= numColumns; count++)
+        {
+            dbCols[count - 1] = meta.getColumnName(count);
+            data.addHeader(dbCols[count - 1]);
+        }
+        while (rs.next())
+        {
+            data.next();
+            for (int count = 0; count < numColumns; count++)
+            {
+                Object o = rs.getObject(count + 1);
+                if (o == null)
+                {
+                }
+                else if (o instanceof byte[])
+                {
+                    o = new String((byte[]) o);
+                }
+                data.addColumnValue(dbCols[count], o);
+            }
+        }
+        return data;
+    }
+
+    public String toString()
+    {
+        return getUrl()+", user: "+getUsername()+"\n"+getQuery();
+    }
 }
-

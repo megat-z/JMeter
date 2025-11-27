@@ -1,7 +1,5 @@
-/GenericController.java/1.1/Sun Aug 11 19:24:40 2002//Tv1_7_3
-/InterleaveControl.java/1.1/Sun Aug 11 19:24:40 2002//Tv1_7_3
-/LoopController.java/1.1/Sun Aug 11 19:24:40 2002//Tv1_7_3
-/ModifyController.java/1.1/Sun Aug 11 19:24:40 2002//Tv1_7_3
-/OnceOnlyController.java/1.1/Sun Aug 11 19:24:40 2002//Tv1_7_3
-/RandomController.java/1.1/Sun Aug 11 19:24:40 2002//Tv1_7_3
+/InterleaveControl.java/1.5/Tue Jan 28 21:21:19 2003//Tv1_8_1
+/ModifyController.java/1.2/Tue Oct 15 18:53:24 2002//Tv1_8_1
+/OnceOnlyController.java/1.2/Sun Dec 29 14:20:55 2002//Tv1_8_1
+/RandomController.java/1.3/Tue Jan 28 21:21:19 2003//Tv1_8_1
 D/gui////

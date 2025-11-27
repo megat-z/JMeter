@@ -1,5 +1,6 @@
-/ConstantTimer.java/1.1/Sun Aug 11 19:24:41 2002//Tv1_7_3
-/GaussianRandomTimer.java/1.1/Sun Aug 11 19:24:41 2002//Tv1_7_3
-/RandomTimer.java/1.1/Sun Aug 11 19:24:41 2002//Tv1_7_3
-/UniformRandomTimer.java/1.1/Sun Aug 11 19:24:41 2002//Tv1_7_3
+/ConstantThroughputTimer.java/1.3/Fri Jan 10 13:59:51 2003//Tv1_8_1
+/ConstantTimer.java/1.4/Mon Jan 13 03:48:54 2003//Tv1_8_1
+/GaussianRandomTimer.java/1.2/Fri Jan 10 13:59:51 2003//Tv1_8_1
+/RandomTimer.java/1.2/Fri Jan 10 13:59:51 2003//Tv1_8_1
+/UniformRandomTimer.java/1.2/Fri Jan 10 13:59:51 2003//Tv1_8_1
 D/gui////

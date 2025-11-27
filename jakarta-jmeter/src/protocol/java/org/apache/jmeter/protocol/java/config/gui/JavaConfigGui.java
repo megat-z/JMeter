@@ -63,29 +63,31 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.gui.AbstractConfigGui;
 import org.apache.jmeter.config.gui.ArgumentsPanel;
-import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.protocol.java.config.JavaConfig;
 import org.apache.jmeter.protocol.java.sampler.JavaSampler;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerClient;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.util.ClassFinder;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.log4j.Category;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.gui.layout.VerticalLayout;
+import org.apache.jorphan.reflect.ClassFinder;
 
 
 /**
  * The <code>JavaConfigGui</code> class provides the user interface for
  * the JavaConfig object.
  * @author Brad Kiewel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.5 $
  */
 
 public class JavaConfigGui extends AbstractConfigGui
 {
-	private static Category cat = Category.getInstance(JavaConfigGui.class);
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.protocol.java");
 	private static String CLASSNAMECOMBO = "classnamecombo";
 
 	private JComboBox classnameCombo;
@@ -160,7 +162,9 @@ public class JavaConfigGui extends AbstractConfigGui
 			
 			// Find all the classes which implement the JavaSamplerClient interface
 		
-			possibleClasses = ClassFinder.findClassesThatExtend(new Class[]{JavaSamplerClient.class});
+			possibleClasses = ClassFinder.findClassesThatExtend(
+					JMeterUtils.getSearchPaths(),
+					new Class[]{JavaSamplerClient.class});
 			
 			// Remove the JavaConfig class from the list since it only implements the interface for
 			// error conditions.
@@ -168,7 +172,7 @@ public class JavaConfigGui extends AbstractConfigGui
 			possibleClasses.remove("org.apache.jmeter.protocol.java.sampler.JavaSampler");
 		
 		} catch (Exception e) {
-			cat.debug("Exception getting interfaces.",e);
+			log.debug("Exception getting interfaces.",e);
 		}
 		
 		classnameCombo = new JComboBox(possibleClasses.toArray());

@@ -10,6 +10,40 @@
 (least recent)</b></p>  
 
 <b>Changes: for more info, contact <a href="mailto:mstover1@apache.org">Michael Stover</a></b>
+
+<h3>Version 1.8.1</h3>
+<ul>
+<li>Bug Fix Release.  Many bugs were fixed.</li>
+<li>Removed redundant "Root" node from test tree.</li>
+<li>Re-introduced Icons in test tree.</li>
+<li>Some re-organization of code to improve build process.</li>
+<li>View Results Tree has added option to view results as web document (still buggy at this point).</li>
+<li>New Total line in Aggregate Listener (still buggy at this point).</li>
+<li>Improvements to ability to change JMeter's Locale settings.</li>
+<li>Improvements to SSL Manager.</li>
+</ul>
+
+<h3>Version 1.8</h3>
+<ul>
+<li>Improvement to Aggregate report's calculations.</li>
+<li>Simplified application logging.</li>
+<li>New Duration Assertion.</li>
+<li>Fixed and improved Mailer Visualizer.</li>
+<li>Improvements to HTTP Sampler's recovery of resources (sockets and file handles).</li>
+<li>Improving JMeter's internal handling of test start/stop.</li>
+<li>Fixing and adding options to behavior of Interleave and Random Controllers.</li>
+<li>New Counter config element.</li>
+<li>New User Parameters config element.</li>
+<li>Improved performance of file opener.</li>
+<li>Functions and other elements can access global variables.</li>
+<li>Help system available within JMeter's GUI.</li>
+<li>Test Elements can be disabled.</li>
+<li>Language/Locale can be changed while running JMeter (mostly).</li>
+<li>View Results Tree can be configured to record only errors.</li>
+<li>Various bug fixes.</li>
+</ul>
+
+<b>Changes: for more info, contact <a href="mailto:mstover1@apache.org">Michael Stover</a></b>
 <h3>Version 1.7.3</h3>
 <ul>
 <li>New Functions that provide more ability to change requests dynamically during test runs.</li>
@@ -159,7 +193,7 @@ test engine code.</li>
 </ul> </p>
   <p><b>Apache JMeter 1.3</b> - Apr 16 1999
   (<a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>,
- <a href="mailto:luta.raphael@networks.vivendi.net">Raphaël Luta</a>)
+ <a href="mailto:luta.raphael@networks.vivendi.net">RaphaÃ«l Luta</a>)
 <ul>
    <li>Run the Garbage Collector and run finalization before starting to sampling to ensure
      same state every time (SM)</li>
