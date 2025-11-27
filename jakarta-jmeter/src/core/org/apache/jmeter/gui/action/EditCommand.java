@@ -8,7 +8,7 @@ import org.apache.jmeter.util.JMeterUtils;
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:44 $
+ *@created   $Date: 2002/08/25 19:42:20 $
  *@version   1.0
  ***************************************/
 
@@ -18,7 +18,7 @@ public class EditCommand implements Command
 	private static Set commands = new HashSet();
 	static
 	{
-		commands.add(JMeterUtils.getResString("edit"));
+		commands.add("edit");
 	}
 
 	/****************************************

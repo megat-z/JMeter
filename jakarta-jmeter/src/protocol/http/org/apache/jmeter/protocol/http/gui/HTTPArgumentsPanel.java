@@ -1,20 +1,14 @@
 package org.apache.jmeter.protocol.http.gui;
 
-import java.awt.event.FocusEvent;
-import java.net.URLEncoder;
 import java.util.Iterator;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.table.TableCellEditor;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.gui.ArgumentsPanel;
 import org.apache.jmeter.gui.util.PowerTableModel;
-import org.apache.jmeter.gui.util.TextAreaTableCellEditor;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.util.Data;
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.collections.Data;
 
 /**
  * @author Administrator
@@ -58,9 +52,10 @@ public class HTTPArgumentsPanel extends ArgumentsPanel {
 			}
 			else
 			{
-				HTTPArgument arg = new HTTPArgument((String)model.getColumnValue(Arguments.COLUMN_NAMES[0]),
-						model.getColumnValue(Arguments.COLUMN_NAMES[1]),true);
+				HTTPArgument arg = new HTTPArgument();
 				arg.setAlwaysEncode(false);
+				arg.setName((String)model.getColumnValue(Arguments.COLUMN_NAMES[0]));
+				arg.setValue(model.getColumnValue(Arguments.COLUMN_NAMES[1]));
 				args.addArgument(arg);
 			}
 		}

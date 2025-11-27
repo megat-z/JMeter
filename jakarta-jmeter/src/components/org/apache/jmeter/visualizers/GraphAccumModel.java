@@ -53,14 +53,16 @@
  */
 package org.apache.jmeter.visualizers;
 
-import org.apache.jmeter.gui.*;
-import java.util.*;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.apache.jmeter.samplers.*;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jmeter.protocol.http.sampler.HTTPSamplerFull;
-
-import org.apache.log4j.*;
+import org.apache.jmeter.samplers.Clearable;
+import org.apache.jmeter.samplers.SampleResult;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 /**
  *  The model that collects the average of the set of pages to be sampled
  *
@@ -69,7 +71,7 @@ import org.apache.log4j.*;
  *@version    1.0
  */
 
-public class GraphAccumModel implements Clearable
+public class GraphAccumModel implements Clearable,Serializable
 {
 	/**
 	 *  Description of the Field
@@ -111,8 +113,7 @@ public class GraphAccumModel implements Clearable
 	 *  Description of the Field
 	 */
 	protected SampleResult current;
-	private Category catClass =
-			Category.getInstance(GraphAccumModel.class.getName());
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.gui");
 
 
 	/**
@@ -120,10 +121,10 @@ public class GraphAccumModel implements Clearable
 	 */
 	public GraphAccumModel()
 	{
-		catClass.debug("Start : GraphAccumModel1");
+		log.debug("Start : GraphAccumModel1");
 		listeners = new LinkedList();
 		samples = Collections.synchronizedList(new LinkedList());
-		catClass.debug("End : GraphAccumModel1");
+		log.debug("End : GraphAccumModel1");
 	}
 
 
@@ -178,7 +179,7 @@ public class GraphAccumModel implements Clearable
 	 */
 	public long getMax()
 	{
-		catClass.debug("getMax1 : Returning - " + max);
+		log.debug("getMax1 : Returning - " + max);
 		return max;
 	}
 
@@ -200,12 +201,12 @@ public class GraphAccumModel implements Clearable
 	 */
 	public void clear()
 	{
-		catClass.debug("Start : clear1");
+		log.debug("Start : clear1");
 		samples.clear();
 		max = 1;
 		bigChange = true;
 		this.fireDataChanged();
-		catClass.debug("End : clear1");
+		log.debug("End : clear1");
 	}
 
 	/**
@@ -215,14 +216,14 @@ public class GraphAccumModel implements Clearable
 	 */
 	public void addNewSample(SampleResult res)
 	{
-		catClass.debug("Start : addNewSample1");
+		log.debug("Start : addNewSample1");
 		// set time to time taken to load this url without components (e.g. images etc)
 		long totalTime = res.getTime();
 	
-		if (catClass.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			catClass.debug("addNewSample1 : time - " + totalTime);
-			catClass.debug("addNewSample1 : max - " + max);
+			log.debug("addNewSample1 : time - " + totalTime);
+			log.debug("addNewSample1 : max - " + max);
 		}
 		if (totalTime > max)
 		{
@@ -231,7 +232,7 @@ public class GraphAccumModel implements Clearable
 		}
 		current = res;
 		samples.add(res);
-		catClass.debug("End : addNewSample1");
+		log.debug("End : addNewSample1");
 		fireDataChanged();
 	}
 
@@ -242,7 +243,7 @@ public class GraphAccumModel implements Clearable
 	 */
 	protected void fireDataChanged()
 	{
-		catClass.debug("Start : fireDataChanged1");
+		log.debug("Start : fireDataChanged1");
 		Iterator iter = listeners.iterator();
 		if (bigChange)
 		{
@@ -255,7 +256,7 @@ public class GraphAccumModel implements Clearable
 		{
 			quickUpdate(current);
 		}
-		catClass.debug("End : fireDataChanged1");
+		log.debug("End : fireDataChanged1");
 	}
 
 

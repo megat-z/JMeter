@@ -54,22 +54,31 @@
  */
  package org.apache.jmeter.samplers;
 
-import java.util.*;
-import org.apache.jmeter.config.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.jmeter.assertions.Assertion;
+import org.apache.jmeter.config.ConfigElement;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /************************************************************
  *  Title: Apache JMeter Description: Copyright: Copyright (c) 2000 Company:
  *  Apache Foundation
  *
  *@author     Michael Stover
- *@created    $Date: 2002/08/11 19:24:47 $
+ *@created    $Date: 2002/08/29 18:17:39 $
  *@version    1.0
  ***********************************************************/
 
 public class Entry
 {
-
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.elements");
 	Map configSet;
 	Set clonedSet;
 	Class sampler;
@@ -181,7 +190,7 @@ public class Entry
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 		return null;
 	}

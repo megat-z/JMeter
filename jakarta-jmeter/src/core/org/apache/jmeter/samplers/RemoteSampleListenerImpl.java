@@ -61,8 +61,8 @@ import org.apache.jmeter.testelement.TestListener;
  *  !ToDo (Class description)
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/11 19:24:47 $
- *@version    $Revision: 1.1 $
+ *@created    $Date: 2002/08/30 14:43:20 $
+ *@version    $Revision: 1.2 $
  ***********************************************************/
 public class RemoteSampleListenerImpl
 		 extends java.rmi.server.UnicastRemoteObject
@@ -70,6 +70,23 @@ public class RemoteSampleListenerImpl
 {
 	TestListener testListener;
 	SampleListener sampleListener;
+	
+	public RemoteSampleListenerImpl() throws RemoteException
+	{
+		super();
+	}
+	
+	public void setListener(Object listener)
+	{
+		if(listener instanceof TestListener)
+		{
+			testListener = (TestListener)listener;
+		}
+		if(listener instanceof SampleListener)
+		{
+			sampleListener = (SampleListener)listener;
+		}
+	}
 
 	/************************************************************
 	 *  !ToDo (Constructor description)
@@ -80,14 +97,7 @@ public class RemoteSampleListenerImpl
 	public RemoteSampleListenerImpl(Object listener) throws RemoteException
 	{
 		super();
-		if(listener instanceof TestListener)
-		{
-			testListener = (TestListener)listener;
-		}
-		if(listener instanceof SampleListener)
-		{
-			sampleListener = (SampleListener)listener;
-		}
+		setListener(listener);
 	}
 
 	public void testStarted()

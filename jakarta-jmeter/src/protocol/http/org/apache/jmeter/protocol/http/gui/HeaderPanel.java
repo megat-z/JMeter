@@ -83,23 +83,26 @@ import javax.swing.table.TableCellEditor;
 
 import org.apache.jmeter.config.gui.AbstractConfigGui;
 import org.apache.jmeter.gui.util.FileDialoger;
-import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Allows the user to specify if she needs HTTP header services, and give
  * parameters for this service.
  *
  *@author    $Author: mstover1 $
- *@created   $Date: 2002/08/14 16:38:04 $
- *@version   $Revision: 1.2 $
+ *@created   $Date: 2002/10/17 19:47:19 $
+ *@version   $Revision: 1.6 $
  ***************************************/
 public class HeaderPanel extends AbstractConfigGui implements ActionListener,FocusListener
 {
-
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.protocol.http");
 	InnerTableModel tableModel;
 
 	/****************************************
@@ -291,7 +294,7 @@ public class HeaderPanel extends AbstractConfigGui implements ActionListener,Foc
 			}
 			catch(IOException ex)
 			{
-				ex.printStackTrace();
+				log.error("",ex);
 			}
 			catch(NullPointerException err){}
 		}
@@ -307,7 +310,7 @@ public class HeaderPanel extends AbstractConfigGui implements ActionListener,Foc
 			}
 			catch(IOException ex)
 			{
-				ex.printStackTrace();
+				log.error("",ex);
 			}
 			catch(NullPointerException err){}
 		}
@@ -403,8 +406,8 @@ public class HeaderPanel extends AbstractConfigGui implements ActionListener,Foc
 	 * Updates a header record
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/08/14 16:38:04 $
-	 *@version   $Revision: 1.2 $
+	 *@created   $Date: 2002/10/17 19:47:19 $
+	 *@version   $Revision: 1.6 $
 	 ***************************************/
 	class HeaderUpdater implements ActionListener
 	{
@@ -572,8 +575,8 @@ public class HeaderPanel extends AbstractConfigGui implements ActionListener,Foc
 	 * !ToDo (Class description)
 	 *
 	 *@author    $Author: mstover1 $
-	 *@created   $Date: 2002/08/14 16:38:04 $
-	 *@version   $Revision: 1.2 $
+	 *@created   $Date: 2002/10/17 19:47:19 $
+	 *@version   $Revision: 1.6 $
 	 ***************************************/
 	private class InnerTableModel extends AbstractTableModel
 	{
