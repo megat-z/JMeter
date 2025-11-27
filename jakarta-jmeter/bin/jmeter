@@ -1,3 +1,0 @@
-#! /bin/sh
-
-java -Xincgc -jar `dirname $0`/ApacheJMeter.jar "$@"

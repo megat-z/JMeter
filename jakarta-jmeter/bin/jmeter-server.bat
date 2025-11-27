@@ -1,2 +1,0 @@
-@echo off
-jmeter -s
