@@ -71,7 +71,7 @@ def main():
     }
     
     try:
-        model = genai.GenerativeModel('gemini-2.5-pro', generation_config=generation_config)
+        model = genai.GenerativeModel('gemini-1.5-flash', generation_config=generation_config)
         response = model.generate_content(prompt)
         
         # 5. Parse and Save
