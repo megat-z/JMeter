@@ -81,12 +81,17 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+
+import org.apache.jmeter.functions.InvalidVariableException;
+import org.apache.jmeter.functions.ValueReplacer;
+import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.gui.NamePanel;
 import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.gui.util.PowerTableModel;
 import org.apache.jmeter.protocol.http.proxy.ProxyControl;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.util.JMeterUtils;
 
 /****************************************
@@ -94,7 +99,7 @@ import org.apache.jmeter.util.JMeterUtils;
  * Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:52 $
+ *@created   $Date: 2002/08/28 15:53:00 $
  *@version   1.0
  ***************************************/
 
@@ -246,16 +251,13 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 		else if(command.equals(START))
 		{
 			model = (ProxyControl)createTestElement();
-			model.startProxy();
-			start.setEnabled(false);
-			stop.setEnabled(true);
+			startProxy();
 		}
 		else if(command.equals(RESTART))
 		{
 			model.stopProxy();
 			model = (ProxyControl)createTestElement();
-			model.startProxy();
-			restart.setEnabled(false);
+			startProxy();
 		}
 		else if(command.equals(this.ADD_EXCLUDE))
 		{
@@ -281,6 +283,24 @@ public class ProxyControlGui extends JPanel implements JMeterGUIComponent, Actio
 			includeModel.removeRow(includeTable.getSelectedRow());
 			includeModel.fireTableDataChanged();
 			enableRestart();
+		}
+	}
+
+	private void startProxy()
+	{
+		ValueReplacer replacer = GuiPackage.getInstance().getReplacer();
+		try
+		{
+			replacer.replaceValues(model);
+			model.startProxy();
+			start.setEnabled(false);
+			stop.setEnabled(true);
+			restart.setEnabled(false);
+		}
+		catch (InvalidVariableException e)
+		{
+			JOptionPane.showMessageDialog(this,JMeterUtils.getResString(
+					"invalid_variables"),"Error",JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	

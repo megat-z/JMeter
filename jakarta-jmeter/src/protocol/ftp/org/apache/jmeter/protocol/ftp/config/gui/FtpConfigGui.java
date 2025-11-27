@@ -53,24 +53,26 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.ftp.config.gui;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import org.apache.jmeter.gui.*;
-import org.apache.jmeter.gui.util.VerticalLayout;
-import org.apache.jmeter.protocol.ftp.config.*;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jmeter.config.gui.AbstractConfigGui;
-import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.protocol.ftp.sampler.FTPSampler;
+import java.awt.Font;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.protocol.ftp.sampler.FTPSampler;
+import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:50 $
+ *@created   $Date: 2002/10/17 19:47:19 $
  *@version   1.0
  ***************************************/
 

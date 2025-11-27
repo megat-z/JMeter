@@ -58,23 +58,27 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.testelement.TestListener;
-import org.apache.jmeter.util.ListedHashTree;
-import org.apache.jmeter.util.SearchByClass;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.collections.ListedHashTree;
+import org.apache.jorphan.collections.SearchByClass;
 
 
 /************************************************************
  *  !ToDo (Class description)
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/11 19:24:43 $
- *@version    $Revision: 1.1 $
+ *@created    $Date: 2002/10/17 19:47:15 $
+ *@version    $Revision: 1.5 $
  ***********************************************************/
 public class ClientJMeterEngine implements JMeterEngine
 {
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.engine");
 	RemoteJMeterEngine remote;
-	ListedHashTree test;
+	HashTree test;
 	SearchByClass testListeners;
 	ConvertListeners sampleListeners;
 	private String host;
@@ -104,12 +108,12 @@ public class ClientJMeterEngine implements JMeterEngine
 		this.remote = remote;
 	}
 	
-	protected ListedHashTree getTestTree()
+	protected HashTree getTestTree()
 	{
 		return test;
 	}
 
-	public void configure(ListedHashTree testTree)
+	public void configure(HashTree testTree)
 	{
 		test = testTree;
 	}
@@ -136,7 +140,7 @@ public class ClientJMeterEngine implements JMeterEngine
 		}
 		catch(Exception ex)
 		{
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 	}
 
@@ -151,7 +155,7 @@ public class ClientJMeterEngine implements JMeterEngine
 		}
 		catch(Exception ex)
 		{
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 	}
 
@@ -166,7 +170,7 @@ public class ClientJMeterEngine implements JMeterEngine
 		}
 		catch(Exception ex)
 		{
-			ex.printStackTrace();
+			log.error("",ex);
 		}
 	}
 

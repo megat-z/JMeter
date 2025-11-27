@@ -53,22 +53,27 @@
  *  <http://www.apache.org/>.
  */
 package org.apache.jmeter.samplers;
-import java.util.*;
-import java.io.*;
-import org.apache.avalon.framework.configuration.*;
-import org.apache.log4j.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.jmeter.assertions.AssertionResult;
-import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /**
  *  This is a nice packaging for the various information returned from taking a
  *  sample of an entry.
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/11 19:24:47 $
- *@version    $Revision: 1.1 $
+ *@created    $Date: 2002/08/29 18:17:39 $
+ *@version    $Revision: 1.3 $
  */
 public class SampleResult implements Serializable
 {
@@ -122,8 +127,7 @@ public class SampleResult implements Serializable
 	 */
 	private final static String TOTAL_TIME = "totalTime";
 
-	private static transient Category catClass =
-			Category.getInstance(SampleResult.class.getName());
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.engine");
 
 
 	/**

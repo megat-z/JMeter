@@ -53,25 +53,32 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.protocol.http.control.gui;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import org.apache.jmeter.gui.*;
-import org.apache.jmeter.gui.util.VerticalLayout;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+
 import org.apache.jmeter.protocol.http.config.gui.MultipartUrlConfigGui;
 import org.apache.jmeter.protocol.http.config.gui.UrlConfigGui;
-import org.apache.jmeter.protocol.http.sampler.*;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerFull;
 import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:51 $
+ *@created   $Date: 2002/10/17 19:47:19 $
  *@version   1.0
  ***************************************/
 
@@ -164,7 +171,7 @@ public class HttpTestSampleGui extends AbstractSamplerGui
 		mainPanel.add(titlePanel,BorderLayout.NORTH);
 
 		// URL CONFIG
-		urlConfigGui = new MultipartUrlConfigGui(false);
+		urlConfigGui = new MultipartUrlConfigGui();
 		mainPanel.add(urlConfigGui,BorderLayout.CENTER);
 
 		// OPTIONAL TASKS

@@ -60,7 +60,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.util.JMeterUtils;
 
 // Mark Walsh, 2002-08-03 add method addArgument(String name, Object value, Object metadata)
@@ -70,11 +69,11 @@ import org.apache.jmeter.util.JMeterUtils;
  * Apache Foundation
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:40 $
+ *@created   $Date: 2002/08/20 01:55:24 $
  *@version   1.0
  ***************************************/
 
-public class Arguments extends AbstractTestElement implements Serializable
+public class Arguments extends ConfigTestElement implements Serializable
 {
 	/****************************************
 	 * !ToDo (Field description)

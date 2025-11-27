@@ -91,15 +91,10 @@ public class PostWriter
 	public void sendPostData(URLConnection connection, HTTPSampler sampler)
 			 throws IOException
 	{
-		((HttpURLConnection)connection).setRequestMethod("POST");
-
 		// If filename was specified then send the post using multipart syntax
-		String filename = sampler.getFilename();
+		String filename = sampler.getFileField();
 		if ((filename != null) && (filename.trim().length() > 0))
 		{
-			connection.setRequestProperty("Content-type", "multipart/form-data; boundary=" + BOUNDARY);
-			connection.setDoOutput(true);
-			connection.setDoInput(true);
 			OutputStream out = connection.getOutputStream();//new FileOutputStream("c:\\data\\experiment.txt");//new ByteArrayOutputStream();//
 			writeln(out,"--"+BOUNDARY);
 			Iterator args = sampler.getArguments().iterator();
@@ -121,13 +116,32 @@ public class PostWriter
 		else
 		{
 			String postData = sampler.getQueryString();
+			PrintWriter out = new PrintWriter(connection.getOutputStream());
+			out.print(postData);
+			out.flush();
+		}
+	}
+	
+	public void setHeaders(URLConnection connection,HTTPSampler sampler) throws IOException
+	{
+		((HttpURLConnection)connection).setRequestMethod("POST");
+
+		// If filename was specified then send the post using multipart syntax
+		String filename = sampler.getFileField();
+		if ((filename != null) && (filename.trim().length() > 0))
+		{
+			connection.setRequestProperty("Content-type", "multipart/form-data; boundary=" + BOUNDARY);
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+		}
+
+		// No filename specified, so send the post using normal syntax
+		else
+		{
+			String postData = sampler.getQueryString();
 			connection.setRequestProperty("Content-length", "" + postData.length());
 			connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
 			connection.setDoOutput(true);
-
-			PrintWriter out = new PrintWriter(connection.getOutputStream());
-			out.print(postData);
-			out.close();
 		}
 	}
 	

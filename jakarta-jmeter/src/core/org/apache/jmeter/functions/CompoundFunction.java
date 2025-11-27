@@ -11,12 +11,14 @@ import junit.framework.TestCase;
 
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
-import org.apache.jmeter.testelement.PerThreadClonable;
 import org.apache.jmeter.threads.JMeterVariables;
-import org.apache.jmeter.util.ClassFinder;
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.apache.oro.text.perl.Perl5Util;
 import org.apache.oro.text.regex.PatternCompiler;
 import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.jorphan.reflect.ClassFinder;
 
 /**
  * @author mstover
@@ -26,12 +28,13 @@ import org.apache.oro.text.regex.Perl5Compiler;
  */
 public class CompoundFunction implements Function
 {
-	
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.elements");
 	private JMeterVariables threadVars;
 	
 	static Map functions = new HashMap();
 	private Map definedValues;
-	private boolean hasFunction,hasStatics;
+	private boolean hasFunction,hasStatics,hasUnknowns;
 	private String staticSubstitution;
 	private static Perl5Util util = new Perl5Util();
 	
@@ -44,7 +47,8 @@ public class CompoundFunction implements Function
 	{
 		try
 		{
-			List classes = ClassFinder.findClassesThatExtend(new Class[]{Function.class},true);
+			List classes = ClassFinder.findClassesThatExtend(JMeterUtils.getSearchPaths(),
+					new Class[]{Function.class},true);
 			Iterator iter = classes.iterator();
 			while(iter.hasNext())
 			{
@@ -54,7 +58,7 @@ public class CompoundFunction implements Function
 		}
 		catch(Exception err)
 		{
-			err.printStackTrace();
+			log.error("",err);
 		}
 	}
 	
@@ -62,6 +66,7 @@ public class CompoundFunction implements Function
 	{
 		hasFunction = false;
 		hasStatics = false;
+		hasUnknowns = false;
 		definedValues = new HashMap();
 		staticSubstitution = "";
 	}
@@ -160,7 +165,7 @@ public class CompoundFunction implements Function
 							func.setParameters(extractParams(function));
 							compiledComponents.addLast(func);
 						} catch(Exception e) {
-							e.printStackTrace();
+							log.error("",e);
 							throw new InvalidVariableException();
 						} 
 					}
@@ -172,7 +177,10 @@ public class CompoundFunction implements Function
 				}
 				else
 				{
-					addStringToComponents(compiledComponents,"${"+function+"}");
+					UnknownFunction unknown = new UnknownFunction(functionName);
+					compiledComponents.addLast(unknown);
+					hasFunction = true;
+					hasUnknowns = true;
 				}
 				if((index+1) < part.length())
 				{
@@ -325,6 +333,7 @@ public class CompoundFunction implements Function
 		public void testParseExample1() throws Exception
 		{
 			function.setParameters("${__regexFunction(<html>(.*)</html>,$1$)}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(1,function.compiledComponents.size());
 			assertTrue(function.compiledComponents.getFirst() instanceof RegexFunction);
 			assertTrue(function.hasFunction());
@@ -336,6 +345,7 @@ public class CompoundFunction implements Function
 		public void testParseExample2() throws Exception
 		{
 			function.setParameters("It should say:${${__regexFunction("+URLEncoder.encode("<html>(.*)</html>")+",$1$)}}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(3,function.compiledComponents.size());
 			assertEquals("It should say:${",function.compiledComponents.getFirst().toString());
 			assertTrue(function.hasFunction());
@@ -349,6 +359,7 @@ public class CompoundFunction implements Function
 		public void testParseExample3() throws Exception
 		{
 			function.setParameters("${__regexFunction(<html>(.*)</html>,$1$)}${__regexFunction(<html>(.*o)(.*o)(.*)</html>,$1$$3$)}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(2,function.compiledComponents.size());
 			assertTrue(function.hasFunction());
 			assertTrue(!function.hasStatics());
@@ -362,11 +373,10 @@ public class CompoundFunction implements Function
 		public void testParseExample4() throws Exception
 		{
 			function.setParameters("${non-existing function}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(1,function.compiledComponents.size());
-			assertTrue(!function.hasFunction());
+			assertTrue(function.hasFunction());
 			assertTrue(!function.hasStatics());
-			assertEquals("${non-existing function}",
-					function.compiledComponents.getFirst().toString());
 			assertEquals("${non-existing function}",function.execute(result,null));
 			assertEquals("${non-existing function}",function.execute(null,null));
 		}
@@ -374,6 +384,7 @@ public class CompoundFunction implements Function
 		public void testParseExample6() throws Exception
 		{
 			function.setParameters("${server}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(1,function.compiledComponents.size());
 			assertTrue(!function.hasFunction());
 			assertTrue(function.hasStatics());
@@ -383,6 +394,7 @@ public class CompoundFunction implements Function
 		public void testParseExample5() throws Exception
 		{
 			function.setParameters("");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(0,function.compiledComponents.size());
 			assertTrue(!function.hasFunction());
 			assertTrue(!function.hasStatics());
@@ -391,6 +403,7 @@ public class CompoundFunction implements Function
 		public void testNestedExample1() throws Exception
 		{
 			function.setParameters("${__regexFunction(<html>(${my_regex})</html>,$1$)}${__regexFunction(<html>(.*o)(.*o)(.*)</html>,$1$$3$)}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(2,function.compiledComponents.size());
 			assertTrue(function.hasFunction());
 			assertTrue(function.hasStatics());
@@ -404,6 +417,7 @@ public class CompoundFunction implements Function
 		public void testNestedExample2() throws Exception
 		{
 			function.setParameters("${__regexFunction(<html>(${my_regex})</html>,$1$)}");
+			function.setJMeterVariables(new JMeterVariables());
 			assertEquals(1,function.compiledComponents.size());
 			assertTrue(function.compiledComponents.getFirst() instanceof RegexFunction);
 			assertTrue(function.hasFunction());

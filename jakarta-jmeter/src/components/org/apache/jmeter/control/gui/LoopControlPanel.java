@@ -1,21 +1,29 @@
 package org.apache.jmeter.control.gui;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+
 import org.apache.jmeter.control.LoopController;
-import org.apache.jmeter.gui.NamePanel;
 import org.apache.jmeter.gui.util.FocusRequester;
-import org.apache.jmeter.gui.util.VerticalLayout;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:40 $
+ *@created   $Date: 2002/10/17 19:47:14 $
  *@version   1.0
  ***************************************/
 

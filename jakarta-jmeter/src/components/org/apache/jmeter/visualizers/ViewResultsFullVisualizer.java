@@ -55,6 +55,7 @@
 package org.apache.jmeter.visualizers;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -70,16 +71,17 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.apache.jmeter.gui.util.JLabeledTextArea;
 import org.apache.jmeter.samplers.Clearable;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.gui.AbstractVisualizer;
-import org.apache.log4j.Category;
-
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.gui.JLabeledTextArea;
 /****************************************
  * Allows the tester to view the textual response from sampling an Entry. This
  * also allows to "single step through" the sampling process via a nice
@@ -87,12 +89,12 @@ import org.apache.log4j.Category;
  *
  *@author    Khor Soon Hin
  *@created   2001/07/25
- *@version   $Revision: 1.1 $ $Date: 2002/08/11 19:24:41 $
+ *@version   $Revision: 1.10 $ $Date: 2002/10/17 19:47:15 $
  ***************************************/
-public class ViewResultsFullVisualizer extends AbstractVisualizer implements
-		TreeSelectionListener,Clearable
+public class ViewResultsFullVisualizer
+	extends AbstractVisualizer
+	implements TreeSelectionListener, Clearable
 {
-
 	public final static Color SERVER_ERROR_COLOR = Color.red;
 	public final static Color CLIENT_ERROR_COLOR = Color.blue;
 	public final static Color REDIRECT_COLOR = Color.green;
@@ -106,10 +108,8 @@ public class ViewResultsFullVisualizer extends AbstractVisualizer implements
 	protected JSplitPane treeSplitPane;
 	protected JTree jTree;
 	protected int childIndex;
-
-	private static Category catClass =
-			Category.getInstance(ViewResultsFullVisualizer.class.getName());
-
+	transient private static Logger log =
+		Hierarchy.getDefaultHierarchy().getLoggerFor("jmeter.gui");
 	/****************************************
 	 * !ToDo (Constructor description)
 	 ***************************************/
@@ -117,73 +117,61 @@ public class ViewResultsFullVisualizer extends AbstractVisualizer implements
 	{
 		super();
 		init();
-		catClass.debug("Start : ViewResultsFullVisualizer1");
-		catClass.debug("End : ViewResultsFullVisualizer1");
+		log.debug("Start : ViewResultsFullVisualizer1");
+		log.debug("End : ViewResultsFullVisualizer1");
 	}
-
 	public void add(SampleResult res)
 	{
 		updateGui(res);
 	}
-
 	public String getStaticLabel()
 	{
 		return JMeterUtils.getResString("view_results_tree_title");
 	}
-
 	/****************************************
 	 * Update the visualizer with new data
 	 ***************************************/
 	public void updateGui(SampleResult res)
 	{
-		catClass.debug("Start : updateGui1");
-
-		if(catClass.isDebugEnabled())
-			catClass.debug("updateGui1 : sample result - " + res);
-
+		log.debug("Start : updateGui1");
+		if (log.isDebugEnabled())
+			log.debug("updateGui1 : sample result - " + res);
 		DefaultMutableTreeNode currNode = new DefaultMutableTreeNode(res);
 		treeModel.insertNodeInto(currNode, root, root.getChildCount());
-		SampleResult[] subResults= res.getSubResults();
-		if(subResults != null)
+		SampleResult[] subResults = res.getSubResults();
+		if (subResults != null)
 		{
 			int leafIndex = 0;
-			for(int i = 0;i < subResults.length;i++)
+			for (int i = 0; i < subResults.length; i++)
 			{
 				SampleResult child = subResults[i];
-				if(catClass.isDebugEnabled())
-					catClass.debug("updateGui1 : child sample result - " + child);
-
-				DefaultMutableTreeNode leafNode =
-						new DefaultMutableTreeNode(child);
+				if (log.isDebugEnabled())
+					log.debug("updateGui1 : child sample result - " + child);
+				DefaultMutableTreeNode leafNode = new DefaultMutableTreeNode(child);
 				treeModel.insertNodeInto(leafNode, currNode, leafIndex++);
 			}
 		}
-		catClass.debug("End : updateGui1");
+		log.debug("End : updateGui1");
 	}
-
 	/****************************************
 	 * Clears the visualizer
 	 ***************************************/
 	public void clear()
 	{
-		catClass.debug("Start : clear1");
+		log.debug("Start : clear1");
 		int totalChild = root.getChildCount();
-		if(catClass.isDebugEnabled())
-			catClass.debug("clear1 : total child - " + totalChild);
-
-		for(int i = 0; i < totalChild; i++)
-			// the child to be removed will always be 0 'cos as the nodes are removed
+		if (log.isDebugEnabled())
+			log.debug("clear1 : total child - " + totalChild);
+		for (int i = 0; i < totalChild; i++)			// the child to be removed will always be 0 'cos as the nodes are removed
 			// the nth node will become (n-1)th
 			treeModel.removeNodeFromParent(
-					(DefaultMutableTreeNode)root.getChildAt(0));
-
+				(DefaultMutableTreeNode) root.getChildAt(0));
 		resultPanel.removeAll();
 		resultPanel.revalidate();
 		// reset the child index
 		childIndex = 0;
-		catClass.debug("End : clear1");
+		log.debug("End : clear1");
 	}
-
 	/****************************************
 	 * Returns the description of this visualizer
 	 *
@@ -192,12 +180,10 @@ public class ViewResultsFullVisualizer extends AbstractVisualizer implements
 	public String toString()
 	{
 		String desc = "Shows the text results of sampling in tree form";
-		if(catClass.isDebugEnabled())
-			catClass.debug("toString1 : Returning description - " + desc);
-
+		if (log.isDebugEnabled())
+			log.debug("toString1 : Returning description - " + desc);
 		return desc;
 	}
-
 	/****************************************
 	 * Sets the bottom pane to correspond to the selected node of the top tree
 	 *
@@ -205,23 +191,22 @@ public class ViewResultsFullVisualizer extends AbstractVisualizer implements
 	 ***************************************/
 	public void valueChanged(TreeSelectionEvent e)
 	{
-		catClass.debug("Start : valueChanged1");
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode)jTree.getLastSelectedPathComponent();
-		if(catClass.isDebugEnabled())
-			catClass.debug("valueChanged : selected node - " + node);
-
-		if(node != null)
+		log.debug("Start : valueChanged1");
+		DefaultMutableTreeNode node =
+			(DefaultMutableTreeNode) jTree.getLastSelectedPathComponent();
+		if (log.isDebugEnabled())
+			log.debug("valueChanged : selected node - " + node);
+		if (node != null)
 		{
-			SampleResult res = (SampleResult)node.getUserObject();
-			if(catClass.isDebugEnabled())
-				catClass.debug("valueChanged1 : sample result - " + res);
-
-			if(res != null)
+			SampleResult res = (SampleResult) node.getUserObject();
+			if (log.isDebugEnabled())
+				log.debug("valueChanged1 : sample result - " + res);
+			if (res != null)
 			{
 				resultPanel.removeAll();
 				// load time label
 				JLabel loadTime = new JLabel();
-				catClass.debug("valueChanged1 : load time - " + res.getTime());
+				log.debug("valueChanged1 : load time - " + res.getTime());
 				loadTime.setText("Load time : " + res.getTime());
 				gbc.gridx = 0;
 				gbc.gridy = 0;
@@ -231,82 +216,92 @@ public class ViewResultsFullVisualizer extends AbstractVisualizer implements
 				gbc.weightx = 1.0;
 				// pad a bit from the display area
 				gbc.insets = new Insets(0, 10, 0, 0);
-				if(res != null && res.getSamplerData() != null)
+				if (res != null && res.getSamplerData() != null)
 				{
-					JLabeledTextArea postData = new JLabeledTextArea(JMeterUtils.getResString("request_data"),null);
+					JLabeledTextArea postData =
+						new JLabeledTextArea(
+							JMeterUtils.getResString("request_data"),
+							null);
 					postData.setText(res.getSamplerData().toString());
-					resultPanel.add(postData,gbc.clone());
+					resultPanel.add(postData, gbc.clone());
 					gbc.gridy++;
 				}
-				resultPanel.add(loadTime,gbc.clone());
+				resultPanel.add(loadTime, gbc.clone());
 				// response code label
 				JLabel httpResponseCode = new JLabel();
 				String responseCode = res.getResponseCode();
-				catClass.debug("valueChanged1 : response code - " + responseCode);
+				log.debug("valueChanged1 : response code - " + responseCode);
 				int responseLevel = 0;
-				if(responseCode != null)
+				if (responseCode != null)
 					try
 					{
 						responseLevel = Integer.parseInt(responseCode) / 100;
 					}
-					catch(NumberFormatException numberFormatException)
+					catch (NumberFormatException numberFormatException)
 					{
 						// no need to change the foreground color
 					}
-
 				switch (responseLevel)
 				{
-					case 3:
+					case 3 :
 						httpResponseCode.setForeground(REDIRECT_COLOR);
-					case 4:
+					case 4 :
 						httpResponseCode.setForeground(CLIENT_ERROR_COLOR);
-					case 5:
+					case 5 :
 						httpResponseCode.setForeground(SERVER_ERROR_COLOR);
 				}
-				httpResponseCode.setText(JMeterUtils.getResString("HTTP response code")+" : " +
-						responseCode);
+				httpResponseCode.setText(
+					JMeterUtils.getResString("HTTP response code")
+						+ " : "
+						+ responseCode);
 				gbc.gridx = 0;
 				gbc.gridy++;
 				gridBag.setConstraints(httpResponseCode, gbc);
 				resultPanel.add(httpResponseCode);
 				// response message label
 				JLabel httpResponseMsg = new JLabel();
-										  String responseMsgStr = res.getResponseMessage();
-										  catClass.debug("valueChanged1 : response message - " + responseMsgStr);
-				httpResponseMsg.setText("HTTP response message : " +
-						responseMsgStr);
+				String responseMsgStr = res.getResponseMessage();
+				log.debug("valueChanged1 : response message - " + responseMsgStr);
+				httpResponseMsg.setText("HTTP response message : " + responseMsgStr);
 				gbc.gridx = 0;
 				gbc.gridy++;
 				gridBag.setConstraints(httpResponseMsg, gbc);
 				resultPanel.add(httpResponseMsg);
 				gbc.gridy++;
-
 				// get the text response and image icon
 				// to determine which is NOT null
-										  byte[] responseBytes = (byte[])res.getResponseData();
+				byte[] responseBytes = (byte[]) res.getResponseData();
 				String response = null;
 				ImageIcon icon = null;
-										  if(res.getDataType() != null && res.getDataType().equals(SampleResult.TEXT))
-										  {
-											 try {
-												response = new String(responseBytes,"utf-8");
-											} catch(UnsupportedEncodingException err) {
-												response = new String(responseBytes);
-											}
-										  }
-										  else if(responseBytes != null)
-										  {
-											icon = new ImageIcon(responseBytes);
-										  }
-				if(response != null)
+				if (res.getDataType() != null
+					&& res.getDataType().equals(SampleResult.TEXT))
+				{
+					try
+					{
+						response = new String(responseBytes, "utf-8");
+					}
+					catch (UnsupportedEncodingException err)
+					{
+						response = new String(responseBytes);
+					}
+				}
+				else if (responseBytes != null)
+				{
+					icon = new ImageIcon(responseBytes);
+				}
+				if (response != null)
 				{
 					JTextArea textArea = new JTextArea();
 					textArea.setText(response);
+					textArea.setColumns(70);
+					textArea.setLineWrap(true);
+					textArea.setWrapStyleWord(true);
+					textArea.setTabSize(4);
 					gbc.gridx = 0;
 					gridBag.setConstraints(textArea, gbc);
 					resultPanel.add(textArea);
 				}
-				else if(icon != null)
+				else if (icon != null)
 				{
 					JLabel image = new JLabel();
 					image.setIcon(icon);
@@ -318,34 +313,60 @@ public class ViewResultsFullVisualizer extends AbstractVisualizer implements
 				resultPanel.revalidate();
 			}
 		}
-		catClass.debug("End : valueChanged1");
+		log.debug("End : valueChanged1");
 	}
-
 	/****************************************
 	 * Initialize this visualizer
 	 ***************************************/
 	protected void init()
 	{
 		this.setLayout(new BorderLayout());
-		catClass.debug("Start : init1");
 		SampleResult rootSampleResult = new SampleResult();
 		rootSampleResult.setSampleLabel("Root");
+		rootSampleResult.setSuccessful(true);
 		root = new DefaultMutableTreeNode(rootSampleResult);
 		treeModel = new DefaultTreeModel(root);
 		jTree = new JTree(treeModel);
+		jTree.setCellRenderer(new ResultsNodeRenderer());
 		jTree.getSelectionModel().setSelectionMode(
-				TreeSelectionModel.SINGLE_TREE_SELECTION);
+			TreeSelectionModel.SINGLE_TREE_SELECTION);
 		jTree.addTreeSelectionListener(this);
 		treePane = new JScrollPane(jTree);
 		gridBag = new GridBagLayout();
 		gbc = new GridBagConstraints();
 		resultPanel = new JPanel(gridBag);
 		resultPane = new JScrollPane(resultPanel);
-		treeSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				treePane, resultPane);
-		add(getFilePanel(),BorderLayout.NORTH);
-		add(treeSplitPane,BorderLayout.CENTER);
-		catClass.debug("End : init1");
+		treeSplitPane =
+			new JSplitPane(JSplitPane.VERTICAL_SPLIT, treePane, resultPane);
+		getFilePanel().add(getErrorLoggingCheckbox());
+		add(getFilePanel(), BorderLayout.NORTH);
+		add(treeSplitPane, BorderLayout.CENTER);
+	}
+	private class ResultsNodeRenderer extends DefaultTreeCellRenderer
+	{
+		public Component getTreeCellRendererComponent(
+			JTree tree,
+			Object value,
+			boolean sel,
+			boolean expanded,
+			boolean leaf,
+			int row,
+			boolean hasFocus)
+		{
+			super.getTreeCellRendererComponent(
+				tree,
+				value,
+				sel,
+				expanded,
+				leaf,
+				row,
+				hasFocus);
+			if (!((SampleResult) ((DefaultMutableTreeNode) value).getUserObject())
+				.isSuccessful())
+			{
+				this.setForeground(Color.red);
+			}
+			return this;
+		}
 	}
 }
-

@@ -53,22 +53,32 @@
  * <http://www.apache.org/>.
  */
 package org.apache.jmeter.timers.gui;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import org.apache.jmeter.gui.*;
+import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+
 import org.apache.jmeter.gui.util.FocusRequester;
-import org.apache.jmeter.gui.util.VerticalLayout;
-import org.apache.jmeter.timers.*;
-import org.apache.jmeter.util.*;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.timers.GaussianRandomTimer;
+import org.apache.jmeter.timers.RandomTimer;
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.gui.layout.VerticalLayout;
 
 /****************************************
  * Title: JMeter Description: Copyright: Copyright (c) 2000 Company: Apache
  *
  *@author    Michael Stover
- *@created   $Date: 2002/08/11 19:24:41 $
+ *@created   $Date: 2002/10/17 19:47:15 $
  *@version   1.0
  ***************************************/
 

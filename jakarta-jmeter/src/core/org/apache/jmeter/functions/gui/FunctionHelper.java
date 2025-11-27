@@ -17,15 +17,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import org.apache.jmeter.config.Argument;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.gui.ArgumentsPanel;
 import org.apache.jmeter.functions.Function;
-import org.apache.jmeter.gui.util.ComponentUtil;
-import org.apache.jmeter.gui.util.JLabeledChoice;
-import org.apache.jmeter.gui.util.JLabeledTextField;
-import org.apache.jmeter.util.ClassFinder;
+import org.apache.jmeter.gui.action.ActionRouter;
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.gui.ComponentUtil;
+import org.apache.jorphan.gui.JLabeledChoice;
+import org.apache.jorphan.gui.JLabeledTextField;
+import org.apache.jorphan.reflect.ClassFinder;
 
 /**
  * @author Administrator
@@ -56,6 +58,9 @@ public class FunctionHelper extends JDialog implements
 		this.getContentPane().setLayout(new BorderLayout(10,10));
 		JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		comboPanel.add(functionList);
+		JButton helpButton = new JButton(JMeterUtils.getResString("help"));
+		helpButton.addActionListener(new HelpListener());
+		comboPanel.add(helpButton);
 		this.getContentPane().add(comboPanel,BorderLayout.NORTH);
 		this.getContentPane().add(parameterPanel,BorderLayout.CENTER);
 		JPanel resultsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -74,6 +79,7 @@ public class FunctionHelper extends JDialog implements
 	{
 		try {
 			List functionClasses = ClassFinder.findClassesThatExtend(
+					JMeterUtils.getSearchPaths(),
 					new Class[]{Function.class},true);
 			Iterator iter = functionClasses.iterator();
 			String[] functionNames = new String[functionClasses.size()];
@@ -146,6 +152,16 @@ public class FunctionHelper extends JDialog implements
 		}
 		functionCall.append("}");
 		cutPasteFunction.setText(functionCall.toString());
+	}
+	
+	private class HelpListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			String[] source = new String[]{JMeterUtils.getJMeterHome()+"/docs/usermanual/component_index.html",functionList.getText()};
+			ActionEvent helpEvent = new ActionEvent(source,e.getID(),"help");
+			ActionRouter.getInstance().actionPerformed(helpEvent);
+		}
 	}
 	
 

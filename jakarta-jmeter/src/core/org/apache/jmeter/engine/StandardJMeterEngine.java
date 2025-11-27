@@ -55,43 +55,56 @@
 package org.apache.jmeter.engine;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.jmeter.reporters.ResultCollector;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestListener;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.threads.JMeterThread;
 import org.apache.jmeter.threads.JMeterThreadMonitor;
-import org.apache.jmeter.threads.JMeterVariables;
+import org.apache.jmeter.threads.ListenerNotifier;
 import org.apache.jmeter.threads.TestCompiler;
 import org.apache.jmeter.threads.ThreadGroup;
-import org.apache.jmeter.util.ListedHashTree;
-import org.apache.jmeter.util.SearchByClass;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.collections.ListedHashTree;
+import org.apache.jorphan.collections.SearchByClass;
 
 /************************************************************
  *  !ToDo (Class description)
  *
  *@author     $Author: mstover1 $
- *@created    $Date: 2002/08/11 19:24:43 $
- *@version    $Revision: 1.1 $
+ *@created    $Date: 2002/10/17 19:47:15 $
+ *@version    $Revision: 1.15 $
  ***********************************************************/
-public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
+public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor,
+		Runnable,Serializable
 {
-	Set allThreads;
+	transient private static Logger log = Hierarchy.getDefaultHierarchy().getLoggerFor(
+			"jmeter.engine");
+	private static long WAIT_TO_DIE = 5 * 1000; //5 seconds
+	Map allThreads;
 	boolean running = false;
-	ListedHashTree test;
+	HashTree test;
 	SearchByClass testListeners;
 	String host = null;
+	ListenerNotifier notifier;
 
 	/************************************************************
 	 *  !ToDo (Constructor description)
 	 ***********************************************************/
 	public StandardJMeterEngine()
 	{
-		allThreads = new HashSet();
+		allThreads = new HashMap();
 	}
 
 	public StandardJMeterEngine(String host)
@@ -100,7 +113,7 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 		this.host = host;
 	}
 
-	public void configure(ListedHashTree testTree)
+	public void configure(HashTree testTree)
 	{
 		test = testTree;
 	}
@@ -110,7 +123,7 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 		this.host = host;
 	}
 
-	protected ListedHashTree getTestTree()
+	protected HashTree getTestTree()
 	{
 		return test;
 	}
@@ -128,9 +141,11 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 	{
 		try
 		{
-			System.out.println("Running the test!");
+			log.info("Running the test!");
 			running = true;
 			compileTree();
+			List testLevelElements = new LinkedList(getTestTree().list(getTestTree().getArray()[0]));
+			removeThreadGroups(testLevelElements);
 			SearchByClass searcher = new SearchByClass(ThreadGroup.class);
 			testListeners = new SearchByClass(TestListener.class);
 			setMode();
@@ -146,20 +161,23 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 			{
 				notifyTestListenersOfStart();
 			}
-			JMeterVariables.initialize();
+			notifier = new ListenerNotifier();
+			notifier.start();
 			while(iter.hasNext())
 			{
 				ThreadGroup group = (ThreadGroup)iter.next();
 				threads = new JMeterThread[group.getNumThreads()];
 				for(int i = 0;running && i < threads.length; i++)
 				{
-					threads[i] = new JMeterThread(cloneTree(searcher.getSubTree(group)),this);
+					ListedHashTree threadGroupTree = (ListedHashTree)searcher.getSubTree(group);
+					threadGroupTree.add(group,testLevelElements);
+					threads[i] = new JMeterThread(cloneTree(threadGroupTree),this,notifier);
 					threads[i].setInitialDelay((int)(((float)(group.getRampUp() * 1000) /
 							(float)group.getNumThreads()) * (float)i));
 					threads[i].setThreadName(group.getName()+"-"+(i+1));
 					Thread newThread = new Thread(threads[i]);
 					newThread.setName(group.getName()+"-"+(i+1));
-					allThreads.add(threads[i]);
+					allThreads.put(threads[i],newThread);
 					newThread.start();
 				}
 			}
@@ -171,6 +189,23 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 			PrintWriter writer = new PrintWriter(string);
 			err.printStackTrace(writer);
 			throw new JMeterEngineException(string.toString());
+		}
+	}
+	
+	private void removeThreadGroups(List elements)
+	{
+		Iterator iter = elements.iterator();
+		while(iter.hasNext())
+		{
+			Object item = iter.next();
+			if(item instanceof ThreadGroup)
+			{
+				iter.remove();
+			}
+			else if(!(item instanceof TestElement))
+			{
+				iter.remove();
+			}
 		}
 	}
 	
@@ -201,7 +236,19 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 
 	protected void notifyTestListenersOfEnd()
 	{
+		notifier.stop();
 		Iterator iter = testListeners.getSearchResults().iterator();
+		while(!notifier.isStopped())
+		{
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{
+			}
+			log.debug("Waiting for notifier thread to stop");
+		}
 		while(iter.hasNext())
 		{
 			if(host == null)
@@ -234,26 +281,87 @@ public class StandardJMeterEngine implements JMeterEngine,JMeterThreadMonitor
 		}
 	}
 
-	public void threadFinished(JMeterThread thread)
+	public synchronized void threadFinished(JMeterThread thread)
 	{
 		allThreads.remove(thread);
 		if(allThreads.size() == 0)
 		{
-			notifyTestListenersOfEnd();
+			stopTest();
 		}
+		/*if(allThreads.size() == 0)
+		{
+			notifyTestListenersOfEnd();
+		}*/
 	}
 
 	/************************************************************
 	 *  !ToDo (Method description)
 	 ***********************************************************/
-	public void stopTest()
+	public synchronized void stopTest()
 	{
-		running = false;
-		Iterator iter = new HashSet(allThreads).iterator();
+		if(running)
+		{
+			running = false;		
+			Thread stopThread = new Thread(this);
+			stopThread.start();
+		}
+	}
+	
+	public void run()
+	{
+		tellThreadsToStop();
+		try
+		{
+			Thread.sleep(10 * allThreads.size());
+		}
+		catch (InterruptedException e)
+		{
+		}
+		verifyThreadsStopped();
+		notifyTestListenersOfEnd();	
+	}
+
+	private void verifyThreadsStopped()
+	{
+		Iterator iter = new HashSet(allThreads.keySet()).iterator();
+		while(iter.hasNext())
+		{
+			Thread t = (Thread)allThreads.get(iter.next());
+			if(t != null && t.isAlive())
+			{
+				try
+				{
+					t.join(WAIT_TO_DIE);
+				}
+				catch (InterruptedException e)
+				{
+				}
+				if(t.isAlive())
+				{
+					log.info("Thread won't die: "+t.getName());
+				}
+			}
+			log.debug("finished thread");
+		}
+	}
+
+	private void tellThreadsToStop()
+	{
+		Iterator iter = new HashSet(allThreads.keySet()).iterator();
 		while(iter.hasNext())
 		{
 			JMeterThread item = (JMeterThread)iter.next();
 			item.stop();
+			Thread t = (Thread)allThreads.get(item);
+			if(t != null)
+			{
+				t.interrupt();
+			}
+			else
+			{
+				log.warn("Lost thread: "+item.getThreadName());
+				allThreads.remove(item);
+			}
 		}
 	}
 
