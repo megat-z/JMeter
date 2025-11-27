@@ -1,0 +1,111 @@
+echo ">>>>>>>>running test 1"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.gui.action.Load$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t1 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 1
+
+echo ">>>>>>>>running test 2"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.gui.action.Save$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t2 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 2
+
+echo ">>>>>>>>running test 3"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.engine.TreeCloner$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t3 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 3
+
+echo ">>>>>>>>running test 4"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.threads.TestCompiler$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t4 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 4
+
+echo ">>>>>>>>running test 5"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.junit.JMeterTest  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t5 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 5
+
+echo ">>>>>>>>running test 6"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.save.SaveService$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t6 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 6
+
+echo ">>>>>>>>running test 7"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.util.StringUtilities$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t7 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 7
+
+echo ">>>>>>>>running test 8"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.config.gui.ArgumentsPanel$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t8 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 8
+
+echo ">>>>>>>>running test 9"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.control.OnceOnlyController$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t9 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 9
+
+echo ">>>>>>>>running test 10"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.control.GenericController$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t10 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 10
+
+echo ">>>>>>>>running test 11"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.control.InterleaveControl$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t11 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 11
+
+echo ">>>>>>>>running test 12"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.control.LoopController$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t12 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 12
+
+echo ">>>>>>>>running test 13"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.junit.protocol.http.config.UrlConfigTest  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t13 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 13
+
+echo ">>>>>>>>running test 14"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.junit.protocol.http.parser.HtmlParserTester  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t14 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 14
+
+echo ">>>>>>>>running test 15"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.sampler.HTTPSampler$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t15 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 15
+
+echo ">>>>>>>>running test 16"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.sampler.HTTPSamplerFull$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t16 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 16
+
+echo ">>>>>>>>running test 17"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.modifier.URLRewritingModifier$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t17 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 17
+
+echo ">>>>>>>>running test 18"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.parser.HtmlParser$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t18 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 18
+
+echo ">>>>>>>>running test 19"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.proxy.ProxyControl$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t19 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 19
+
+echo ">>>>>>>>running test 20"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.util.HTTPArgument$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t20 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 20
+
+echo ">>>>>>>>running test 21"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.proxy.HttpRequestHdr$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t21 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 21
+
+echo ">>>>>>>>running test 22"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.visualizers.StatVisualizerModel$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t22 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 22
+
+echo ">>>>>>>>running test 23"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.engine.util.ValueReplacer$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t23 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 23
+
+echo ">>>>>>>>running test 24"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.testelement.property.CollectionProperty$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t24 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 24
+
+echo ">>>>>>>>running test 25"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.extractor.RegexExtractor$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t25 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 25
+
+echo ">>>>>>>>running test 26"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.control.CookieManager$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t26 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 26
+
+echo ">>>>>>>>running test 27"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t27 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 27
+
+echo ">>>>>>>>running test 28"
+$JAVA_HOME/bin/java junit.textui.TestRunner org.apache.jmeter.protocol.http.modifier.AnchorModifier$Test  > /nfs/spectre/u5/dohy/Prior/jakarta-jmeter/outputs/t28 2>&1
+/nfs/spectre/u5/dohy/Prior/jakarta-jmeter/testplans.alt/testscripts/RemoveTime.sh 28
