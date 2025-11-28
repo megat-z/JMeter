@@ -109,7 +109,7 @@ class QPSO:
                 
                 # Update position
                 # X(t+1) = p +/- L * ln(1/u)
-                sign = np.where(np.random.rand(self.dim) > 0.2, 1, -1)
+                sign = np.where(np.random.rand(self.dim) > 0.5, 1, -1)
                 self.X[i] = p + sign * L * np.log(1 / u)
                 
                 # Boundary handling (optional, but good for stability)
