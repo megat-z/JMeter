@@ -1,170 +1,170 @@
 [
     {
-        "test_id": "Load_Test",
-        "magnitude": 0.15,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t1",
+        "magnitude": 0.97,
+        "phase": 5.2011,
+        "original_semantics": "Refactoring (JMX format)"
     },
     {
-        "test_id": "Save_Test",
-        "magnitude": 0.15,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t2",
+        "magnitude": 0.97,
+        "phase": 5.2011,
+        "original_semantics": "Refactoring (JMX format)"
     },
     {
-        "test_id": "TreeCloner_Test",
-        "magnitude": 0.24,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t3",
+        "magnitude": 0.77,
+        "phase": 3.2289,
+        "original_semantics": "Refactoring (test element structure)"
     },
     {
-        "test_id": "TestCompiler_Test",
-        "magnitude": 0.24,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t4",
+        "magnitude": 0.77,
+        "phase": 2.8274,
+        "original_semantics": "Refactoring (test element structure, controller logic)"
     },
     {
-        "test_id": "JMeterTest",
-        "magnitude": 0.15,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t5",
+        "magnitude": 0.9,
+        "phase": 2.5656,
+        "original_semantics": "Integration, Regression"
     },
     {
-        "test_id": "SaveService_Test",
-        "magnitude": 0.27,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t6",
+        "magnitude": 0.97,
+        "phase": 0.9599,
+        "original_semantics": "Refactoring (serialization format)"
     },
     {
-        "test_id": "StringUtilities_Test",
-        "magnitude": 0.03,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t7",
+        "magnitude": 0.16,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "ArgumentsPanel_Test",
-        "magnitude": 0.12,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t8",
+        "magnitude": 0.6,
+        "phase": 6.1436,
+        "original_semantics": "Refactoring (package structure, GUI components)"
     },
     {
-        "test_id": "OnceOnlyController_Test",
-        "magnitude": 0.18,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t9",
+        "magnitude": 0.81,
+        "phase": 0.3665,
+        "original_semantics": "Refactoring (internal implementation, JMX serialization)"
     },
     {
-        "test_id": "GenericController_Test",
-        "magnitude": 0.15,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t10",
+        "magnitude": 0.81,
+        "phase": 1.8151,
+        "original_semantics": "Refactoring (class relocation/redefinition, JMX serialization)"
     },
     {
-        "test_id": "InterleaveControl_Test",
-        "magnitude": 0.18,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t11",
+        "magnitude": 0.97,
+        "phase": 3.6652,
+        "original_semantics": "New Feature, Refactoring (control flow logic, JMX serialization)"
     },
     {
-        "test_id": "LoopController_Test",
-        "magnitude": 0.18,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t12",
+        "magnitude": 0.81,
+        "phase": 0.9948,
+        "original_semantics": "Refactoring (class relocation/redefinition, JMX serialization), New Feature (property)"
     },
     {
-        "test_id": "UrlConfigTest",
-        "magnitude": 0.12,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t13",
+        "magnitude": 0.67,
+        "phase": 3.4732,
+        "original_semantics": "Refactoring (HTTP config elements, JMX serialization)"
     },
     {
-        "test_id": "HtmlParserTester",
-        "magnitude": 0.21,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t14",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "HTTPSampler_Test",
-        "magnitude": 0.27,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t15",
+        "magnitude": 0.77,
+        "phase": 4.5553,
+        "original_semantics": "Refactoring (class renaming/redefinition, JMX serialization)"
     },
     {
-        "test_id": "HTTPSamplerFull_Test",
-        "magnitude": 0.27,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t16",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "URLRewritingModifier_Test",
-        "magnitude": 0.21,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t17",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "HtmlParser_Test",
-        "magnitude": 0.21,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t18",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "ProxyControl_Test",
-        "magnitude": 0.27,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t19",
+        "magnitude": 0.74,
+        "phase": 0.3142,
+        "original_semantics": "Refactoring (JMX serialization)"
     },
     {
-        "test_id": "HTTPArgument_Test",
-        "magnitude": 0.09,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t20",
+        "magnitude": 0.67,
+        "phase": 1.9199,
+        "original_semantics": "Refactoring (package structure, class relocation)"
     },
     {
-        "test_id": "HttpRequestHdr_Test",
-        "magnitude": 0.12,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t21",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "StatVisualizerModel_Test",
-        "magnitude": 0.18,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t22",
+        "magnitude": 0.67,
+        "phase": 3.4383,
+        "original_semantics": "Refactoring (logging)"
     },
     {
-        "test_id": "ValueReplacer_Test",
-        "magnitude": 0.21,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t23",
+        "magnitude": 0.77,
+        "phase": 2.4958,
+        "original_semantics": "New Feature (variable usage), Refactoring (variable handling)"
     },
     {
-        "test_id": "CollectionProperty_Test",
-        "magnitude": 0.15,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t24",
+        "magnitude": 0.94,
+        "phase": 2.234,
+        "original_semantics": "Refactoring (JMX serialization, internal property handling)"
     },
     {
-        "test_id": "RegexExtractor_Test",
-        "magnitude": 0.18,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t25",
+        "magnitude": 0.32,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "CookieManager_Test",
-        "magnitude": 0.24,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t26",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     },
     {
-        "test_id": "HttpTestSampleGui_Test",
-        "magnitude": 0.12,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t27",
+        "magnitude": 0.67,
+        "phase": 1.0123,
+        "original_semantics": "Refactoring (GUI element visibility, class renaming/redefinition)"
     },
     {
-        "test_id": "AnchorModifier_Test",
-        "magnitude": 0.21,
-        "phase": 0.192,
-        "original_semantics": "no_change"
+        "test_id": "t28",
+        "magnitude": 0.22,
+        "phase": 0.0175,
+        "original_semantics": "None directly related"
     }
 ]
