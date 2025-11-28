@@ -1,142 +1,142 @@
 {
-    "Load_Test": {
-        "relevance": 0.0,
-        "complexity": 0.5,
-        "change_nature": "no_change"
-    },
-    "Save_Test": {
-        "relevance": 0.0,
-        "complexity": 0.5,
-        "change_nature": "no_change"
-    },
-    "TreeCloner_Test": {
-        "relevance": 0.0,
-        "complexity": 0.8,
-        "change_nature": "no_change"
-    },
-    "TestCompiler_Test": {
-        "relevance": 0.0,
-        "complexity": 0.8,
-        "change_nature": "no_change"
-    },
-    "JMeterTest": {
-        "relevance": 0.0,
-        "complexity": 0.5,
-        "change_nature": "no_change"
-    },
-    "SaveService_Test": {
-        "relevance": 0.0,
+    "t1": {
+        "relevance": 1.0,
         "complexity": 0.9,
-        "change_nature": "no_change"
+        "change_nature": "Refactoring (JMX format)"
     },
-    "StringUtilities_Test": {
-        "relevance": 0.0,
-        "complexity": 0.1,
-        "change_nature": "no_change"
+    "t2": {
+        "relevance": 1.0,
+        "complexity": 0.9,
+        "change_nature": "Refactoring (JMX format)"
     },
-    "ArgumentsPanel_Test": {
-        "relevance": 0.0,
-        "complexity": 0.4,
-        "change_nature": "no_change"
-    },
-    "OnceOnlyController_Test": {
-        "relevance": 0.0,
-        "complexity": 0.6,
-        "change_nature": "no_change"
-    },
-    "GenericController_Test": {
-        "relevance": 0.0,
-        "complexity": 0.5,
-        "change_nature": "no_change"
-    },
-    "InterleaveControl_Test": {
-        "relevance": 0.0,
-        "complexity": 0.6,
-        "change_nature": "no_change"
-    },
-    "LoopController_Test": {
-        "relevance": 0.0,
-        "complexity": 0.6,
-        "change_nature": "no_change"
-    },
-    "UrlConfigTest": {
-        "relevance": 0.0,
-        "complexity": 0.4,
-        "change_nature": "no_change"
-    },
-    "HtmlParserTester": {
-        "relevance": 0.0,
+    "t3": {
+        "relevance": 0.8,
         "complexity": 0.7,
-        "change_nature": "no_change"
+        "change_nature": "Refactoring (test element structure)"
     },
-    "HTTPSampler_Test": {
-        "relevance": 0.0,
-        "complexity": 0.9,
-        "change_nature": "no_change"
-    },
-    "HTTPSamplerFull_Test": {
-        "relevance": 0.0,
-        "complexity": 0.9,
-        "change_nature": "no_change"
-    },
-    "URLRewritingModifier_Test": {
-        "relevance": 0.0,
+    "t4": {
+        "relevance": 0.8,
         "complexity": 0.7,
-        "change_nature": "no_change"
+        "change_nature": "Refactoring (test element structure, controller logic)"
     },
-    "HtmlParser_Test": {
-        "relevance": 0.0,
-        "complexity": 0.7,
-        "change_nature": "no_change"
-    },
-    "ProxyControl_Test": {
-        "relevance": 0.0,
+    "t5": {
+        "relevance": 0.9,
         "complexity": 0.9,
-        "change_nature": "no_change"
+        "change_nature": "Integration, Regression"
     },
-    "HTTPArgument_Test": {
-        "relevance": 0.0,
+    "t6": {
+        "relevance": 1.0,
+        "complexity": 0.9,
+        "change_nature": "Refactoring (serialization format)"
+    },
+    "t7": {
+        "relevance": 0.1,
         "complexity": 0.3,
-        "change_nature": "no_change"
+        "change_nature": "None directly related"
     },
-    "HttpRequestHdr_Test": {
-        "relevance": 0.0,
-        "complexity": 0.4,
-        "change_nature": "no_change"
-    },
-    "StatVisualizerModel_Test": {
-        "relevance": 0.0,
+    "t8": {
+        "relevance": 0.6,
         "complexity": 0.6,
-        "change_nature": "no_change"
+        "change_nature": "Refactoring (package structure, GUI components)"
     },
-    "ValueReplacer_Test": {
-        "relevance": 0.0,
-        "complexity": 0.7,
-        "change_nature": "no_change"
+    "t9": {
+        "relevance": 0.9,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (internal implementation, JMX serialization)"
     },
-    "CollectionProperty_Test": {
-        "relevance": 0.0,
+    "t10": {
+        "relevance": 0.9,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (class relocation/redefinition, JMX serialization)"
+    },
+    "t11": {
+        "relevance": 1.0,
+        "complexity": 0.9,
+        "change_nature": "New Feature, Refactoring (control flow logic, JMX serialization)"
+    },
+    "t12": {
+        "relevance": 0.9,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (class relocation/redefinition, JMX serialization), New Feature (property)"
+    },
+    "t13": {
+        "relevance": 0.7,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (HTTP config elements, JMX serialization)"
+    },
+    "t14": {
+        "relevance": 0.1,
         "complexity": 0.5,
-        "change_nature": "no_change"
+        "change_nature": "None directly related"
     },
-    "RegexExtractor_Test": {
-        "relevance": 0.0,
-        "complexity": 0.6,
-        "change_nature": "no_change"
-    },
-    "CookieManager_Test": {
-        "relevance": 0.0,
-        "complexity": 0.8,
-        "change_nature": "no_change"
-    },
-    "HttpTestSampleGui_Test": {
-        "relevance": 0.0,
-        "complexity": 0.4,
-        "change_nature": "no_change"
-    },
-    "AnchorModifier_Test": {
-        "relevance": 0.0,
+    "t15": {
+        "relevance": 0.8,
         "complexity": 0.7,
-        "change_nature": "no_change"
+        "change_nature": "Refactoring (class renaming/redefinition, JMX serialization)"
+    },
+    "t16": {
+        "relevance": 0.1,
+        "complexity": 0.5,
+        "change_nature": "None directly related"
+    },
+    "t17": {
+        "relevance": 0.1,
+        "complexity": 0.5,
+        "change_nature": "None directly related"
+    },
+    "t18": {
+        "relevance": 0.1,
+        "complexity": 0.5,
+        "change_nature": "None directly related"
+    },
+    "t19": {
+        "relevance": 0.8,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (JMX serialization)"
+    },
+    "t20": {
+        "relevance": 0.7,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (package structure, class relocation)"
+    },
+    "t21": {
+        "relevance": 0.1,
+        "complexity": 0.5,
+        "change_nature": "None directly related"
+    },
+    "t22": {
+        "relevance": 0.7,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (logging)"
+    },
+    "t23": {
+        "relevance": 0.8,
+        "complexity": 0.7,
+        "change_nature": "New Feature (variable usage), Refactoring (variable handling)"
+    },
+    "t24": {
+        "relevance": 1.0,
+        "complexity": 0.8,
+        "change_nature": "Refactoring (JMX serialization, internal property handling)"
+    },
+    "t25": {
+        "relevance": 0.2,
+        "complexity": 0.6,
+        "change_nature": "None directly related"
+    },
+    "t26": {
+        "relevance": 0.1,
+        "complexity": 0.5,
+        "change_nature": "None directly related"
+    },
+    "t27": {
+        "relevance": 0.7,
+        "complexity": 0.6,
+        "change_nature": "Refactoring (GUI element visibility, class renaming/redefinition)"
+    },
+    "t28": {
+        "relevance": 0.1,
+        "complexity": 0.5,
+        "change_nature": "None directly related"
     }
 }
